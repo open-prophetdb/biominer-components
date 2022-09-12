@@ -21,7 +21,7 @@ jobs:
       #   run: yarn run pro fetch-blocks
 
       - name: site
-        run: npm run docs:build
+        run: npm run docs:build && cd docs-dist && echo 'ui-components.3steps.cn' > CNAME
         env:
           NODE_ENV: production
 
