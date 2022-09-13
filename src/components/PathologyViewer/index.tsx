@@ -4,10 +4,11 @@ import OpenSeadragon from 'openseadragon'
 import getLocale from './locales/index';
 import { PathologyViewerLocale } from './locales/index.t'
 import { PathologyViewerProps } from './index.t';
-import styles from './index.less';
+import './index.less';
 
 const PathologyViewer: React.FC<PathologyViewerProps> = (props) => {
     const {
+        style,
         locale,
         id,
         prefixUrl,
@@ -41,8 +42,8 @@ const PathologyViewer: React.FC<PathologyViewerProps> = (props) => {
     }, [id, prefixUrl, tileSources, showNavigator, degrees, showRotationControl]);
 
     return (
-        <Row className={styles.pathologyContainer}>
-            <div id={id} className={styles.viewer}></div>
+        <Row className='pathology-viewer' style={style}>
+            <div id={id} className='pathology-viewer__container'></div>
         </Row>
     );
 };

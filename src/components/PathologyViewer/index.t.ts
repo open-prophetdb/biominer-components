@@ -32,4 +32,9 @@ export interface PathologyViewerProps {
      * @default            true
      */       
     showRotationControl?: boolean;
+    /**
+     * @description        CSS style
+     * @default            undefined
+     */           
+    style?: React.CSSProperties;
 }
