@@ -50,3 +50,9 @@ $ yarn test
 ```bash
 $ yarn build
 ```
+
+### Publish library to npm
+
+```bash
+$ npm publish .
+```
