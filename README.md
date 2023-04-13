@@ -1,33 +1,52 @@
-# biominer-components
+# BioMiner Components
+
+A set of React components for BioInformatics. such as Gene/Transcript Map from GTex Portal, Pathology Image Viewer, etc.
+
+## Demo
+
+More details on [ui-components.3steps.cn](https://ui-components.3steps.cn)
 
 ## Getting Started
 
-Install dependencies,
+### Clone the repository
 
 ```bash
-$ npm i
+git clone github.com/yjcyxky/biominer-components.git
+cd biominer-components
 ```
 
-Start the dev server,
+### Install dependencies,
 
 ```bash
-$ npm start
+$ yarn
 ```
 
-Build documentation,
+### Start the dev server,
 
 ```bash
-$ npm run docs:build
+$ yarn start
 ```
 
-Run test,
+### Publish docs to github pages
 
 ```bash
-$ npm test
+yarn deploy
 ```
 
-Build library via `father`,
+### Build documentation
 
 ```bash
-$ npm run build
+$ yarn docs:build
+```
+
+### Run test
+
+```bash
+$ yarn test
+```
+
+### Build library via `father`
+
+```bash
+$ yarn build
 ```

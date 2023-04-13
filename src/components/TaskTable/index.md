@@ -1,12 +1,12 @@
 ---
-title: TableTable
+title: TaskTable
 group:
   path: /components/viewer
   title: Viewer
   order: 1
 ---
 
-## TableTable
+## TaskTable
 
 ### Default Parameters
 
@@ -14,9 +14,7 @@ group:
 import React from 'react';
 import { TaskTable } from 'biominer-components';
 
-export default () => (
-  <TaskTable style={{height: 500}} />
-);
+export default () => <TaskTable style={{ height: 500 }} />;
 ```
 
 <API></API>
