@@ -8,7 +8,7 @@ group:
 
 ## GTexTranscriptViewer
 
-### Default Parameters
+### IsoformTransposed Type
 
 ```tsx
 import React from 'react';
@@ -16,10 +16,42 @@ import { GTexTranscriptViewer } from 'biominer-components';
 
 export default () => (
   <GTexTranscriptViewer
-    rootId="gtex-transcript-viewer"
+    rootId="gtex-transcript-viewer-isoform-transposed"
     title="GTex Transcript Viewer"
     geneId="ENSG00000141510"
-    transcriptType="isoformTransposed"
+    type="isoformTransposed"
+  />
+);
+```
+
+### Isoform Type
+
+```tsx
+import React from 'react';
+import { GTexTranscriptViewer } from 'biominer-components';
+
+export default () => (
+  <GTexTranscriptViewer
+    rootId="gtex-transcript-viewer-isoform"
+    title="GTex Transcript Viewer"
+    geneId="ENSG00000141510"
+    type="exon"
+  />
+);
+```
+
+### Junction Type
+
+```tsx
+import React from 'react';
+import { GTexTranscriptViewer } from 'biominer-components';
+
+export default () => (
+  <GTexTranscriptViewer
+    rootId="gtex-transcript-viewer-junction"
+    title="GTex Transcript Viewer"
+    geneId="ENSG00000141510"
+    type="junction"
   />
 );
 ```

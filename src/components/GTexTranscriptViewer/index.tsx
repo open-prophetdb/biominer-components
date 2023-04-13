@@ -1,20 +1,30 @@
 import React, { useRef, useEffect } from 'react';
-import $ from 'jquery';
-import { render as transcriptBrowerRender } from 'gtex-d3/src/TranscriptBrowser';
-
+import { TranscriptBrowser } from 'gtex-d3';
 import './index.less';
 
 type TranscriptViewerProps = {
+  /**
+   * @description The id of the container element, if you want to render multiple plots in the same page, you need to specify different rootId for each plot.
+   */
   rootId: string;
-  geneId: string; // Only support Hugo gene symbol or Ensembl gene ID. e.g. "TP53" or "ENSG00000141510"
+  /**
+   * @description Only support Hugo gene symbol or Ensembl gene ID. e.g. "TP53" or "ENSG00000141510"
+   */
+  geneId: string;
+  /**
+   * @description The title of the plot
+   */
   title?: string;
-  transcriptType: 'exon' | 'junction' | 'isoformTransposed';
+  /**
+   * @description The type of the plot
+   */
+  type: 'exon' | 'junction' | 'isoformTransposed';
 };
 
 const GTexTranscriptViewer: React.FC<TranscriptViewerProps> = (props) => {
   const ref = useRef(null);
 
-  const { rootId, transcriptType, geneId, title } = props;
+  const { rootId, type, geneId, title } = props;
 
   const removeChildren = (tag: HTMLElement) => {
     if (tag.children) {
@@ -28,18 +38,15 @@ const GTexTranscriptViewer: React.FC<TranscriptViewerProps> = (props) => {
       removeChildren(ref.current as HTMLElement);
     }
 
-    // Set the jQuery variable to the same as the one used by the GTex library
-    window.$ = $;
-
     // (Re)render the plot
-    transcriptBrowerRender(transcriptType, geneId, rootId);
+    TranscriptBrowser.render(type, geneId, rootId);
   };
 
   useEffect(() => {
     if (ref.current) {
       update();
     }
-  }, [rootId, transcriptType, geneId]);
+  }, [rootId, type, geneId]);
 
   return (
     <div className="gtex-transcript-viewer">
