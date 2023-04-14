@@ -1,9 +1,8 @@
 ---
 title: GTexTranscriptViewer
 group:
-  path: /components/viewer
-  title: Viewer
-  order: 1
+  path: /components/omics-data
+  title: Omics Data
 ---
 
 ## GTexTranscriptViewer

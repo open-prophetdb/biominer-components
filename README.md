@@ -1,6 +1,6 @@
 # BioMiner Components
 
-A set of React components for BioInformatics. such as Gene/Transcript Map from GTex Portal, Pathology Image Viewer, etc.
+A set of React components for BioInformatics, such as Gene/Transcript Map from GTex Portal, Pathology Image Viewer, etc.
 
 ## Demo
 

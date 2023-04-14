@@ -1,9 +1,8 @@
 ---
 title: PathologyViewer
 group:
-  path: /components/viewer
-  title: Viewer
-  order: 1
+  path: /components/pathology
+  title: Pathology
 ---
 
 ## PathologyViewer
@@ -15,7 +14,11 @@ import React from 'react';
 import { PathologyViewer } from 'biominer-components';
 
 export default () => (
-  <PathologyViewer style={{height: 500, backgroundColor: '#fff'}} id="test-pathology" tileSources="https://openseadragon.github.io/example-images/highsmith/highsmith.dzi" />
+  <PathologyViewer
+    style={{ height: 500, backgroundColor: '#fff' }}
+    id="test-pathology"
+    tileSources="https://openseadragon.github.io/example-images/highsmith/highsmith.dzi"
+  />
 );
 ```
 
@@ -26,7 +29,14 @@ import React from 'react';
 import { PathologyViewer } from 'biominer-components';
 
 export default () => (
-  <PathologyViewer style={{height: 500}} id="test-pathology-1" tileSources="https://openseadragon.github.io/example-images/highsmith/highsmith.dzi" showNavigator={false} degrees={60} showRotationControl={false} />
+  <PathologyViewer
+    style={{ height: 500 }}
+    id="test-pathology-1"
+    tileSources="https://openseadragon.github.io/example-images/highsmith/highsmith.dzi"
+    showNavigator={false}
+    degrees={60}
+    showRotationControl={false}
+  />
 );
 ```
 
