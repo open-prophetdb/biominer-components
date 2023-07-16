@@ -4,3 +4,4 @@ export { default as GTexTranscriptViewer } from './components/GTexTranscriptView
 export { default as GTexGeneBoxplotViewer } from './components/GTexGeneBoxplotViewer';
 export { default as GTexGeneViolinViewer } from './components/GTexGeneViolinViewer';
 export { default as GuideScoperViewer } from './components/GuideScoperViewer';
+export { default as MarkdownViewer } from './components/MarkdownViewer';

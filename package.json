@@ -33,6 +33,7 @@
     "@types/openseadragon": "^3.0.3",
     "gtex-d3": "thehyve/gtex-viz#7c822b0",
     "openseadragon": "^3.1.0",
+    "react-markdown": "^8.0.7",
     "viewerjs": "^1.10.5"
   },
   "devDependencies": {

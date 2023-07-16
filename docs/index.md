@@ -14,6 +14,6 @@ features:
     desc: You may need a set of components for BioInformatics
   - icon: https://gw.alipayobjects.com/zos/bmw-prod/d1ee0c6f-5aed-4a45-a507-339a4bfe076c/k7bjsocq_w144_h144.png
     title: Open Source
-    desc: You can find the source code on GitHub
+    desc: You can find the source code on [GitHub](https://github.com/yjcyxky/biominer-components)
 footer: Open-source MIT Licensed | Copyright © 2020<br />Powered by [BioMiner Team](https://biominer.3steps.cn)
 ---
