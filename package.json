@@ -30,8 +30,10 @@
     ]
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.4.2",
     "@types/openseadragon": "^3.0.3",
     "gtex-d3": "thehyve/gtex-viz#7c822b0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "openseadragon": "^3.1.0",
     "plotly.js": "^2.24.3",
@@ -39,14 +41,18 @@
     "react-markdown": "^8.0.7",
     "react-plotly.js": "^2.6.0",
     "react-textarea-autosize": "^8.5.2",
-    "viewerjs": "^1.10.5"
+    "viewerjs": "^1.10.5",
+    "voca": "^1.4.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^13.0.0",
     "@types/jest": "^27.0.3",
+    "@types/lodash": "^4.14.195",
+    "@types/voca": "^1.4.2",
     "@umijs/fabric": "^2.8.1",
     "@umijs/test": "^3.0.5",
+    "antd": "^5.7.0",
     "dumi": "^1.1.0",
     "father": "^4.0.3",
     "file-saver": "^2.0.1",

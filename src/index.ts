@@ -8,3 +8,4 @@ export { default as MarkdownViewer } from './components/MarkdownViewer';
 // @ts-ignore
 export { default as ReactChatPlugin, AiIcon, UserIcon } from './components/ReactChatPlugin';
 export { default as PlotlyViewer } from './components/PlotlyViewer';
+export { default as KnowledgeGraphEditor } from './components/KnowledgeGraphEditor';
