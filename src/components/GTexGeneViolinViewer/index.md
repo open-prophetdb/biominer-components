@@ -1,8 +1,8 @@
 ---
 title: GTexGeneViolinViewer
 group:
-  path: /components/omics-data
-  title: Omics Data
+  path: /components/visualization-components
+  title: Visualization
 ---
 
 ## GTexGeneViolinViewer
