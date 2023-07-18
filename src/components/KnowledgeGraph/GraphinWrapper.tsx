@@ -27,7 +27,7 @@ import {
   CloudServerOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
-import DataArea from './DataArea';
+import StatisticsDataArea from '../StatisticsDataArea';
 import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu } from 'antd';
 import { makeDataSource, layouts, prepareGraphData } from './utils';
 import type {
@@ -42,7 +42,6 @@ import type {
 } from './typings';
 import ShowPaths from './Components/ShowPaths';
 import { GraphLayoutPredict } from '@antv/vis-predict-engine';
-import type { GraphHistoryItem } from './GraphStore/typings';
 import voca from 'voca';
 import './GraphinWrapper.less';
 
@@ -182,7 +181,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       props.onChange(menuItem, sourceNode, targetNode, edge, graph, apis);
       setVisible(false);
     } else {
-      message.warn('Cannot catch the changes.');
+      message.warning('Cannot catch the changes.');
     }
   };
 
@@ -321,7 +320,7 @@ const NodeMenu = (props: NodeMenuProps) => {
         props.onChange(menuItem, node, graph, apis);
         setVisible(false);
       } else {
-        message.warn('Cannot catch the changes.');
+        message.warning('Cannot catch the changes.');
       }
     }
   };
@@ -340,7 +339,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
   const context = contextmenu.canvas;
   const handleDownloadCanvas = () => {
     if (graph.getNodes().length == 0) {
-      message.warn('No data to download');
+      message.warning('No data to download');
       return;
     }
 
@@ -355,7 +354,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     const payload = prepareGraphData(graph);
 
     if (payload.data.nodes.length == 0) {
-      message.warn('No data to download');
+      message.warning('No data to download');
       return;
     }
 
@@ -393,7 +392,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       props.onClearGraph();
       message.info(`Clear canvas successfully`);
     } else {
-      message.warn(`Cannot clear canvas`);
+      message.warning(`Cannot clear canvas`);
     }
     context.handleClose();
   };
@@ -981,7 +980,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                           message.error(`Failed to predict layout: ${err.message}`);
                         });
                     } else if (value == 'graphin-force') {
-                      message.warn(
+                      message.warning(
                         `The layout '${value}' may not work well with the device which doesn't support GPU.`,
                       );
                       const l = layouts.find((item) => item.type === value);
@@ -1205,20 +1204,22 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                 setExplanationPanelVisible(false);
               }}
             >
-              TODO: generate explanations for the current edge
-              <br />
-              1. Get the current edge, the source node and target node
-              <br />
-              2. Send the source node and target node to the backend and get the prompt (markdown
-              format) which contains the prompt and api codes for retrieving context information
-              <br />
-              3. Send the markdown to the backend and get the filled markdown
-              <br />
-              4. Send the filled markdown to LLM and generate explanations by using `rethinking with
-              retrieval` method
-              <br />
-              5. Show the filled markdown in the explanation panel
-              <br />
+              <p>
+                TODO: generate explanations for the current edge
+                <br />
+                1. Get the current edge, the source node and target node
+                <br />
+                2. Send the source node and target node to the backend and get the prompt (markdown
+                format) which contains the prompt and api codes for retrieving context information
+                <br />
+                3. Send the markdown to the backend and get the filled markdown
+                <br />
+                4. Send the filled markdown to LLM and generate explanations by using `rethinking
+                with retrieval` method
+                <br />
+                5. Show the filled markdown in the explanation panel
+                <br />
+              </p>
             </Moveable>
           ) : null
         }
@@ -1266,7 +1267,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         {settings.miniMapEnabled ? <MiniMap /> : null}
         {settings.snapLineEnabled ? <SnapLine options={snapLineOptions} visible /> : null}
         {settings.infoPanelEnabled ? (
-          <DataArea
+          <StatisticsDataArea
             data={props.statistics}
             style={{
               position: 'absolute',
@@ -1274,7 +1275,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               left: '0px',
               zIndex: 1,
             }}
-          ></DataArea>
+          ></StatisticsDataArea>
         ) : null}
         <CustomGraphinContext.Provider
           value={{

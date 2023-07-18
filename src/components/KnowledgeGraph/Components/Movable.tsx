@@ -11,6 +11,7 @@ type MovableProps = {
   top?: string;
   right?: string;
   help?: string | JSX.Element;
+  children?: JSX.Element | JSX.Element[];
 };
 
 const Movable: React.FC<MovableProps> = (props) => {

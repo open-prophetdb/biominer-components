@@ -1,7 +1,8 @@
 import { Form, Select, Empty, Switch, Radio, InputNumber, message, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { makeQueryStr, getRelationshipOption, makeRelationshipTypes, getMaxDigits } from '../utils';
-import { OptionType, SearchObject, EdgeStat, APIs } from '../typings';
+import { OptionType, SearchObject, EdgeStat } from '../typings';
+import { APIs } from '../index.t';
 
 let timeout: ReturnType<typeof setTimeout> | null;
 

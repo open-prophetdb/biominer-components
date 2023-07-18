@@ -5,7 +5,7 @@ import Papa from 'papaparse';
 import type { UploadProps } from 'antd';
 import React, { useEffect, useState } from 'react';
 import type { DataType } from './TransferTable';
-import type { APIs } from '../typings';
+import type { APIs } from '../index.t';
 import { flatten, uniqBy } from 'lodash';
 
 type UploadNodeProps = {
@@ -17,7 +17,7 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
   const [dataSource, setDataSource] = useState<DataType[]>([]);
 
   const fetch = (nodes: { node_id: string; node_type: string }[]) => {
-    const groupedNodes = nodes.reduce((acc, obj) => {
+    const groupedNodes = nodes.reduce((acc: any, obj) => {
       const { node_type, node_id } = obj;
       if (acc[node_type]) {
         acc[node_type].push(node_id);
@@ -73,7 +73,7 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
               }
 
               // Map the values to the corresponding keys in the objects
-              return row.reduce((acc, val, i) => {
+              return row.reduce((acc: any, val, i) => {
                 acc[data[0][i]] = val;
                 return acc;
               }, {});

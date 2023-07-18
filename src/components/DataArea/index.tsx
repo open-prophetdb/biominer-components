@@ -1,10 +1,9 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Descriptions } from 'antd';
+import { DataAreaProps } from './index.t';
 
-const DataArea: React.FC<{ data: [ReactNode, string | number][]; style?: any }> = ({
-  data,
-  style,
-}) => {
+const DataArea: React.FC<DataAreaProps> = (props) => {
+  const { data, style } = props;
   const items = data.map((item, index) => {
     return (
       <Descriptions.Item key={index} label={item[0]}>

@@ -151,7 +151,7 @@ const TransferTable: React.FC<TransferTableProps> = (props) => {
 
   const submitData = () => {
     if (targetKeys.length === 0) {
-      message.warn('Please select at least one node from the left table.');
+      message.warning('Please select at least one node from the left table.');
       return;
     } else {
       props.onOk?.({

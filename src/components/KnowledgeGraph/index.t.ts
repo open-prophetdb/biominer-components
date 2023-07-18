@@ -1,4 +1,4 @@
-import { GetGeneInfoFn, GetItems4GenePanelFn } from './NodeInfoPanel/typings';
+import { GetGeneInfoFn, GetItems4GenePanelFn } from '../NodeInfoPanel/index.t';
 
 // ------------------ APIs ------------------
 export type NodeTypesResponse = {

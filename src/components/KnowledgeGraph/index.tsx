@@ -36,10 +36,10 @@ import {
 } from './utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
-import GraphTable from './GraphStore/GraphTable';
-import GraphForm from './GraphStore/GraphForm';
+import GraphStoreTable from '../GraphStoreTable';
+import GraphStoreForm from '../GraphStoreForm';
 import type { Graph } from '@antv/graphin';
-import type { GraphHistoryItem, GraphHistoryItemPayload } from './GraphStore/typings';
+import type { GraphHistoryItem, GraphHistoryItemPayload } from '../GraphStoreTable/index.t';
 import {
   SearchObject,
   GraphData,
@@ -54,6 +54,7 @@ import Movable from './Components/Movable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
 import { KnowledgeGraphProps } from './index.t';
+import type { StatisticsData } from '../StatisticsDataArea/index.t';
 import type { EntityStat, RelationStat } from '../StatisticsChart/index.t';
 import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
 
@@ -80,7 +81,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     edges: [],
   });
 
-  const [statistics, setStatistics] = useState<[ReactNode, string | number | ReactNode][]>([]);
+  const [statistics, setStatistics] = useState<StatisticsData>({} as StatisticsData);
   const [nodeColumns, setNodeColumns] = useState<TableColumnType<any>[]>([]);
   const [nodeDataSources, setNodeDataSources] = useState<Array<Record<string, any>>>([]);
   const [edgeColumns, setEdgeColumns] = useState<TableColumnType<any>[]>([]);
@@ -193,38 +194,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setEdgeColumns(edgeColumns);
     console.log('Node & Edge Columns: ', nodeColumns, edgeColumns);
 
-    setStatistics([
-      [
-        <span>
-          Nodes <Tag color="#2db7f5">Canvas</Tag>
-        </span>,
-        data.nodes.length,
-      ],
-      [
-        <span>
-          Edges <Tag color="#2db7f5">Canvas</Tag>
-        </span>,
-        data.edges.length,
-      ],
-      [
-        <span>
-          Nodes <Tag color="#108ee9">KGraph</Tag>
-        </span>,
-        stat_total_node_count(nodeStat),
-      ],
-      [
-        <span>
-          Edges <Tag color="#108ee9">KGraph</Tag>
-        </span>,
-        stat_total_relation_count(edgeStat),
-      ],
-      [
-        <span>
-          Status <Tag color="#2db7f5">Canvas</Tag>
-        </span>,
-        DirtyStatus(isDirty, currentGraphUUID),
-      ],
-    ]);
+    setStatistics({
+      numNodes: data.nodes.length,
+      numEdges: data.edges.length,
+      numAllNodes: stat_total_node_count(nodeStat),
+      numAllEdges: stat_total_relation_count(edgeStat),
+      isDirty: isDirty,
+      currentParentUUID: currentGraphUUID,
+    });
   }, [data, edgeStat, nodeStat, currentGraphUUID]);
 
   const loadGraphs = () => {
@@ -922,7 +899,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   ></SimilarityChart>
                 </Movable>
               ) : null}
-              <GraphTable
+              <GraphStoreTable
                 visible={graphTableVisible}
                 graphs={graphHistory}
                 onLoad={onLoadGraph}
@@ -936,8 +913,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   onSubmitGraph(graphHistory);
                 }}
                 selectedGraphId={currentGraphUUID}
-              ></GraphTable>
-              <GraphForm
+              ></GraphStoreTable>
+              <GraphStoreForm
                 visible={graphFormVisible}
                 payload={graphFormPayload}
                 parent={document.getElementById('knowledge-graph-container') as HTMLElement}
@@ -949,7 +926,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     setGraphFormVisible(false);
                   });
                 }}
-              ></GraphForm>
+              ></GraphStoreForm>
             </GraphinWrapper>
             {contextHolder}
           </Col>
