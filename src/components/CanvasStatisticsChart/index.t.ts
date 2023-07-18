@@ -5,7 +5,7 @@ export type GraphNode = {
   nlabel: string;
   cluster: string;
   style: any;
-  category: 'nodes' | 'edges';
+  category: 'node';
   type: 'graphin-circle';
   data: Record<string, any>; // at least id, name
   x?: number;
@@ -15,7 +15,7 @@ export type GraphNode = {
 export type GraphEdge = {
   relid: string;
   source: string;
-  category: 'nodes' | 'edges';
+  category: 'edge';
   target: string;
   reltype: string;
   style: any;

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Empty, Button, Popover } from 'antd';
 import { filter, map } from 'lodash';
-import type { GraphNode } from '../typings';
-import type { GeneInfo } from './typings';
+import type { GeneInfo, GraphNode } from './index.t';
 import { SettingOutlined } from '@ant-design/icons';
 import { entityId2id } from './utils';
 
-import './GenePanel.less';
+import './index.less';
 
 type NodeInfoPanelProps = {
   node?: GraphNode;
