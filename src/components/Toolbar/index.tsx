@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Drawer } from 'antd';
+import { ToolbarProps } from './index.t';
 
-import './Toolbar.less';
-
-type ToolbarProps = {
-  position: 'right' | 'left' | 'top' | 'bottom' | undefined;
-  width?: string;
-  title?: string;
-  closable?: boolean;
-  maskVisible?: boolean;
-  height?: string;
-  visible?: boolean;
-  onClose?: () => void;
-  onClick?: (position: string) => void;
-  children?: React.ReactNode;
-};
+import './index.less';
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
   const { position, onClick } = props;
   const [drawerActive, setDrawerActive] = useState<boolean>(false);
+  const [container, setContainer] = useState<HTMLElement | false | undefined>(
+    props.container == 'body' ? document.body : false,
+  );
 
   useEffect(() => {
     if (props.visible) {
@@ -115,7 +106,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         width={props.width ? props.width : '300px'}
         height={props.height ? props.height : '300px'}
         title={props.title ? props.title : false}
-        getContainer={false}
+        getContainer={container}
         style={{ position: 'absolute' }}
         closable={props.closable ? props.closable : false}
         mask={props.maskVisible ? props.maskVisible : false}

@@ -17,8 +17,9 @@ import { uniqBy, partial } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
-import ComplexChart from './Chart/ComplexChart';
+import CanvasStatisticsChart from '../CanvasStatisticsChart';
 import StatisticsChart from '../StatisticsChart';
+import SimilarityChart from '../SimilarityChart';
 // import ReactResizeDetector from 'react-resize-detector';
 import {
   makeColumns,
@@ -49,17 +50,12 @@ import {
   EdgeInfo,
   DimensionArray,
 } from './typings';
-import SimilarityChart from './Chart/SimilarityChart';
 import Movable from './Components/Movable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
-import {
-  KnowledgeGraphProps,
-  EntityStat,
-  RelationStat,
-  stat_total_relation_count,
-  stat_total_node_count,
-} from './index.t';
+import { KnowledgeGraphProps } from './index.t';
+import type { EntityStat, RelationStat } from '../StatisticsChart/index.t';
+import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
 
 import './index.less';
 
@@ -809,7 +805,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               <StatisticsChart nodeStat={nodeStat} edgeStat={edgeStat}></StatisticsChart>
             </Toolbar>
             <Toolbar position="left" width={'60%'} title="Charts" closable={true}>
-              <ComplexChart data={data}></ComplexChart>
+              <CanvasStatisticsChart data={data}></CanvasStatisticsChart>
             </Toolbar>
             <Toolbar
               position="right"

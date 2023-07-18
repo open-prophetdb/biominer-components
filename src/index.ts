@@ -14,3 +14,4 @@ export { default as KnowledgeGraphEditor } from './components/KnowledgeGraphEdit
 export { default as StatisticsChart } from './components/StatisticsChart';
 export { default as SimilarityChart } from './components/SimilarityChart';
 export { default as CanvasStatisticsChart } from './components/CanvasStatisticsChart';
+export { default as Toolbar } from './components/Toolbar';
