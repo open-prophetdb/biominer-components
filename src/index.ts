@@ -17,3 +17,4 @@ export { default as SimilarityChart } from './components/SimilarityChart';
 export { default as CanvasStatisticsChart } from './components/CanvasStatisticsChart';
 export { default as Toolbar } from './components/Toolbar';
 export { default as NodeInfoPanel } from './components/NodeInfoPanel';
+export { default as EdgeInfoPanel } from './components/EdgeInfoPanel';

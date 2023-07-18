@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Row, Empty } from 'antd';
-import type { EdgeInfo } from '../typings';
+import type { EdgeInfoPanelProps } from './index.t';
 import DrugGene from './DrugGenePanel';
 import DrugDisease from './DrugDiseasePanel';
 import GeneDisease from './DiseaseGenePanel';
 
 import './index.less';
-
-type EdgeInfoPanelProps = {
-  edgeInfo?: EdgeInfo;
-};
 
 const EdgeInfoPanel: React.FC<EdgeInfoPanelProps> = (props) => {
   const { edge, startNode, endNode } = props.edgeInfo || {

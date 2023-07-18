@@ -34,8 +34,8 @@ import {
   getSelectedNodes,
   processEdges,
 } from './utils';
-import NodeInfoPanel from './NodeInfoPanel';
-import EdgeInfoPanel from './EdgeInfoPanel';
+import NodeInfoPanel from '../NodeInfoPanel';
+import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphTable from './GraphStore/GraphTable';
 import GraphForm from './GraphStore/GraphForm';
 import type { Graph } from '@antv/graphin';
