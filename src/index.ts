@@ -18,3 +18,5 @@ export { default as CanvasStatisticsChart } from './components/CanvasStatisticsC
 export { default as Toolbar } from './components/Toolbar';
 export { default as NodeInfoPanel } from './components/NodeInfoPanel';
 export { default as EdgeInfoPanel } from './components/EdgeInfoPanel';
+export { default as GraphStoreForm } from './components/GraphStoreForm';
+export { default as GraphStoreTable } from './components/GraphStoreTable';
