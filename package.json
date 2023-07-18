@@ -38,6 +38,7 @@
     "openseadragon": "^3.1.0",
     "plotly.js": "^2.24.3",
     "react-chart-editor": "^0.45.0",
+    "react-full-screen": "^1.1.1",
     "react-markdown": "^8.0.7",
     "react-plotly.js": "^2.6.0",
     "react-textarea-autosize": "^8.5.2",
@@ -45,6 +46,7 @@
     "voca": "^1.4.1"
   },
   "devDependencies": {
+    "@antv/graphin": "^2.7.22",
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^13.0.0",
     "@types/jest": "^27.0.3",
