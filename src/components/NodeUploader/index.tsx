@@ -4,16 +4,10 @@ import { UploadOutlined } from '@ant-design/icons';
 import Papa from 'papaparse';
 import type { UploadProps } from 'antd';
 import React, { useEffect, useState } from 'react';
-import type { DataType } from './TransferTable';
-import type { APIs } from '../index.t';
+import type { NodeUploaderProps, DataType } from './index.t';
 import { flatten, uniqBy } from 'lodash';
 
-type UploadNodeProps = {
-  onUpload: (data: DataType[]) => void;
-  getLabels: APIs['GetLabelsFn'];
-};
-
-const UploadNode: React.FC<UploadNodeProps> = (props) => {
+const NodeUploader: React.FC<NodeUploaderProps> = (props) => {
   const [dataSource, setDataSource] = useState<DataType[]>([]);
 
   const fetch = (nodes: { node_id: string; node_type: string }[]) => {
@@ -30,9 +24,27 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
     const nodeTypes = Object.keys(groupedNodes);
     console.log('UploadNode fetch: ', groupedNodes, nodeTypes);
     const promises = nodeTypes.map((nodeType) => {
-      return props.getLabels({
-        query_str: `{:select [:*] :where [:in :id ${JSON.stringify(groupedNodes[nodeType])}]}`,
-        label_type: nodeType,
+      const nodeIds = groupedNodes[nodeType];
+      const query = {
+        operator: 'and',
+        items: [
+          {
+            operator: 'in',
+            field: 'id',
+            value: nodeIds,
+          },
+          {
+            operator: '=',
+            field: 'label',
+            value: nodeType,
+          },
+        ],
+      };
+      return props.getEntities({
+        query_str: JSON.stringify(query),
+        page: 1,
+        // TODO: Whether the page size will be greater than 100?
+        page_size: 100,
       });
     });
 
@@ -40,7 +52,7 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
   };
 
   useEffect(() => {
-    props.onUpload(dataSource);
+    props.onUpload && props.onUpload(dataSource);
   }, [dataSource]);
 
   const uploadProps: UploadProps = {
@@ -116,7 +128,7 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
                 .then((res) => {
                   const matchedData = flatten(
                     res.map((data, index) => {
-                      return data.data;
+                      return data.records;
                     }),
                   );
 
@@ -148,6 +160,7 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
                 })
                 .catch((err) => {
                   console.log(err);
+                  message.error('Failed to match any nodes with our database.');
                 });
             } else {
               message.error('No satisfied data in the uploaded file');
@@ -174,4 +187,4 @@ const UploadNode: React.FC<UploadNodeProps> = (props) => {
   );
 };
 
-export default UploadNode;
+export default NodeUploader;

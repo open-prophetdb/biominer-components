@@ -22,3 +22,4 @@ export { default as GraphStoreForm } from './components/GraphStoreForm';
 export { default as GraphStoreTable } from './components/GraphStoreTable';
 export { default as DataArea } from './components/DataArea';
 export { default as StatisticsDataArea } from './components/StatisticsDataArea';
+export { default as NodeUploader } from './components/NodeUploader';
