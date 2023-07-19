@@ -12,7 +12,7 @@ import {
   SettingFilled,
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
-import Toolbar from './Toolbar';
+import Toolbar from '../Toolbar';
 import { uniqBy, partial } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
@@ -39,23 +39,22 @@ import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
 import GraphStoreForm from '../GraphStoreForm';
 import type { Graph } from '@antv/graphin';
-import type { GraphHistoryItem, GraphHistoryItemPayload } from '../GraphStoreTable/index.t';
-import {
+import type {
+  GraphHistoryItem,
+  GraphHistoryItemPayload,
   SearchObject,
   GraphData,
   GraphEdge,
+  EntityStat,
+  RelationStat,
   GraphNode,
-  NodeStat,
-  EdgeStat,
-  EdgeInfo,
-  DimensionArray,
-} from './typings';
-import Movable from './Components/Movable';
+} from '../typings';
+import { DimensionArray, EdgeInfo } from './typings';
+import Movable from '../Movable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
 import { KnowledgeGraphProps } from './index.t';
 import type { StatisticsData } from '../StatisticsDataArea/index.t';
-import type { EntityStat, RelationStat } from '../StatisticsChart/index.t';
 import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
 
 import './index.less';

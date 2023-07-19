@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Space, Table, Modal, Button, Tree, Col, Row } from 'antd';
-import type { GraphHistoryItem, TreeGraph, GraphTableProps } from './index.t';
+import type { GraphHistoryItem } from '../typings';
+import type { TreeGraph, GraphTableProps } from './index.t';
 import type { ColumnsType } from 'antd/es/table';
 import UploadGraph from './UploadGraph';
 import type { DataNode, DirectoryTreeProps } from 'antd/es/tree';

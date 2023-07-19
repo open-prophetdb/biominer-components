@@ -2,7 +2,7 @@ import React from 'react';
 import { message, Upload, Button, notification } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import type { GraphHistoryItem } from './index.t';
+import type { GraphHistoryItem } from '../typings';
 
 type UploadNodeProps = {
   onUpload: (data: GraphHistoryItem) => void;
