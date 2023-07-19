@@ -24,3 +24,4 @@ export { default as DataArea } from './components/DataArea';
 export { default as StatisticsDataArea } from './components/StatisticsDataArea';
 export { default as NodeUploader } from './components/NodeUploader';
 export { default as Movable } from './components/Movable';
+export { default as TransferTable } from './components/TransferTable';

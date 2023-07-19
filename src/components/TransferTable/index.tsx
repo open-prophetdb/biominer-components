@@ -3,9 +3,10 @@ import { Table, Tag, Transfer, Button, Row, message } from 'antd';
 import type { ColumnsType, TableRowSelection } from 'antd/es/table/interface';
 import type { TransferProps } from 'antd/es/transfer';
 import difference from 'lodash/difference';
-import type { SearchObject } from '../typings';
+import filter from 'lodash/filter';
+import type { DataType, NodesSearchObject, TransferTableProps } from './index.t';
 
-import './TransferTable.less';
+import './index.less';
 
 const exampleData = [
   {
@@ -33,15 +34,6 @@ const downloadExampleFile = () => {
   link.click();
   document.body.removeChild(link);
 };
-
-export interface DataType {
-  key: string;
-  node_id: string;
-  node_type: string;
-  matched_id?: string;
-  matched_name?: string;
-  disabled?: boolean;
-}
 
 interface TableTransferProps extends TransferProps<DataType> {
   dataSource: DataType[];
@@ -140,12 +132,6 @@ const TableTransfer = ({ leftColumns, rightColumns, ...restProps }: TableTransfe
   </Transfer>
 );
 
-type TransferTableProps = {
-  dataSource: DataType[];
-  onCancel?: () => void;
-  onOk?: (searchObj: SearchObject) => void;
-};
-
 const TransferTable: React.FC<TransferTableProps> = (props) => {
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
 
@@ -154,10 +140,20 @@ const TransferTable: React.FC<TransferTableProps> = (props) => {
       message.warning('Please select at least one node from the left table.');
       return;
     } else {
+      // Get the matched entity types and the order of them are same as the targetKeys.
+      const matchedEntityTypes = targetKeys.map((key) => {
+        const matchedEntity = filter(props.dataSource, (item) => item.node_id === key);
+        return matchedEntity[0].node_type;
+      });
+
+      const search_object: NodesSearchObject = {
+        entity_ids: targetKeys,
+        entity_types: matchedEntityTypes,
+      };
+
       props.onOk?.({
-        node_ids: targetKeys,
         merge_mode: 'append',
-        mode: 'batchIds',
+        search_object,
       });
     }
   };
