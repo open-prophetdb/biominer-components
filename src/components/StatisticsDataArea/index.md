@@ -5,7 +5,7 @@ group:
   title: Knowledge Graph
 ---
 
-## DataArea
+## StatisticsDataArea
 
 ```tsx
 import React, { useState, useEffect } from 'react';

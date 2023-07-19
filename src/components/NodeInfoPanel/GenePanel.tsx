@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs, Empty, Button, Popover } from 'antd';
 import { filter, map } from 'lodash';
-import type { GeneInfo, GraphNode } from './index.t';
+import type { GeneInfo } from './index.t';
+import type { GraphNode } from '../typings';
 import { SettingOutlined } from '@ant-design/icons';
 import { entityId2id } from './utils';
 

@@ -1,31 +1,4 @@
-export type GraphNode = {
-  comboId: string;
-  id: string;
-  label: string;
-  nlabel: string;
-  cluster: string;
-  style: any;
-  category: 'node';
-  type: 'graphin-circle';
-  data: Record<string, any>; // at least id, name
-  x?: number;
-  y?: number;
-};
-
-export type GraphEdge = {
-  relid: string;
-  source: string;
-  category: 'edge';
-  target: string;
-  reltype: string;
-  style: any;
-  data: Record<string, any>;
-};
-
-export type GraphData = {
-  nodes: GraphNode[];
-  edges: GraphEdge[];
-};
+import type { GraphData } from '../typings';
 
 export type CanvasStatisticsChartProps = {
   /**

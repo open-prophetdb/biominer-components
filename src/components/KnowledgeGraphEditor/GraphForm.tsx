@@ -5,17 +5,14 @@ import { makeQueryEntityStr, getIdentity } from './utils';
 import { sortBy } from 'lodash';
 import v from 'voca';
 import MarkdownViewer from '../MarkdownViewer';
-import {
+import { RelationTypeDict, RelationType, GraphFormProps, OptionType } from './index.t';
+import type {
   Entity,
   EntityRecordsResponse,
   EntityStat,
   RelationStat,
   StatisticsResponse,
-  RelationTypeDict,
-  RelationType,
-  GraphFormProps,
-  OptionType,
-} from './typings';
+} from '../typings';
 
 import './GraphForm.less';
 

@@ -1,13 +1,4 @@
-export type Entity2D = {
-  entity_id: string;
-  entity_name: string;
-  entity_type: string;
-  umap_x?: number;
-  umap_y?: number;
-  tsne_x?: number;
-  tsne_y?: number;
-  color?: string;
-};
+import type { Entity2D } from '../typings';
 
 export type SimilarityChartProps = {
   selectedNodeIds?: string[];

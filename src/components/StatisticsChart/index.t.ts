@@ -1,18 +1,4 @@
-export type EntityStat = {
-  id: number;
-  resource: string;
-  entity_type: string;
-  entity_count: number;
-};
-
-export type RelationStat = {
-  id: number;
-  resource: string;
-  relation_type: string;
-  relation_count: number;
-  start_entity_type: string;
-  end_entity_type: string;
-};
+import type { EntityStat, RelationStat } from '../typings';
 
 export type StatisticsChartProps = {
   /**

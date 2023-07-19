@@ -1,4 +1,4 @@
-import { EntityStat, RelationStat } from './index.t';
+import type { EntityStat, RelationStat } from '../typings';
 
 export const stat_total_node_count = (stats: EntityStat[]) =>
   stats.reduce((acc, cur) => acc + cur.entity_count, 0);

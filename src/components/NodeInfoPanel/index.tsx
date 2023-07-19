@@ -3,7 +3,8 @@ import { Empty, Row } from 'antd';
 import DiseasePanel from './DiseasePanel';
 import DrugPanel from './DrugPanel';
 import GenePanel from './GenePanel';
-import type { NodeInfoPanelProps, GraphNode } from './index.t';
+import type { NodeInfoPanelProps } from './index.t';
+import type { GraphNode } from '../typings';
 
 import './index.less';
 
