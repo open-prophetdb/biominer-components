@@ -1,18 +1,9 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Popover } from 'antd';
 import Moveable from 'react-moveable';
 import { CloseOutlined, QuestionCircleFilled } from '@ant-design/icons';
-import './Movable.less';
-
-type MovableProps = {
-  onClose?: () => void;
-  width?: string;
-  title?: string;
-  top?: string;
-  right?: string;
-  help?: string | JSX.Element;
-  children?: JSX.Element | JSX.Element[];
-};
+import { MovableProps } from './index.t';
+import './index.less';
 
 const Movable: React.FC<MovableProps> = (props) => {
   const explanationPanelRef = useRef<HTMLDivElement>(null);
