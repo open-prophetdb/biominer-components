@@ -245,30 +245,6 @@ export interface SearchObjectInterface {
   merge_mode: MergeMode;
 }
 
-// Allow to predict the edges between two nodes.
-type SimilaritySearchObject = {
-  entity_id: string;
-  entity_type: string;
-  topk?: number;
-};
-
-export class SimilaritySearchObjectClass implements SearchObjectInterface {
-  data: SimilaritySearchObject;
-  merge_mode: MergeMode;
-
-  constructor(data: SimilaritySearchObject, merge_mode: MergeMode) {
-    this.data = data;
-    this.merge_mode = merge_mode;
-  }
-
-  process(apis: APIs): Promise<GraphData> {
-    // Not implemented yet.
-    return new Promise((resolve, reject) => {
-      resolve({ nodes: [], edges: [] });
-    });
-  }
-}
-
 type PathSearchObject = {
   source_entity_id: string;
   source_entity_type: string;
@@ -294,3 +270,9 @@ export class PathSearchObjectClass implements SearchObjectInterface {
     });
   }
 }
+
+export const MergeModeOptions = [
+  { label: 'Replace', value: 'replace' },
+  { label: 'Append', value: 'append' },
+  { label: 'Subtract', value: 'subtract' },
+];

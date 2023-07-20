@@ -1,17 +1,17 @@
 ---
-title: LinkedNodesSearcher
+title: SimilarityNodesSearcher
 group:
   path: /components/knowledge-graph-components
   title: Knowledge Graph
 ---
 
-## LinkedNodesSearcher
+## SimilarityNodesSearcher
 
 ```tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Row, Tag } from 'antd';
-import { LinkedNodesSearcher } from 'biominer-components';
+import { SimilarityNodesSearcher } from 'biominer-components';
 
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
@@ -28,18 +28,16 @@ const getStatistics = () => {
 
 export default () => {
   const [entityTypes, setEntityTypes] = useState([]);
-  const [relationStat, setRelationStat] = useState([]);
 
   useEffect(() => {
     getStatistics().then((data) => {
       setEntityTypes(data.entity_stat.map((item) => item.entity_type));
-      setRelationStat(data.relation_stat);
     });
   }, []);
 
   return (
     <Row style={{ position: 'relative', height: '500px', width: '800px' }}>
-      <LinkedNodesSearcher
+      <SimilarityNodesSearcher
         getEntities={(params) => {
           return new Promise((resolve, reject) => {
             axios
@@ -54,23 +52,8 @@ export default () => {
               });
           });
         }}
-        getRelationCounts={(params) => {
-          return new Promise((resolve, reject) => {
-            axios
-              .get('http://localhost:8000/api/v1/relation-counts', {
-                params: params,
-              })
-              .then((response) => {
-                resolve(response.data);
-              })
-              .catch((error) => {
-                reject(error);
-              });
-          });
-        }}
         entityTypes={entityTypes}
-        relationStat={relationStat}
-      ></LinkedNodesSearcher>
+      ></SimilarityNodesSearcher>
     </Row>
   );
 };

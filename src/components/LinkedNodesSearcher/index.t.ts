@@ -10,12 +10,36 @@ import type {
 } from '../typings';
 
 export type LinkedNodesSearcherProps = {
+  /**
+   * @description A function to get the entities.
+   */
   getEntities: APIs['GetEntitiesFn'];
+  /**
+   * @description A function to get the relation counts.
+   */
   getRelationCounts: APIs['GetRelationCountsFn'];
+  /**
+   * @description All the entity types that stored in the database.
+   */
   entityTypes: string[];
+  /**
+   * @description All the statistics of the relations.
+   */
   relationStat: RelationStat[];
+  /**
+   * @description A listener to listen the submit event.
+   * @default undefined
+   */
   onOk?: (searchObj: NodeEdgeSearchObjectClass) => void;
+  /**
+   * @description A listener to listen the cancel event.
+   * @default undefined
+   */
   onCancel?: () => void;
+  /**
+   * @description A initial search object.
+   * @default undefined
+   */
   searchObject?: NodeEdgeSearchObjectClass;
 };
 

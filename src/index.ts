@@ -26,3 +26,4 @@ export { default as NodeUploader } from './components/NodeUploader';
 export { default as Movable } from './components/Movable';
 export { default as TransferTable } from './components/TransferTable';
 export { default as LinkedNodesSearcher } from './components/LinkedNodesSearcher';
+export { default as SimilarityNodesSearcher } from './components/SimilarityNodesSearcher';

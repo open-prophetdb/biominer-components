@@ -3,7 +3,12 @@ import React, { useState, useEffect } from 'react';
 import type { LinkedNodesSearcherProps } from './index.t';
 import { NodeEdgeSearchObjectClass } from './index.t';
 import { makeRelationTypes, getMaxDigits, getRelationOption } from './utils';
-import { RelationCount, OptionType, ComposeQueryItem } from '../typings';
+import {
+  type RelationCount,
+  type OptionType,
+  type ComposeQueryItem,
+  MergeModeOptions,
+} from '../typings';
 import { stat_total_relation_count } from '../StatisticsChart/utils';
 import { makeQueryEntityStr } from '../KnowledgeGraphEditor/utils';
 import { sortBy, uniqBy } from 'lodash';
@@ -11,12 +16,6 @@ import { sortBy, uniqBy } from 'lodash';
 import './index.less';
 
 let timeout: ReturnType<typeof setTimeout> | null;
-
-const mergeModeOptions = [
-  { label: 'Replace', value: 'replace' },
-  { label: 'Append', value: 'append' },
-  { label: 'Subtract', value: 'subtract' },
-];
 
 const nStepsOptions = [
   { label: '1 Step', value: 1 },
@@ -201,6 +200,19 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
 
     setEntityTypeOptions(sortBy(uniqBy(entityTypeOptions, 'label'), 'label'));
   }, [props.entityTypes]);
+
+  useEffect(() => {
+    if (props.searchObject) {
+      form.setFieldsValue({
+        entity_type: props.searchObject.data.entity_type,
+        entity_id: props.searchObject.data.entity_id,
+        relation_types: props.searchObject.data.relation_types,
+        nsteps: props.searchObject.data.nsteps,
+        limit: props.searchObject.data.limit,
+        merge_mode: props.searchObject.merge_mode,
+      });
+    }
+  }, [props.searchObject]);
 
   useEffect(() => {
     setRelationTypeOptions(makeRelationTypes(props.relationStat));
@@ -388,7 +400,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       <Form.Item label="Merging Mode" name="merge_mode">
         <Select
           placeholder="Please select mode for merging nodes & relationships"
-          options={mergeModeOptions}
+          options={MergeModeOptions}
         ></Select>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 19, span: 5 }}>
