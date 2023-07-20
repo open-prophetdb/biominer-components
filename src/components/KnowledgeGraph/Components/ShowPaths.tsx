@@ -1,8 +1,9 @@
 import { GraphinContext } from '@antv/graphin';
 import React, { useContext, useEffect, useState } from 'react';
-import { GraphNode, GraphEdge, AdjacencyList } from '../typings';
+import type { GraphNode, GraphEdge } from '../../typings';
+import type { AdjacencyList } from '../typings';
 import { message, Button, Table, Row, Space, notification, Input } from 'antd';
-import Movable from './Movable';
+import Movable from '../../Movable';
 import type { InputRef } from 'antd';
 import type { FilterConfirmProps } from 'antd/es/table/interface';
 // @ts-ignore

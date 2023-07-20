@@ -117,7 +117,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
 
   return (
     <Form
-      className="query-form"
+      className="similarity-nodes-searcher"
       layout={'horizontal'}
       form={form}
       labelCol={{ span: 7 }}
@@ -197,7 +197,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       >
         <InputNumber min={1} max={50} />
       </Form.Item>
-      <Form.Item label="Merging Mode" name="merge_mode">
+      <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}

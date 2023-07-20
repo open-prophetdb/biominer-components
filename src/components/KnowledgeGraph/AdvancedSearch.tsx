@@ -1,21 +1,21 @@
 import { Modal, Tabs } from 'antd';
 import React, { useState } from 'react';
-import { SearchObject, EdgeStat } from './typings';
-import TransferTable from './Components/TransferTable';
-import type { DataType } from './Components/TransferTable';
-import UploadNode from './Components/UploadNode';
-import QueryForm from './Components/QueryForm';
+import TransferTable from '../TransferTable';
+import type { DataType } from '../TransferTable/index.t';
+import NodeUploader from '../NodeUploader';
+import QueryForm from '../QueryForm';
 import AskQuestion from './Components/AskQuestion';
-import type { APIs } from './typings';
+import type { APIs, SearchObjectInterface, RelationStat } from '../typings';
 
 import './AdvancedSearch.less';
 
 type AdvancedSearchProps = {
   visible: boolean;
-  onOk?: (searchObj: SearchObject) => void;
+  onOk?: (searchObj: SearchObjectInterface) => void;
   onCancel?: () => void;
-  searchObject?: SearchObject;
-  edgeStat: EdgeStat[];
+  searchObject?: SearchObjectInterface;
+  entityTypes: string[];
+  relationStat: RelationStat[];
   parent?: HTMLElement;
   apis: APIs;
 };
@@ -32,11 +32,13 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = (props) => {
       key: 'single',
       children: (
         <QueryForm
-          edgeStat={props.edgeStat}
+          entityTypes={props.entityTypes}
+          relationStat={props.relationStat}
           onCancel={props.onCancel}
           onOk={props.onOk}
           searchObject={props.searchObject}
-          {...props.apis}
+          getEntities={props.apis.GetEntitiesFn}
+          getRelationCounts={props.apis.GetRelationCountsFn}
         />
       ),
     },
@@ -76,11 +78,11 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = (props) => {
         tabBarExtraContent={
           // TODO: add upload function
           activeKey === 'batch' ? (
-            <UploadNode
+            <NodeUploader
               onUpload={(dataSource) => {
                 setDataSource(dataSource);
               }}
-              getLabels={props.apis.getLabels}
+              getEntities={props.apis.GetEntitiesFn}
             />
           ) : null
         }
