@@ -1,9 +1,18 @@
-export type EdgeStat = {
-  source: string;
-  relation_type: string;
-  start_node_type: string;
-  end_node_type: string;
-  relation_count: number;
+export type OptionType = {
+  order: number;
+  label: string;
+  value: string;
+};
+
+export type QueryItem = {
+  operator: string;
+  field: string;
+  value: string | number | boolean | string[] | number[] | boolean[];
+};
+
+export type ComposeQueryItem = {
+  operator: string; // AND, OR, NOT
+  items: QueryItem[] | ComposeQueryItem[] | Array<QueryItem | ComposeQueryItem>;
 };
 
 export type EntityQueryParams = {
@@ -14,6 +23,8 @@ export type EntityQueryParams = {
   /** Num of items per page. */
   page_size?: number;
 };
+
+export type RelationQueryParams = EntityQueryParams;
 
 export type Entity = {
   idx: number;
@@ -35,11 +46,34 @@ export type Entity2D = {
   color?: string;
 };
 
+export type Relation = {
+  id: number;
+  relation_type: string;
+  source_id: string;
+  target_id: string;
+  source_type: string;
+  target_type: string;
+  resource: string;
+  key_sentence?: string;
+  score?: number;
+};
+
 export type EntityRecordsResponse = {
   /** Total number of records. */
   total: number;
   /** List of records. */
   records: Entity[];
+  /** Page number. */
+  page: number;
+  /** Num of items per page. */
+  page_size: number;
+};
+
+export type RelationRecordsResponse = {
+  /** Total number of records. */
+  total: number;
+  /** List of records. */
+  records: Relation[];
   /** Page number. */
   page: number;
   /** Num of items per page. */
@@ -60,6 +94,14 @@ export type RelationStat = {
   relation_count: number;
   start_entity_type: string;
   end_entity_type: string;
+};
+
+export type RelationCount = {
+  relation_type: string;
+  source_type: string;
+  target_type: string;
+  resource: string;
+  ncount: number;
 };
 
 export type StatisticsResponse = {
@@ -169,6 +211,8 @@ export type APIs = {
     relation_stat: RelationStat[];
   }>;
   GetEntitiesFn: (params: EntityQueryParams) => Promise<EntityRecordsResponse>;
+  GetRelationsFn: (params: RelationQueryParams) => Promise<RelationRecordsResponse>;
+  GetRelationCountsFn: (params: RelationQueryParams) => Promise<RelationCount[]>;
   // Graph History
   GetGraphHistoryFn: (params: GraphHistoryParams) => Promise<GraphHistoryResponse>;
   PostGraphHistoryFn: (payload: GraphHistoryItemPayload) => Promise<GraphHistoryItemPayload>;

@@ -2,8 +2,7 @@ import React from 'react';
 import { Row, Col, Tabs, Empty } from 'antd';
 import GraphForm from './GraphForm';
 import GraphTable from './GraphTable';
-import type { GraphEdge, GraphTableData } from './typings';
-import type { KnowledgeGraphEditorProps } from './index.t';
+import type { KnowledgeGraphEditorProps, GraphEdge, GraphTableData } from './index.t';
 import { TableOutlined, BulbOutlined } from '@ant-design/icons';
 
 import './index.less';

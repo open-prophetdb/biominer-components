@@ -1,5 +1,5 @@
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
-import { Entity, QueryItem, ComposeQueryItem } from './typings';
+import { Entity, QueryItem, ComposeQueryItem } from '../typings';
 
 export function makeQueryEntityStr(params: Partial<Entity>): string {
   let query: ComposeQueryItem = {} as ComposeQueryItem;
@@ -7,7 +7,7 @@ export function makeQueryEntityStr(params: Partial<Entity>): string {
   let id_query_item = {} as QueryItem;
   if (params.id) {
     id_query_item = {
-      operator: 'like',
+      operator: 'ilike',
       field: 'id',
       value: `%${params.id}%`,
     };
@@ -16,7 +16,7 @@ export function makeQueryEntityStr(params: Partial<Entity>): string {
   let name_query_item = {} as QueryItem;
   if (params.name) {
     name_query_item = {
-      operator: 'like',
+      operator: 'ilike',
       field: 'name',
       value: `%${params.name}%`,
     };

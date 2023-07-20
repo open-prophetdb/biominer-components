@@ -22,12 +22,6 @@ export type GraphTableData = {
   pageSize: number;
 };
 
-export type OptionType = {
-  order: number;
-  label: string;
-  value: string;
-};
-
 // More details on the following papers:
 export const RelationTypeDict: Record<string, string> = {
   AdG: 'Anatomy-downregulates-Gene',
@@ -145,17 +139,6 @@ export type GraphFormProps = {
   formData?: GraphEdge;
   getEntities: GetEntitiesFn;
   getStatistics: GetStatistics;
-};
-
-export type QueryItem = {
-  operator: string;
-  field: string;
-  value: string;
-};
-
-export type ComposeQueryItem = {
-  operator: string; // AND, OR, NOT
-  items: QueryItem[] | ComposeQueryItem[] | Array<QueryItem | ComposeQueryItem>;
 };
 
 export type KnowledgeGetterParams = {

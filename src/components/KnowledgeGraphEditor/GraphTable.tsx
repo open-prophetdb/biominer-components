@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Row, Tag, Space, message, Popover, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { GraphEdge, GraphTableData, DeleteKnowledgeByIdFn } from './typings';
+import { GraphEdge, GraphTableData, DeleteKnowledgeByIdFn } from './index.t';
 
 import './GraphTable.less';
 
