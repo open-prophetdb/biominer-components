@@ -12,7 +12,7 @@ export type QueryItem = {
 
 export type ComposeQueryItem = {
   operator: string; // AND, OR, NOT
-  items: QueryItem[] | ComposeQueryItem[] | Array<QueryItem | ComposeQueryItem>;
+  items: (QueryItem | ComposeQueryItem)[];
 };
 
 export type EntityQueryParams = {
@@ -204,6 +204,8 @@ export type GetItems4GenePanelFn = (info: GeneInfo, exclude: any[]) => any[];
 
 export type GetGeneInfoFn = (geneId: string) => Promise<GeneInfo>;
 
+export const COMPOSED_ENTITY_DELIMITER = '::';
+
 // ------------------ APIs ------------------
 export type APIs = {
   GetStatisticsFn: () => Promise<{
@@ -231,51 +233,16 @@ export type APIs = {
 
 // ------------------ Search Object ------------------
 // The SearchObject interface is used to process the search object from the frontend.
-interface SearchObjectInterface {
-  process(apis: APIs): GraphData;
-}
+// You can define any search object you want in any component, and implement the process function to process the search object.
+// Best practice is to define a class for each search object, and implement the process function in the class. You can define the class in the component's index.t.ts file and use it in the component.
+// An example is in the src/components/LinkedNodesSearcher/index.t.ts file.
+export type MergeMode = 'append' | 'replace' | 'subtract';
+export interface SearchObjectInterface {
+  process(apis: APIs): Promise<GraphData>;
 
-// Allow to query the linked nodes and related edges of a node, these nodes may connect with the node by one or several hops.
-type NodeEdgeSearchObject = {
-  entity_type: string;
-  entity_id: string;
-  relation_types?: string[];
-  nsteps?: number;
-  limit?: number;
-};
+  data: any;
 
-export class NodeEdgeSearchObjectClass implements SearchObjectInterface {
-  data: NodeEdgeSearchObject;
-
-  constructor(data: NodeEdgeSearchObject) {
-    this.data = data;
-  }
-
-  process(apis: APIs): GraphData {
-    // Not implemented yet.
-    return { nodes: [], edges: [] };
-  }
-}
-
-// Allow to query a set of nodes and related edges if the enableAutoConnection is turned on.
-type NodesSearchObject = {
-  // The order of the entities must match the order of the entity_types.
-  entity_ids: string[];
-  entity_types: string[];
-  enableAutoConnection?: boolean;
-};
-
-export class NodesSearchObjectClass implements SearchObjectInterface {
-  data: NodesSearchObject;
-
-  constructor(data: NodesSearchObject) {
-    this.data = data;
-  }
-
-  process(apis: APIs): GraphData {
-    // Not implemented yet.
-    return { nodes: [], edges: [] };
-  }
+  merge_mode: MergeMode;
 }
 
 // Allow to predict the edges between two nodes.
@@ -287,14 +254,18 @@ type SimilaritySearchObject = {
 
 export class SimilaritySearchObjectClass implements SearchObjectInterface {
   data: SimilaritySearchObject;
+  merge_mode: MergeMode;
 
-  constructor(data: SimilaritySearchObject) {
+  constructor(data: SimilaritySearchObject, merge_mode: MergeMode) {
     this.data = data;
+    this.merge_mode = merge_mode;
   }
 
-  process(apis: APIs): GraphData {
+  process(apis: APIs): Promise<GraphData> {
     // Not implemented yet.
-    return { nodes: [], edges: [] };
+    return new Promise((resolve, reject) => {
+      resolve({ nodes: [], edges: [] });
+    });
   }
 }
 
@@ -309,22 +280,17 @@ type PathSearchObject = {
 
 export class PathSearchObjectClass implements SearchObjectInterface {
   data: PathSearchObject;
+  merge_mode: MergeMode;
 
-  constructor(data: PathSearchObject) {
+  constructor(data: PathSearchObject, merge_mode: MergeMode) {
     this.data = data;
+    this.merge_mode = merge_mode;
   }
 
-  process(apis: APIs): GraphData {
+  process(apis: APIs): Promise<GraphData> {
     // Not implemented yet.
-    return { nodes: [], edges: [] };
+    return new Promise((resolve, reject) => {
+      resolve({ nodes: [], edges: [] });
+    });
   }
 }
-
-export type SearchObject = {
-  merge_mode: 'append' | 'replace' | 'subtract';
-  search_object:
-    | NodeEdgeSearchObject
-    | NodesSearchObject
-    | SimilaritySearchObject
-    | PathSearchObject;
-};

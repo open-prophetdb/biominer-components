@@ -4,7 +4,7 @@ import type { ColumnsType, TableRowSelection } from 'antd/es/table/interface';
 import type { TransferProps } from 'antd/es/transfer';
 import difference from 'lodash/difference';
 import filter from 'lodash/filter';
-import type { DataType, NodesSearchObject, TransferTableProps } from './index.t';
+import { NodesSearchObjectClass, type DataType, type TransferTableProps } from './index.t';
 
 import './index.less';
 
@@ -146,15 +146,16 @@ const TransferTable: React.FC<TransferTableProps> = (props) => {
         return matchedEntity[0].node_type;
       });
 
-      const search_object: NodesSearchObject = {
-        entity_ids: targetKeys,
-        entity_types: matchedEntityTypes,
-      };
+      const search_object = new NodesSearchObjectClass(
+        {
+          entity_ids: targetKeys,
+          entity_types: matchedEntityTypes,
+          enableAutoConnection: false,
+        },
+        'append',
+      );
 
-      props.onOk?.({
-        merge_mode: 'append',
-        search_object,
-      });
+      props.onOk?.(search_object);
     }
   };
 
