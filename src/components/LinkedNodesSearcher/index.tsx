@@ -2,7 +2,7 @@ import { Form, Select, Empty, InputNumber, message, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { LinkedNodesSearcherProps } from './index.t';
 import { LinkedNodesSearchObjectClass } from './index.t';
-import { makeRelationTypes, getMaxDigits, getRelationOption } from './utils';
+import { makeRelationTypes, getMaxDigits, getRelationOption } from '../utils';
 import {
   type RelationCount,
   type OptionType,
@@ -10,7 +10,7 @@ import {
   MergeModeOptions,
 } from '../typings';
 import { stat_total_relation_count } from '../StatisticsChart/utils';
-import { makeQueryEntityStr } from '../KnowledgeGraphEditor/utils';
+import { fetchNodes } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 
 import './index.less';
@@ -47,49 +47,13 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
     setPlaceholder(`Search ${value} nodes ...`);
   };
 
-  // This function is used to fetch the entities of the selected entity type.
-  // All the nodes will be added to the options as a dropdown list.
-  const fetchNodes = async (entityType: string, value: string, callback: (any: any) => void) => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-
-    const fetchData = () => {
-      setLoading(true);
-      props
-        .getEntities({
-          query_str: makeQueryEntityStr({ id: value, name: value, label: entityType }),
-          page: 1,
-          page_size: 50,
-        })
-        .then((response) => {
-          const { records } = response;
-          const formatedData = records.map((item: any) => ({
-            value: item['id'],
-            text: `${item['id']} | ${item['name']}`,
-          }));
-          console.log('getLabels results: ', formatedData);
-          // const options = formatedData.map(d => <Option key={d.value}>{d.text}</Option>);
-          const options = formatedData.map((d) => {
-            return { label: d.text, value: d.value };
-          });
-          setLoading(false);
-          callback(options);
-        })
-        .catch((error) => {
-          console.log('requestNodes Error: ', error);
-          callback([]);
-          setLoading(false);
-        });
-    };
-
-    timeout = setTimeout(fetchData, 300);
-  };
-
   const handleSearchNode = function (entityType: string, value: string) {
     if (value) {
-      fetchNodes(entityType, value, setEntityOptions);
+      setLoading(true);
+      fetchNodes(props.getEntities, entityType, value, (options) => {
+        setEntityOptions(options);
+        setLoading(false);
+      });
     } else {
       setEntityOptions(undefined);
     }

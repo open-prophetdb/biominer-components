@@ -113,11 +113,13 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     {
       key: 'explain-relationship',
       icon: <RedditOutlined />,
+      hidden: true,
       label: 'Explain Relationship (Experimental)',
     },
     {
       key: 'analyze-with-clinical-data',
       icon: <BarChartOutlined />,
+      hidden: true,
       label: 'Analyze with Clinical Data',
       children: [
         {
@@ -145,6 +147,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     {
       key: 'analyze-with-omics-data',
       icon: <AimOutlined />,
+      hidden: true,
       label: 'Analyze with Omics Data',
       children: [
         {
@@ -166,6 +169,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       key: 'ask-question',
       icon: <QuestionCircleOutlined />,
       label: 'Ask Chatbot',
+      hidden: false,
       children: [
         {
           key: 'what-is-the-relationship',
@@ -185,7 +189,14 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     }
   };
 
-  return visible ? <AntdMenu items={options} onClick={onChange} /> : null;
+  return visible ? (
+    <AntdMenu
+      items={options.filter((item) => {
+        return !item.hidden;
+      })}
+      onClick={onChange}
+    />
+  ) : null;
 };
 
 type NodeMenuProps = {
@@ -224,12 +235,18 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Show Node Details',
     },
     {
-      key: 'expand-one-level',
+      key: 'expand-one-step',
       icon: <ExpandAltOutlined />,
-      label: 'Expand One Level',
+      label: 'Expand One Step',
+    },
+    {
+      key: 'find-similar-nodes',
+      icon: <AimOutlined />,
+      label: 'Find Similar Nodes',
     },
     {
       key: 'expand-selected-nodes',
+      hidden: true,
       icon: <FullscreenOutlined />,
       label: 'Expand Selected Nodes',
     },
@@ -240,6 +257,7 @@ const NodeMenu = (props: NodeMenuProps) => {
     },
     {
       key: 'predict-relationships',
+      hidden: true,
       icon: <CloudServerOutlined />,
       label: 'Predict Relationships',
     },
@@ -250,6 +268,7 @@ const NodeMenu = (props: NodeMenuProps) => {
     },
     {
       key: 'expand-all-paths',
+      hidden: true,
       icon: <ShareAltOutlined />,
       label: 'Expand Paths (Within 3 Steps)',
       children: [
@@ -325,7 +344,14 @@ const NodeMenu = (props: NodeMenuProps) => {
     }
   };
 
-  return visible ? <AntdMenu items={options} onClick={onChange} /> : null;
+  return visible ? (
+    <AntdMenu
+      items={options.filter((item) => {
+        return !item.hidden;
+      })}
+      onClick={onChange}
+    />
+  ) : null;
 };
 
 type CanvasMenuProps = {

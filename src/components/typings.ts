@@ -173,7 +173,7 @@ export type GraphNode = {
   data: NodeData;
 };
 
-type GraphEdge = {
+export type GraphEdge = {
   relid: string;
   source: string;
   category: string;

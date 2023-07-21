@@ -12,6 +12,8 @@ const onChange = (key: string) => {
 };
 
 const QueryForm: React.FC<QueryFormProps> = (props) => {
+  const [tabKey, setTabKey] = useState<string | undefined>('linked-nodes-search-object');
+
   const items: TabsProps['items'] = [
     {
       key: 'linked-nodes-search-object',
@@ -30,14 +32,13 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
     },
   ];
 
-  return (
-    <Tabs
-      className="query-form"
-      defaultActiveKey={props.tabKey || 'linked-nodes-search-object'}
-      items={items}
-      onChange={onChange}
-    />
-  );
+  useEffect(() => {
+    if (props.searchObject) {
+      setTabKey(props.searchObject.get_instance_id());
+    }
+  }, [props.searchObject]);
+
+  return <Tabs className="query-form" activeKey={tabKey} items={items} onChange={onChange} />;
 };
 
 export default QueryForm;

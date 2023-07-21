@@ -1,5 +1,5 @@
 import type { MergeMode, SearchObjectInterface, GraphData, APIs } from '../typings';
-import { COMPOSED_ENTITY_DELIMITER } from '../typings';
+import { joinNodeIds } from '../utils';
 import { message } from 'antd';
 
 // Allow to query a set of nodes and related edges if the enableAutoConnection is turned on.
@@ -8,15 +8,6 @@ type NodesSearchObject = {
   entity_ids: string[];
   entity_types: string[];
   enableAutoConnection?: boolean;
-};
-
-const formatNodeIds = (entityIds: string[], entityTypes: string[]): string[] => {
-  const nodeIds = [];
-  for (let i = 0; i < entityIds.length; i++) {
-    nodeIds.push(`${entityTypes[i]}${COMPOSED_ENTITY_DELIMITER}${entityIds[i]}`);
-  }
-
-  return nodeIds;
 };
 
 export class NodesSearchObjectClass implements SearchObjectInterface {
@@ -42,7 +33,7 @@ export class NodesSearchObjectClass implements SearchObjectInterface {
       this.data.entity_ids.length == this.data.entity_types.length
     ) {
       return apis.GetConnectedNodesFn({
-        node_ids: formatNodeIds(this.data.entity_ids, this.data.entity_types),
+        node_ids: joinNodeIds(this.data.entity_ids, this.data.entity_types),
       });
     }
 

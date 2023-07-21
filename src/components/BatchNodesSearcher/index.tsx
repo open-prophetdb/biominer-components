@@ -1,14 +1,14 @@
 import { Form, Select, Empty, InputNumber, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
-import type { SimilarityNodesSearcherProps } from './index.t';
-import { SimilarityNodesSearchObjectClass } from './index.t';
+import type { BatchNodesSearcherProps } from './index.t';
+import { BatchNodesSearchObjectClass } from './index.t';
 import { type OptionType, MergeModeOptions } from '../typings';
-import { fetchNodes } from '../utils';
+import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 
 import './index.less';
 
-const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) => {
+const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
   const [form] = Form.useForm();
   const entityType = Form.useWatch('entity_type', form);
 
@@ -17,6 +17,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
 
   const [placeholder, setPlaceholder] = useState<string>('Search nodes ...');
   const [entityOptions, setEntityOptions] = useState<OptionType[] | undefined>(undefined);
+  const [nodeIdsOptions, setNodeIdsOptions] = useState<OptionType[] | undefined>(undefined);
 
   const handleSelectNodeType = function (value: string) {
     setEntityOptions(undefined);
@@ -32,6 +33,17 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       });
     } else {
       setEntityOptions(undefined);
+    }
+  };
+
+  const addToNodeIdsOptions = function (value: string) {
+    if (value) {
+      setNodeIdsOptions((nodeIdsOptions) => {
+        let newOptions = nodeIdsOptions ? [...nodeIdsOptions] : [];
+        let nodeId = formatNodeId(value, entityType);
+        newOptions.push({ label: nodeId, value: nodeId, order: 0 });
+        return newOptions;
+      });
     }
   };
 
@@ -51,11 +63,10 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       props.searchObject.get_instance_id() === `similarity-nodes-search-object`
     ) {
       form.setFieldsValue({
-        entity_type: props.searchObject.data.entity_type,
-        entity_id: props.searchObject.data.entity_id,
-        target_entity_types: props.searchObject.data.target_entity_types,
-        topk: props.searchObject.data.topk,
-        merge_mode: props.searchObject.merge_mode,
+        nodeIds: formatNodeIds(
+          props.searchObject.data.entity_ids,
+          props.searchObject.data.entity_types,
+        ),
       });
     }
   }, [props.searchObject]);
@@ -65,14 +76,13 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       .validateFields()
       .then((values) => {
         if (props.onOk) {
+          const { entityIds, entityTypes } = parseNodeIds(values.nodeIds);
           let payload = {
-            entity_type: values.entity_type,
-            entity_id: values.entity_id,
-            target_entity_types: values.target_entity_types ? values.target_entity_types : [],
-            topk: values.topk ? values.topk : 50,
+            entity_types: entityTypes,
+            entity_ids: entityIds,
           };
 
-          props.onOk(new SimilarityNodesSearchObjectClass(payload, values.merge_mode));
+          props.onOk(new BatchNodesSearchObjectClass(payload, values.merge_mode));
         }
       })
       .catch((error) => {
@@ -82,7 +92,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
 
   return (
     <Form
-      className="similarity-nodes-searcher"
+      className="batch-nodes-searcher"
       layout={'horizontal'}
       form={form}
       labelCol={{ span: 7 }}
@@ -91,7 +101,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       <Form.Item
         label="Node Type"
         name="entity_type"
-        rules={[{ required: true, message: 'Please select a node type.' }]}
+        rules={[{ required: false, message: 'Please select a node type.' }]}
       >
         <Select
           allowClear
@@ -108,7 +118,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         name="entity_id"
         rules={[
           {
-            required: true,
+            required: false,
             message: 'Please enter your expected node.',
           },
         ]}
@@ -123,6 +133,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
           onSearch={(value) => handleSearchNode(entityType, value)}
           options={entityOptions}
           filterOption={false}
+          onSelect={addToNodeIdsOptions}
           notFoundContent={
             <Empty
               description={
@@ -139,28 +150,22 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         ></Select>
       </Form.Item>
       <Form.Item
-        label="Target Node Type"
-        name="target_entity_types"
-        rules={[{ required: false, message: 'Please select node type(s).' }]}
+        label="Node Ids"
+        name="nodeIds"
+        tooltip="Please select node id and node type from the above form first, and then select the composed node id. If you want to load a lot of nodes, please use the batch query form."
+        rules={[
+          { required: true, message: 'Please select node id and node type from the above form.' },
+        ]}
       >
         <Select
           mode="multiple"
           allowClear
           defaultActiveFirstOption={false}
           showArrow={true}
-          placeholder={'Please select node type(s)'}
-          options={entityTypeOptions}
+          placeholder={'Please select composed node id'}
+          options={nodeIdsOptions}
           filterOption={true}
-          onSelect={handleSelectNodeType}
         />
-      </Form.Item>
-      <Form.Item
-        name="topk"
-        label="Top K"
-        initialValue={50}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
-      >
-        <InputNumber min={1} max={50} />
       </Form.Item>
       <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select
@@ -180,4 +185,4 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
   );
 };
 
-export default SimilarityNodesSearcher;
+export default BatchNodesSearcher;

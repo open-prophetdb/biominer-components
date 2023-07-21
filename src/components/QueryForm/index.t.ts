@@ -8,9 +8,4 @@ export type QueryFormProps = {
   relationStat: RelationStat[];
   getEntities: APIs['GetEntitiesFn'];
   getRelationCounts: APIs['GetRelationCountsFn'];
-  tabKey?:
-    | 'linked-nodes-search-object'
-    | 'similarity-nodes-search-object'
-    | 'path-search-object'
-    | 'nodes-search-object';
 };

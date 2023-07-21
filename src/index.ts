@@ -29,3 +29,4 @@ export { default as TransferTable } from './components/TransferTable';
 export { default as LinkedNodesSearcher } from './components/LinkedNodesSearcher';
 export { default as SimilarityNodesSearcher } from './components/SimilarityNodesSearcher';
 export { default as QueryForm } from './components/QueryForm';
+export { default as BatchNodesSearcher } from './components/BatchNodesSearcher';

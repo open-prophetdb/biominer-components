@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Empty, Select, Button } from 'antd';
 import type { APIs, OptionType } from '../typings';
-import { makeQueryEntityStr } from '../KnowledgeGraphEditor/utils';
+import { fetchNodes } from '../utils';
 import './QueryBuilder.less';
 
 let timeout: ReturnType<typeof setTimeout> | null;
@@ -17,60 +17,24 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
   const [entityTypeOptions, setEntityTypeOptions] = useState<OptionType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [placeholder, setPlaceholder] = useState<string>('Search Gene nodes ...');
-  const [options, setOptions] = useState<any[] | undefined>(undefined);
+  const [entityOptions, setEntityOptions] = useState<OptionType[] | undefined>(undefined);
   const [entityType, setEntityType] = useState<string>('Gene');
-
-  // This function is used to fetch the nodes of the selected label.
-  // All the nodes will be added to the options as a dropdown list.
-  const fetch = async (label_type: string, value: string) => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-
-    const fetchData = () => {
-      setLoading(true);
-      props
-        .getEntities({
-          query_str: makeQueryEntityStr({ id: value, name: value, label: entityType }),
-          page: 1,
-          page_size: 10,
-        })
-        .then((response) => {
-          const { records } = response;
-          const formatedData = records.map((item: any) => ({
-            value: item['id'],
-            text: `${item['id']} | ${item['name']}`,
-          }));
-          console.log('getEntities results: ', formatedData);
-          // const options = formatedData.map(d => <Option key={d.value}>{d.text}</Option>);
-          const options = formatedData.map((d) => {
-            return { label: d.text, value: d.value };
-          });
-          setLoading(false);
-          setOptions(options);
-        })
-        .catch((error) => {
-          console.log('requestNodes Error: ', error);
-          setOptions([]);
-          setLoading(false);
-        });
-    };
-
-    timeout = setTimeout(fetchData, 300);
-  };
 
   const handleSelectEntityType = function (value: string) {
     setEntityType(value);
-    setOptions(undefined);
+    setEntityOptions(undefined);
     setPlaceholder(`Search ${value} nodes ...`);
   };
 
   const handleSearch = function (value: string) {
     if (value) {
-      fetch(entityType, value);
+      setLoading(true);
+      fetchNodes(props.getEntities, entityType, value, (options) => {
+        setEntityOptions(options);
+        setLoading(false);
+      });
     } else {
-      setOptions(undefined);
+      setEntityOptions(undefined);
     }
   };
 
@@ -115,15 +79,17 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
         placeholder={placeholder}
         onSearch={handleSearch}
         onChange={handleChange}
-        options={options}
+        options={entityOptions}
         filterOption={false}
         notFoundContent={
           <Empty
             description={
               loading
                 ? 'Searching...'
-                : options !== undefined
+                : entityOptions !== undefined
                 ? 'Not Found'
+                : entityType === undefined
+                ? `Please select a node type ...`
                 : `Enter your interested ${entityType} ...`
             }
           />

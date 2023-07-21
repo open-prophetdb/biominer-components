@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
+import { Empty } from 'antd';
 import ReactMarkdown from 'react-markdown';
 // How to load library dynamically
 import { createElement } from 'react';
@@ -110,7 +111,7 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
       {markdown}
     </ReactMarkdown>
   ) : (
-    <div className="empty-container" />
+    <Empty />
   );
 };
 

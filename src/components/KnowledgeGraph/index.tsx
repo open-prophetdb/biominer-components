@@ -59,6 +59,7 @@ import { stat_total_node_count, stat_total_relation_count } from '../StatisticsC
 
 import './index.less';
 import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
+import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
 
 const style = {
   // @ts-ignore
@@ -404,6 +405,26 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
+  const searchSimilarNodes = (
+    entityType: string,
+    entityId: string | undefined,
+    mergeMode?: MergeMode,
+    topk?: number,
+  ) => {
+    if (entityId) {
+      let similarNodesSearchObject = new SimilarityNodesSearchObjectClass(
+        {
+          entity_type: entityType,
+          entity_id: entityId,
+          topk: topk || 10,
+        },
+        mergeMode || 'append',
+      );
+
+      setSearchObject(similarNodesSearchObject);
+    }
+  };
+
   const onCanvasMenuClick = (menuItem: { key: string; name: string }, graph: any, apis: any) => {
     if (menuItem.key == 'auto-connect') {
       message.info('Auto connecting nodes, please wait...');
@@ -484,9 +505,12 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           ),
         });
       }
-    } else if (menuItem.key == 'expand-one-level') {
+    } else if (menuItem.key == 'expand-one-step') {
       enableAdvancedSearch();
       searchLinkedNodes(node.data.label, node.data.id, 'append', 1, 10);
+    } else if (menuItem.key == 'find-similar-nodes') {
+      enableAdvancedSearch();
+      searchSimilarNodes(node.data.label, node.data.id, 'append', 10);
     } else if (
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
