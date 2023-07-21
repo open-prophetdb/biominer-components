@@ -60,14 +60,9 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
     }
 
     if (props.url) {
-      if (!props.getFile) {
-        console.log('MarkdownViewer: no getFile');
-        return;
-      } else {
-        fetchMarkdown(props.url).then((response) => setMarkdown(response || null));
-        // How to convert the url to key
-        setKey(props.url);
-      }
+      fetchMarkdown(props.url).then((response) => setMarkdown(response || null));
+      // How to convert the url to key
+      setKey(props.url);
     }
 
     if (props.markdown) {

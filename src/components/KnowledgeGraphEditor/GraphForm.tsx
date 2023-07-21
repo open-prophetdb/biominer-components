@@ -16,6 +16,7 @@ import type {
 } from '../typings';
 
 import './GraphForm.less';
+import { MarkdownParams } from '../MarkdownViewer/index.t';
 
 export let timeout: ReturnType<typeof setTimeout> | null;
 const helpDoc = () => {
@@ -264,6 +265,15 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
     setVisible(false);
   };
 
+  const getFile = (params: MarkdownParams) => {
+    console.log('getFile params: ', params);
+    return fetch(params.filelink)
+      .then((response) => response.text())
+      .then((text) => {
+        return text;
+      });
+  };
+
   const onConfirm = () => {
     setButtonLoading(true);
     form
@@ -328,7 +338,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         footer={null}
         width={'60%'}
       >
-        <MarkdownViewer url={`/README/knowledge_editor_${anchor}.md`} />
+        <MarkdownViewer url={`/README/knowledge_editor_${anchor}.md`} getFile={null} />
       </Modal>
       <Form
         name="basic"
