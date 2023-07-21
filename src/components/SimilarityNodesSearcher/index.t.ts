@@ -66,7 +66,7 @@ export class SimilarityNodesSearchObjectClass implements SearchObjectInterface {
       query = {
         operator: 'in',
         value: this.data.target_entity_types,
-        field: 'target_type',
+        field: 'entity_type',
       };
     }
 

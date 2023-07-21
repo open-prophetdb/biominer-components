@@ -37,14 +37,14 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
       top: '0px',
       left: '45%',
       width: '40px',
-      height: '38px',
+      height: '0px',
       borderColor: '#ddd transparent transparent transparent',
     },
     left: {
       left: '0px',
       top: '45%',
       height: '40px',
-      width: '38px',
+      width: '0px',
       borderColor: 'transparent transparent transparent #ddd',
     },
     bottom: {

@@ -413,7 +413,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const nodeIds = nodes.map((node: GraphNode) => formatNodeIdFromGraphNode(node));
       props.apis
         .GetConnectedNodesFn({
-          node_ids: nodeIds,
+          node_ids: nodeIds.join(','),
         })
         .then((response: GraphData) => {
           console.log('Auto Connect Response: ', response);

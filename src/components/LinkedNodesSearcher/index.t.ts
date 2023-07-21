@@ -72,7 +72,7 @@ export class LinkedNodesSearchObjectClass implements SearchObjectInterface {
 
   async process(apis: APIs): Promise<GraphData> {
     if (!this.data.nsteps || this.data.nsteps === 1) {
-      const query: ComposeQueryItem = {
+      const source_query: ComposeQueryItem = {
         operator: 'and',
         items: [
           {
@@ -88,14 +88,36 @@ export class LinkedNodesSearchObjectClass implements SearchObjectInterface {
         ],
       };
 
+      const target_query: ComposeQueryItem = {
+        operator: 'and',
+        items: [
+          {
+            field: 'target_type',
+            operator: '=',
+            value: this.data.entity_type,
+          },
+          {
+            field: 'target_id',
+            operator: '=',
+            value: this.data.entity_id,
+          },
+        ],
+      };
+
       if (this.data.relation_types && this.data.relation_types.length > 0) {
         const item: QueryItem = {
           field: 'relation_type',
           operator: 'in',
           value: this.data.relation_types,
         };
-        query.items.push(item);
+        source_query.items.push(item);
+        target_query.items.push(item);
       }
+
+      let query: ComposeQueryItem = {
+        operator: 'or',
+        items: [source_query, target_query],
+      };
 
       return apis.GetOneStepLinkedNodesFn({
         query_str: JSON.stringify(query),

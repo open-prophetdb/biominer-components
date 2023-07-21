@@ -143,7 +143,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         items: [
           query,
           {
-            field: 'relationship_type',
+            field: 'relation_type',
             operator: 'in',
             value: relationTypes,
           },
