@@ -120,28 +120,93 @@ export type StatisticsResponse = {
   relation_stat: RelationStat[];
 };
 
+type Label = {
+  value: string;
+  fill: string;
+  fontSize: number;
+  offset: number;
+  position: string;
+};
+
+type Icon = {
+  type: string;
+  value: string;
+  fill: string;
+  size: number;
+  color: string;
+};
+
+type NodeData = {
+  identity: string;
+  id: string;
+  label: string;
+  name: string;
+  description?: string;
+  resource: string;
+};
+
+type NodeKeyShape = {
+  fill: string;
+  stroke: string;
+  opacity: number;
+  fillOpacity: number;
+};
+
+type NodeStyle = {
+  label: Label;
+  keyshape: NodeKeyShape;
+  icon: Icon;
+};
+
 export type GraphNode = {
   comboId?: string;
   id: string;
   label: string;
   nlabel: string;
-  cluster: string;
-  style: any;
-  category: 'node';
-  type: 'graphin-circle';
-  data: Record<string, any>; // at least id, name
+  degree?: number;
+  style: NodeStyle;
+  category: string;
+  cluster?: string;
+  type: string;
   x?: number;
   y?: number;
+  data: NodeData;
 };
 
-export type GraphEdge = {
+type GraphEdge = {
   relid: string;
   source: string;
-  category: 'edge';
+  category: string;
   target: string;
   reltype: string;
-  style: any;
-  data: Record<string, any>;
+  style: EdgeStyle;
+  data: EdgeData;
+};
+
+type EdgeData = {
+  relation_type: string;
+  source_id: string;
+  source_type: string;
+  target_id: string;
+  target_type: string;
+  score: number;
+  key_sentence: string;
+  resource: string;
+};
+
+type EdgeKeyShape = {
+  lineDash: number[];
+  stroke: string;
+  lineWidth: number;
+};
+
+type EdgeLabel = {
+  value: string;
+};
+
+type EdgeStyle = {
+  label: EdgeLabel;
+  keyshape?: EdgeKeyShape;
 };
 
 export type GraphData = {
@@ -154,10 +219,10 @@ export type GraphHistoryItem = {
   payload: string;
   name: string;
   id: string;
-  created_time: number;
+  created_time: string;
   db_version: string;
   version: string;
-  owner: any;
+  owner: string;
   parent?: string;
 };
 
