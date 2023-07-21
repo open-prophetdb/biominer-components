@@ -1,4 +1,3 @@
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { Entity, QueryItem, ComposeQueryItem } from '../typings';
 
 export function makeQueryEntityStr(params: Partial<Entity>): string {
@@ -62,18 +61,3 @@ export function makeQueryEntityStr(params: Partial<Entity>): string {
 
   return JSON.stringify(query);
 }
-
-export const getIdentity = async () => {
-  let visitorId = localStorage.getItem('rapex-visitor-id');
-
-  if (!visitorId) {
-    const fpPromise = FingerprintJS.load();
-    // Get the visitor identifier when you need it.
-    const fp = await fpPromise;
-    const result = await fp.get();
-
-    visitorId = result.visitorId;
-  }
-
-  return visitorId;
-};

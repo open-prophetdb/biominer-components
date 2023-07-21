@@ -32,7 +32,7 @@ const makeTree = (graphs: GraphHistoryItem[]): TreeGraph[] => {
       };
       tree.push(root);
     } else {
-      const parent = objectMap[obj.parent];
+      const parent = objectMap[obj.parent || ''];
       if (parent) {
         // Add as a child to the parent object
         parent.children = parent.children || [];

@@ -121,7 +121,7 @@ export type StatisticsResponse = {
 };
 
 export type GraphNode = {
-  comboId: string;
+  comboId?: string;
   id: string;
   label: string;
   nlabel: string;
@@ -150,15 +150,15 @@ export type GraphData = {
 };
 
 export type GraphHistoryItem = {
-  description: string;
-  payload: Record<string, any>;
+  description?: string;
+  payload: string;
   name: string;
   id: string;
   created_time: number;
   db_version: string;
   version: string;
   owner: any;
-  parent: string;
+  parent?: string;
 };
 
 export type GraphHistoryResponse = {
@@ -174,17 +174,6 @@ export type GraphHistoryParams = {
   owner?: string;
   db_version?: string;
   version?: string;
-};
-
-export type GraphHistoryItemPayload = {
-  description?: string;
-  payload: Record<string, any>;
-  name: string;
-  created_time?: number;
-  db_version?: string;
-  version?: string;
-  owner?: any;
-  parent?: string;
 };
 
 export type GeneInfo = {
@@ -228,17 +217,17 @@ export type APIs = {
   GetRelationCountsFn: (params: RelationQueryParams) => Promise<RelationCount[]>;
   // Graph History
   GetGraphHistoryFn: (params: GraphHistoryParams) => Promise<GraphHistoryResponse>;
-  PostGraphHistoryFn: (payload: GraphHistoryItemPayload) => Promise<GraphHistoryItemPayload>;
+  PostGraphHistoryFn: (payload: GraphHistoryItem) => Promise<GraphHistoryItem>;
   DeleteGraphHistoryFn: (params: { id: string }) => Promise<void>;
   // Prediction
-  GetNodesFn: (params: { node_ids: string[] }) => Promise<GraphData>;
+  GetNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
   GetSimilarityNodesFn: (params: {
     node_id: string;
     query_str: string;
     topk: number;
   }) => Promise<GraphData>;
   GetOneStepLinkedNodesFn: (params: EntityQueryParams) => Promise<GraphData>;
-  GetConnectedNodesFn: (params: { node_ids: string[] }) => Promise<GraphData>;
+  GetConnectedNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
   GetEntity2DFn: (params: EntityQueryParams) => Promise<Entity2DRecordsResponse>;
   GetEntityColorMapFn: () => Promise<Record<string, string>>;
 };

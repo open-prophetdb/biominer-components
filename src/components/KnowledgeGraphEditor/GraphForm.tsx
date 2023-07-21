@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Select, message, Empty, Input, Row, InputNumber, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-import { makeQueryEntityStr, getIdentity } from './utils';
+import { makeQueryEntityStr } from './utils';
+import { getIdentity } from '../utils';
 import { sortBy } from 'lodash';
 import v from 'voca';
 import MarkdownViewer from '../MarkdownViewer';

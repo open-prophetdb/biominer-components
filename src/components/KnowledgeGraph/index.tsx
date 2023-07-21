@@ -40,7 +40,6 @@ import GraphStoreForm from '../GraphStoreForm';
 import type { Graph } from '@antv/graphin';
 import type {
   GraphHistoryItem,
-  GraphHistoryItemPayload,
   GraphData,
   GraphEdge,
   EntityStat,
@@ -219,7 +218,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   const loadGraph = (graphHistoryItem: GraphHistoryItem, latestChild: GraphHistoryItem) => {
-    const payload = graphHistoryItem.payload;
+    const payload = JSON.parse(graphHistoryItem.payload);
     if (payload) {
       setIsDirty(false);
       // Only support one level of graph hierarchy, so the parent graph is always the latest child graph.
@@ -658,7 +657,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const enterFullScreenHandler = useFullScreenHandle();
 
-  const onSubmitGraph = (data: GraphHistoryItemPayload) => {
+  const onSubmitGraph = (data: GraphHistoryItem) => {
     return new Promise((resolve, reject) => {
       if (parentGraphUUID && isUUID(parentGraphUUID)) {
         data = { ...data, parent: parentGraphUUID };
@@ -890,7 +889,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 onClose={() => {
                   setGraphTableVisible(false);
                 }}
-                onUpload={(graphHistory: GraphHistoryItemPayload) => {
+                onUpload={(graphHistory: GraphHistoryItem) => {
                   onSubmitGraph(graphHistory);
                 }}
                 selectedGraphId={currentGraphUUID}
@@ -902,8 +901,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 onClose={() => {
                   setGraphFormVisible(false);
                 }}
-                onSubmit={(data: any) => {
-                  onSubmitGraph(data as GraphHistoryItem).finally(() => {
+                onSubmit={(data: GraphHistoryItem) => {
+                  onSubmitGraph(data).finally(() => {
                     setGraphFormVisible(false);
                   });
                 }}

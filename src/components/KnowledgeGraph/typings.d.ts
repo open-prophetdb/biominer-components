@@ -1,9 +1,5 @@
 import type { Graph, GraphData as AntvGraphData } from '@antv/graphin';
-import type {
-  GraphHistoryItemPayload,
-  GraphHistoryParams,
-  GraphHistoryResponse,
-} from './GraphStore/typings';
+import type { GraphHistoryParams, GraphHistoryResponse } from './GraphStore/typings';
 
 declare module '*.png' {
   const value: any;

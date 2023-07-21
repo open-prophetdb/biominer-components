@@ -1,9 +1,4 @@
-export type OnSubmitPayload = {
-  payload: Record<string, unknown>;
-  name: string;
-  description?: string;
-  parent?: string;
-};
+import { GraphHistoryItem } from '../typings';
 
 export type GraphFormProps = {
   /**
@@ -19,7 +14,7 @@ export type GraphFormProps = {
    * @description How to save the graph. If you provide this prop, the form will show a save button.
    * @default undefined
    */
-  onSubmit?: (data: OnSubmitPayload) => void;
+  onSubmit?: (data: GraphHistoryItem) => void;
   /**
    * @description A listener for the close event.
    * @default undefined

@@ -4,22 +4,31 @@ import { Button, Form, Input, message, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import type { GraphFormProps } from './index.t';
 import { prepareGraphData } from './utils';
+import { getIdentity } from '../utils';
 
 import './index.less';
 
 const GraphForm: React.FC<GraphFormProps> = (props) => {
   const { graph } = useContext(GraphinContext);
-  const onFinish = (values: any) => {
+  const onFinish = async (values: any) => {
     if (props.payload) {
+      let payload = props.payload;
       if (graph) {
         console.log('Save graph data which are from graphin.');
-        const payload = prepareGraphData(graph);
-        props.onSubmit && props.onSubmit({ payload, ...values });
-      } else {
-        // TODO: remove this branch after graphin is ready
-        console.log('Save graph data which are from server.');
-        props.onSubmit && props.onSubmit({ payload: props.payload, ...values });
+        payload = prepareGraphData(graph);
       }
+
+      props.onSubmit &&
+        props.onSubmit({
+          payload: JSON.stringify(payload),
+          ...values,
+          id: '0',
+          created_time: undefined,
+          // TODO: Allow to get these values from the server
+          db_version: 'v1.0.0',
+          version: 'v1.0.0',
+          owner: await getIdentity(),
+        });
     } else {
       message.error('Failed to submit graph, you must provide a payload for your graph');
     }
