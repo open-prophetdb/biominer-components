@@ -4,15 +4,17 @@ import React, { useState, useEffect } from 'react';
 import type { QueryFormProps } from './index.t';
 import LinkedNodesSearcher from '../LinkedNodesSearcher';
 import SimilarityNodesSearcher from '../SimilarityNodesSearcher';
+import BatchNodesSearcher from '../BatchNodesSearcher';
 
 import './index.less';
 
-const onChange = (key: string) => {
-  console.log(key);
-};
-
 const QueryForm: React.FC<QueryFormProps> = (props) => {
   const [tabKey, setTabKey] = useState<string | undefined>('linked-nodes-search-object');
+
+  const onChange = (key: string) => {
+    console.log('QueryForm onChange:', key);
+    setTabKey(key);
+  };
 
   const items: TabsProps['items'] = [
     {
@@ -28,7 +30,7 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
     {
       key: 'batch-nodes-search-object',
       label: `Batch Nodes`,
-      children: `Content of Tab Pane 3`,
+      children: <BatchNodesSearcher {...props} />,
     },
   ];
 

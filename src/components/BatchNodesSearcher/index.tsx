@@ -71,7 +71,11 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
     }
   }, [props.searchObject]);
 
-  const onConfirm = function () {
+  const clearNodeIdType = (value: string) => {
+    form.setFieldsValue({ entity_type: undefined, entity_id: undefined });
+  };
+
+  const onConfirm = () => {
     form
       .validateFields()
       .then((values) => {
@@ -162,6 +166,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           allowClear
           defaultActiveFirstOption={false}
           showArrow={true}
+          onSelect={clearNodeIdType}
           placeholder={'Please select composed node id'}
           options={nodeIdsOptions}
           filterOption={true}

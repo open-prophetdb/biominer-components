@@ -56,3 +56,35 @@ $ yarn build
 ```bash
 $ npm publish .
 ```
+
+## For developers
+
+### Install yalc globally
+
+```bash
+$ npm i -g yalc
+```
+
+### Publish your local package to yalc
+
+```bash
+yalc publish
+```
+
+### Go to your project and install the package from yalc
+
+```bash
+yalc add biominer-components
+```
+
+### Update the local package and push to yalc
+
+```bash
+yarn build && yalc push
+```
+
+### Go to your project and rebuild the package
+
+```bash
+rm -rf src/.umi && yarn start:local-dev
+```
