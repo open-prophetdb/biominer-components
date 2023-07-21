@@ -9,8 +9,8 @@ export type QueryFormProps = {
   getEntities: APIs['GetEntitiesFn'];
   getRelationCounts: APIs['GetRelationCountsFn'];
   tabKey?:
-    | 'linked-nodes-searcher'
-    | 'similarity-nodes-searcher'
-    | 'path-searcher'
-    | 'batch-nodes-searcher';
+    | 'linked-nodes-search-object'
+    | 'similarity-nodes-search-object'
+    | 'path-search-object'
+    | 'nodes-search-object';
 };

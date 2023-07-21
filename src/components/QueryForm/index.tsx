@@ -14,17 +14,17 @@ const onChange = (key: string) => {
 const QueryForm: React.FC<QueryFormProps> = (props) => {
   const items: TabsProps['items'] = [
     {
-      key: 'linked-nodes-searcher',
+      key: 'linked-nodes-search-object',
       label: `Linked Nodes`,
       children: <LinkedNodesSearcher {...props} />,
     },
     {
-      key: 'similarity-nodes-searcher',
+      key: 'similarity-nodes-search-object',
       label: `Similar Nodes`,
       children: <SimilarityNodesSearcher {...props} />,
     },
     {
-      key: 'batch-nodes-searcher',
+      key: 'batch-nodes-search-object',
       label: `Batch Nodes`,
       children: `Content of Tab Pane 3`,
     },
@@ -33,7 +33,7 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
   return (
     <Tabs
       className="query-form"
-      defaultActiveKey={props.tabKey || 'linked-nodes-searcher'}
+      defaultActiveKey={props.tabKey || 'linked-nodes-search-object'}
       items={items}
       onChange={onChange}
     />

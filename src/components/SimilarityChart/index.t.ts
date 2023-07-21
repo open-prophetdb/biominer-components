@@ -6,4 +6,5 @@ export type SimilarityChartProps = {
   onClick?: (entity2d: Entity2D) => void;
   data: Entity2D[];
   method: 'umap' | 'tsne';
+  customGraphContext?: any;
 };

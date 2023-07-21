@@ -50,22 +50,35 @@ export class SimilarityNodesSearchObjectClass implements SearchObjectInterface {
     this.merge_mode = merge_mode;
   }
 
+  get_instance_id(): string {
+    return `similarity-nodes-search-object`;
+  }
+
+  get_current_node_id(): string | undefined {
+    return `${this.data.entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_type}`;
+  }
+
   process(apis: APIs): Promise<GraphData> {
-    let query = {};
+    let query = undefined;
     if (!this.data.target_entity_types || this.data.target_entity_types.length === 0) {
-      query = {};
+      query = undefined;
     } else {
       query = {
         operator: 'in',
         value: this.data.target_entity_types,
-        field: 'entity_type',
+        field: 'target_type',
       };
     }
 
-    return apis.GetSimilarityNodesFn({
+    let params: any = {
       node_id: `${this.data.entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_id}`,
-      query_str: query ? JSON.stringify(query) : '',
       topk: this.data.topk || 10,
-    });
+    };
+
+    if (query) {
+      params['query_str'] = JSON.stringify(query);
+    }
+
+    return apis.GetSimilarityNodesFn(params);
   }
 }

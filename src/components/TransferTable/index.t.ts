@@ -28,6 +28,14 @@ export class NodesSearchObjectClass implements SearchObjectInterface {
     this.merge_mode = merge_mode;
   }
 
+  get_current_node_id(): string | undefined {
+    return undefined;
+  }
+
+  get_instance_id(): string {
+    return `nodes-search-object`;
+  }
+
   process(apis: APIs): Promise<GraphData> {
     if (
       !this.data.enableAutoConnection &&

@@ -49,8 +49,8 @@
     "voca": "^1.4.1"
   },
   "devDependencies": {
-    "@antv/graphin": "^2.7.22",
-    "@antv/graphin-components": "^2.4.1",
+    "@antv/graphin": "^2.7.14",
+    "@antv/graphin-components": "^2.4.0",
     "@antv/vis-predict-engine": "^0.1.1",
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^13.0.0",

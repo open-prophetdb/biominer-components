@@ -13,7 +13,7 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
-import { uniqBy, partial } from 'lodash';
+import { uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
@@ -21,18 +21,17 @@ import CanvasStatisticsChart from '../CanvasStatisticsChart';
 import StatisticsChart from '../StatisticsChart';
 import SimilarityChart from '../SimilarityChart';
 // import ReactResizeDetector from 'react-resize-detector';
+
 import {
   makeColumns,
   makeDataSources,
   defaultLayout,
-  autoConnectNodes as autoConnectNodesInterface,
-  makeGraphQueryStrWithSearchObject as makeGraphQueryStrWithSearchObjectInterface,
-  predictRelationships as predictRelationshipsInterface,
-  isValidSearchObject,
   isUUID,
   getNodes,
   getSelectedNodes,
   processEdges,
+  formatNodeIdFromEntity2D,
+  formatNodeIdFromGraphNode,
 } from './utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
@@ -42,14 +41,16 @@ import type { Graph } from '@antv/graphin';
 import type {
   GraphHistoryItem,
   GraphHistoryItemPayload,
-  SearchObject,
   GraphData,
   GraphEdge,
   EntityStat,
   RelationStat,
   GraphNode,
+  SearchObjectInterface,
+  Entity2D,
+  MergeMode,
 } from '../typings';
-import { DimensionArray, EdgeInfo } from './typings';
+import { EdgeInfo } from './typings';
 import Movable from '../Movable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
@@ -58,6 +59,7 @@ import type { StatisticsData } from '../StatisticsDataArea/index.t';
 import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
 
 import './index.less';
+import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 
 const style = {
   // @ts-ignore
@@ -65,52 +67,38 @@ const style = {
 };
 
 const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
-  const { apis } = props;
-  const predictRelationships = partial(predictRelationshipsInterface, apis);
-  const makeGraphQueryStrWithSearchObject = partial(
-    makeGraphQueryStrWithSearchObjectInterface,
-    apis,
-  );
-  const autoConnectNodes = partial(autoConnectNodesInterface, apis);
-
   const [modal, contextHolder] = Modal.useModal();
-  // const [data, setData] = useState(Utils.mock(8).circle().graphin())
   const [data, setData] = useState<GraphData>({
     nodes: [],
     edges: [],
   });
 
+  const [nodeStat, setNodeStat] = useState<EntityStat[]>([]);
+  const [edgeStat, setEdgeStat] = useState<RelationStat[]>([]);
   const [statistics, setStatistics] = useState<StatisticsData>({} as StatisticsData);
+  const [nodeColorMap, setNodeColorMap] = useState<Record<string, string>>({});
+
   const [nodeColumns, setNodeColumns] = useState<TableColumnType<any>[]>([]);
   const [nodeDataSources, setNodeDataSources] = useState<Array<Record<string, any>>>([]);
   const [edgeColumns, setEdgeColumns] = useState<TableColumnType<any>[]>([]);
   const [edgeDataSources, setEdgeDataSources] = useState<Array<Record<string, any>>>([]);
+
   const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const [nodeStat, setNodeStat] = useState<EntityStat[]>([]);
-  const [edgeStat, setEdgeStat] = useState<RelationStat[]>([]);
-
   const [nodeInfoPanelVisible, setNodeInfoPanelVisible] = useState<boolean>(false);
+
   const [clickedNode, setClickedNode] = useState<GraphNode | undefined>(undefined);
   const [edgeInfoPanelVisible, setEdgeInfoPanelVisible] = useState<boolean>(false);
   const [clickedEdge, setClickedEdge] = useState<EdgeInfo | undefined>(undefined);
 
   const [similarityChartVisible, setSimilarityChartVisible] = useState<boolean>(false);
-  const [similarityArray, setSimilarityArray] = useState<GraphNode[]>([]);
+  const [similarityArray, setSimilarityArray] = useState<Entity2D[]>([]);
   const [hightlightMode, setHightlightMode] = useState<'activate' | 'focus'>('activate');
 
   const [currentNode, setCurrentNode] = useState<string>('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<string>>([]);
   const [advancedSearchPanelActive, setAdvancedSearchPanelActive] = useState<boolean>(false);
-  const [searchObject, setSearchObject] = useState<SearchObject>({
-    node_type: '',
-    node_id: '',
-    nsteps: 1,
-    merge_mode: 'replace',
-    enable_prediction: false,
-    limit: 50,
-  });
+  const [searchObject, setSearchObject] = useState<SearchObjectInterface>();
 
   // You must have a oldLayout to make the layout work before user select a layout from the menu
   const [layout, setLayout] = React.useState<any>(defaultLayout);
@@ -128,30 +116,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const checkAndSetData = (data: GraphData) => {
     const nodeIds = new Set(data.nodes.map((node) => node.id));
-    const nonexistentEdges = data.edges.filter(
-      (edge) => !nodeIds.has(edge.source) || !nodeIds.has(edge.target),
-    );
     const edges = data.edges.filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
-
-    // TODO: Why does this happen? The backend have some bugs, so that it will return some edges that connect to nonexistent nodes.
-    // if (nonexistentEdges.length > 0) {
-    //   message.warn(`There are ${nonexistentEdges.length} edges that connect to nonexistent nodes, they will be added soon.`);
-    //   console.log(`There are ${nonexistentEdges.length} edges that connect to nonexistent nodes, they will be added soon.`)
-    //   const ids = nonexistentEdges.map(edge => parseInt(edge.source)).concat(nonexistentEdges.map(edge => parseInt(edge.target)));
-    //   makeGraphQueryStrWithIds(uniq(ids))
-    //     .then(response => {
-    //       const nodes = response.nodes as GraphNode[];
-    //       const edges = response.edges as GraphEdge[];
-    //       checkAndSetData({
-    //         nodes: data.nodes.concat(nodes),
-    //         edges: data.edges.concat(edges)
-    //       })
-    //     })
-    //     .catch(error => {
-    //       message.error("Failed to fetch data from server.");
-    //       console.error(error);
-    //     })
-    // }
 
     setIsDirty(true);
     setData({
@@ -167,16 +132,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     });
     setParentGraphUUID('');
     setCurrentGraphUUID('');
-  };
-
-  const DirtyStatus = (status: boolean, currentGraphUUID: string) => {
-    return (
-      <span>
-        {status ? <Tag color="#f50">dirty</Tag> : <Tag color="#87d068">cleaned</Tag>}
-        &nbsp;
-        {currentGraphUUID}
-      </span>
-    );
   };
 
   useEffect(() => {
@@ -204,10 +159,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   }, [data, edgeStat, nodeStat, currentGraphUUID]);
 
   const loadGraphs = () => {
-    apis
-      .getGraphHistory({ page: 1, page_size: 100 })
+    props.apis
+      .GetGraphHistoryFn({ page: 1, page_size: 100 })
       .then((response) => {
-        setGraphHistory(response.data);
+        setGraphHistory(response.records);
       })
       .catch((error) => {
         console.log(error);
@@ -215,23 +170,46 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       });
   };
 
-  const getDimensions = (
-    sourceId: string,
-    sourceType: string,
-    targetIds: string[],
-    targetTypes: string[],
-  ): Promise<DimensionArray> => {
+  const getDimensions = (nodeIds: string[], nodeTypes: string[]): Promise<Entity2D[]> => {
+    const makeAndQuery = (entityId: string, entityType: string) => {
+      return {
+        operator: 'and',
+        items: [
+          {
+            operator: '=',
+            field: 'entity_id',
+            value: entityId,
+          },
+          {
+            operator: '=',
+            field: 'entity_type',
+            value: entityType,
+          },
+        ],
+      };
+    };
+
+    let query = {
+      operator: 'or',
+      items: nodeIds.map((nodeId, index) => makeAndQuery(nodeId, nodeTypes[index])),
+    };
+
     return new Promise((resolve, reject) => {
-      apis
-        .postDimensionReduction({
-          source_id: sourceId,
-          source_type: sourceType,
-          target_ids: targetIds,
-          target_types: targetTypes,
+      props.apis
+        .GetEntity2DFn({
+          query_str: JSON.stringify(query),
+          page: 1,
+          page_size: nodeIds.length,
         })
         .then((res) => {
           console.log('Get dimensions: ', res);
-          resolve(res.data as DimensionArray);
+          const records = res.records.map((record) => {
+            return {
+              ...record,
+              color: nodeColorMap[record.entity_type],
+            };
+          });
+          resolve(records);
         })
         .catch((err) => {
           console.log('Error when getting dimensions: ', err);
@@ -278,8 +256,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const onDeleteGraph = (graphHistoryItem: GraphHistoryItem) => {
     // TODO: add confirm dialog, it will delete the graph cascade.
-    apis
-      .deleteGraphHistory({ id: graphHistoryItem.id })
+    props.apis
+      .DeleteGraphHistoryFn({ id: graphHistoryItem.id })
       .then((response) => {
         message.success('Graph deleted successfully.');
         loadGraphs();
@@ -290,8 +268,21 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       });
   };
 
+  const loadNodeColorMap = () => {
+    props.apis
+      .GetEntityColorMapFn()
+      .then((response) => {
+        console.log('Entity Color Map: ', response);
+        setNodeColorMap(response);
+      })
+      .catch((error) => {
+        console.log(error);
+        message.error('Failed to get entity color map, please check the network connection.');
+      });
+  };
+
   useEffect(() => {
-    apis
+    props.apis
       .GetStatisticsFn()
       .then((response) => {
         setNodeStat(response.entity_stat);
@@ -303,14 +294,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       });
 
     loadGraphs();
+    loadNodeColorMap();
   }, []);
 
   useEffect(() => {
     // You need to check if the data is empty, otherwise it will update on an unmounted component.
-    if (advancedSearchPanelActive === false && isValidSearchObject(searchObject)) {
+    if (advancedSearchPanelActive === false && searchObject) {
       setLoading(true);
       message.info('Loading data, please wait...');
-      makeGraphQueryStrWithSearchObject(searchObject)
+      searchObject
+        .process(props.apis)
         .then((response) => {
           console.log('Query Graph Response: ', response);
           if (searchObject.merge_mode == 'replace') {
@@ -334,7 +327,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
               // Get all relationships that meet the criteria, maybe it comes from user's input or query result
               const relation_types =
-                searchObject.relation_types || edges.map((edge) => edge.reltype);
+                searchObject.data.relation_types || edges.map((edge) => edge.reltype);
               const found = data.edges.filter((rel) => prediction(rel, node, relation_types));
 
               console.log('Found: ', found, node, relation_types);
@@ -384,22 +377,32 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setAdvancedSearchPanelActive(false);
   };
 
-  const updateSearchObject = (searchObject: SearchObject) => {
+  const updateSearchObject = (searchObject: SearchObjectInterface) => {
     console.log('Search Object: ', searchObject);
     disableAdvancedSearch();
     setSearchObject(searchObject);
   };
 
-  const searchLabel = (label: string, value: string | undefined) => {
-    setSearchObject({
-      mode: 'node',
-      node_type: label,
-      node_id: value,
-      merge_mode: 'replace',
-      nsteps: 1,
-      limit: 50,
-      enable_prediction: false,
-    });
+  const searchLinkedNodes = (
+    entityType: string,
+    entityId: string | undefined,
+    mergeMode?: MergeMode,
+    nsteps?: number,
+    limit?: number,
+  ) => {
+    if (entityId) {
+      let linkedNodesSearchObject = new LinkedNodesSearchObjectClass(
+        {
+          entity_type: entityType,
+          entity_id: entityId,
+          nsteps: nsteps || 1,
+          limit: limit || 10,
+        },
+        mergeMode || 'append',
+      );
+
+      setSearchObject(linkedNodesSearchObject);
+    }
   };
 
   const onCanvasMenuClick = (menuItem: { key: string; name: string }, graph: any, apis: any) => {
@@ -407,7 +410,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       message.info('Auto connecting nodes, please wait...');
       setLoading(true);
       const nodes = graph.getNodes().map((node: any) => node.getModel() as GraphNode);
-      autoConnectNodes(nodes)
+      const nodeIds = nodes.map((node: GraphNode) => formatNodeIdFromGraphNode(node));
+      props.apis
+        .GetConnectedNodesFn({
+          node_ids: nodeIds,
+        })
         .then((response: GraphData) => {
           console.log('Auto Connect Response: ', response);
           checkAndSetData({
@@ -480,105 +487,76 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       }
     } else if (menuItem.key == 'expand-one-level') {
       enableAdvancedSearch();
-      setSearchObject({
-        node_type: node.nlabel,
-        node_id: node.data.id,
-        merge_mode: 'append',
-      });
+      searchLinkedNodes(node.data.label, node.data.id, 'append', 1, 10);
     } else if (
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
-      console.log('Expand All Paths: ', menuItem.key);
-      const selectedNodes = getSelectedNodes(graph);
-      if (selectedNodes.length == 0) {
-        message.info('Please select one or more nodes to expand.');
-        return;
-      } else {
-        setSearchObject({
-          nodes: selectedNodes,
-          merge_mode: 'append',
-          mode: 'path',
-          nsteps: parseInt(menuItem.key.split('-').pop() || '1'),
-          limit: 50,
-        });
-      }
+      // TODO: How to connect two nodes within n steps?
+      // console.log('Expand All Paths: ', menuItem.key);
+      // const selectedNodes = getSelectedNodes(graph);
+      // if (selectedNodes.length == 0) {
+      //   message.info('Please select one or more nodes to expand.');
+      //   return;
+      // } else {
+      //   setSearchObject({
+      //     nodes: selectedNodes,
+      //     merge_mode: 'append',
+      //     mode: 'path',
+      //     nsteps: parseInt(menuItem.key.split('-').pop() || '1'),
+      //     limit: 50,
+      //   });
+      // }
     } else if (menuItem.key == 'expand-selected-nodes') {
-      const nodes = getSelectedNodes(graph);
-
-      // If no nodes are selected, use the right clicked node
-      if (nodes.length == 0 && node) {
-        nodes.push(node);
-      }
-
-      enableAdvancedSearch();
-      setSearchObject({
-        nodes: nodes,
-        merge_mode: 'append',
-        mode: 'batchNodes',
-        node_id: '',
-        node_type: '',
-      });
+      // TODO: Do we need to expand all selected nodes?
+      // const nodes = getSelectedNodes(graph);
+      // // If no nodes are selected, use the right clicked node
+      // if (nodes.length == 0 && node) {
+      //   nodes.push(node);
+      // }
+      // enableAdvancedSearch();
+      // setSearchObject({
+      //   nodes: nodes,
+      //   merge_mode: 'append',
+      //   mode: 'batchNodes',
+      //   node_id: '',
+      //   node_type: '',
+      // });
     } else if (menuItem.key == 'what-is-the-node') {
       if (props.postMessage) {
         props.postMessage(`what is the ${node.data.name}?`);
       }
     } else if (menuItem.key == 'predict-relationships') {
-      const sourceId = `${node.nlabel}::${node.data.id}`;
-      const selectedNodes = getSelectedNodes(graph);
-      let targetIds = selectedNodes.map((node) => `${node.nlabel}::${node.data.id}`);
-      targetIds = targetIds.filter((id) => id != sourceId);
-      console.log('Predict Relationships: ', menuItem, sourceId, targetIds, selectedNodes);
-      predictRelationships(sourceId, targetIds)
-        .then((response: GraphData) => {
-          console.log('Predict Relationships Response: ', response);
-          if (response.nodes.length == 0 && response.edges.length == 0) {
-            message.warning('No more relationships can be found.');
-          } else {
-            checkAndSetData({
-              nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
-              edges: uniqBy([...data.edges, ...response.edges], 'relid'),
-            });
-          }
-        })
-        .catch((error: any) => {
-          console.log('Predict Relationships Error: ', error);
-          message.warning('Something went wrong, please try again later.');
-        });
+      // TODO: How to predict relationship between two nodes?
+      // const sourceId = `${node.data.label}::${node.data.id}`;
+      // const selectedNodes = getSelectedNodes(graph);
+      // let targetIds = selectedNodes.map((node) => `${node.data.label}::${node.data.id}`);
+      // targetIds = targetIds.filter((id) => id != sourceId);
+      // console.log('Predict Relationships: ', menuItem, sourceId, targetIds, selectedNodes);
+      // predictRelationships(sourceId, targetIds)
+      //   .then((response: GraphData) => {
+      //     console.log('Predict Relationships Response: ', response);
+      //     if (response.nodes.length == 0 && response.edges.length == 0) {
+      //       message.warning('No more relationships can be found.');
+      //     } else {
+      //       checkAndSetData({
+      //         nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
+      //         edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+      //       });
+      //     }
+      //   })
+      //   .catch((error: any) => {
+      //     console.log('Predict Relationships Error: ', error);
+      //     message.warning('Something went wrong, please try again later.');
+      //   });
     } else if (menuItem.key == 'visulize-similarities') {
       const nodes = getNodes(graph);
-      const sourceType = node.nlabel;
-      const sourceId = node.data.id;
-      const filteredNodes = nodes.filter((node) => node.data.id != sourceId);
-      const targetTypes = filteredNodes.map((node) => node.nlabel);
-      const targetIds = filteredNodes.map((node) => node.data.id);
+      const nodeIds = nodes.map((node) => node.data.id);
+      const nodeTypes = nodes.map((node) => node.data.label);
       setLoading(true);
-      getDimensions(sourceId, sourceType, targetIds, targetTypes)
-        .then((response: DimensionArray) => {
-          console.log(
-            'Get Dimensions Response: ',
-            response,
-            targetIds,
-            targetTypes,
-            sourceId,
-            sourceType,
-          );
-          const graphData = response
-            .map((item) => {
-              const filteredNodes = nodes.filter(
-                (node) => node.data.id == item.node_id && node.nlabel == item.node_type,
-              );
-              if (filteredNodes.length > 0) {
-                return {
-                  ...filteredNodes[0],
-                  x: item.x,
-                  y: item.y,
-                };
-              } else {
-                return {};
-              }
-            })
-            .filter((item) => Object.keys(item).length > 0) as GraphNode[];
-          setSimilarityArray(graphData);
+      getDimensions(nodeIds, nodeTypes)
+        .then((response: Entity2D[]) => {
+          console.log('Get Dimensions Response: ', response, nodeIds, nodeTypes);
+          setSimilarityArray(response);
           setSimilarityChartVisible(true);
           setLoading(false);
         })
@@ -690,8 +668,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       // @ts-ignore
       delete data.id;
 
-      apis
-        .postGraphHistory(data)
+      props.apis
+        .PostGraphHistoryFn(data)
         .then((response) => {
           message.success('Graph data saved.');
           loadGraphs();
@@ -760,20 +738,21 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           </Row>
           <Row className="top-toolbar">
             <QueryBuilder
-              onChange={searchLabel}
+              onChange={searchLinkedNodes}
               onAdvancedSearch={enableAdvancedSearch}
-              getLabels={apis.getLabels}
-              getNodeTypes={apis.getNodeTypes}
+              entityTypes={nodeStat.map((stat) => stat.entity_type)}
+              getEntities={props.apis.GetEntitiesFn}
             ></QueryBuilder>
             <AdvancedSearch
               onOk={updateSearchObject}
               visible={advancedSearchPanelActive}
               onCancel={disableAdvancedSearch}
+              entityTypes={nodeStat.map((stat) => stat.entity_type)}
               searchObject={searchObject}
-              edgeStat={edgeStat}
+              relationStat={edgeStat}
+              key={searchObject?.get_current_node_id() || 'default'}
               parent={document.getElementById('knowledge-graph-container') as HTMLElement}
-              key={searchObject.node_id}
-              apis={apis}
+              apis={props.apis}
             ></AdvancedSearch>
           </Row>
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -865,7 +844,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               data={data}
               layout={layout}
               style={style}
-              queriedId={searchObject.node_id}
+              queriedId={searchObject?.get_current_node_id() || ''}
               statistics={statistics}
               toolbarVisible={toolbarVisible}
               onClearGraph={onClearGraph}
@@ -890,10 +869,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 >
                   <SimilarityChart
                     data={similarityArray}
+                    method="tsne"
                     description='If you expect to highlight nodes on the chart, you need to enable the "Focus" and "Select" mode.'
-                    onClick={(node: GraphNode) => {
-                      setCurrentNode(node.id);
-                      setHightlightMode('focus');
+                    onClick={(entity2D: Entity2D) => {
+                      setCurrentNode(formatNodeIdFromEntity2D(entity2D));
+                      setHightlightMode('activate');
+                      // TODO: Which one is better?
+                      // setHightlightMode('focus');
                     }}
                   ></SimilarityChart>
                 </Movable>

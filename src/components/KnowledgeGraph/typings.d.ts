@@ -16,29 +16,6 @@ export type OptionType = {
   value: string;
 };
 
-export type Relationship = {
-  sourceNodeType: string;
-  targetNodeType: string;
-  relationshipType: string;
-  resource: string;
-};
-
-export type SearchObject = {
-  node_type?: string;
-  node_id?: string | undefined;
-  merge_mode: 'append' | 'replace' | 'subtract';
-  relation_types?: string[];
-  query_mode?: 'each' | 'all'; // each: querying n nodes for each node, all: querying n nodes for all nodes; Only used for mode "batchNodes"
-  all_relation_types?: string[];
-  enable_prediction?: boolean;
-  nsteps?: number;
-  limit?: number;
-  mode?: 'node' | 'batchIds' | 'similarity' | 'batchNodes' | 'path';
-  topk?: number; // Only used for mode "similarity"
-  node_ids?: string[]; // Only used for mode "batchIds"
-  nodes?: GraphNode[]; // Only used for mode "batchNodes" or "path"
-};
-
 export type OnNodeMenuClickFn = (
   item: { key: string; name: string },
   data: GraphNode,
@@ -95,6 +72,7 @@ export type OnClickEdgeFn = (
   endNode: GraphNode,
   edge: GraphEdge,
 ) => void;
+
 export type OnClickNodeFn = (nodeId: string, node: GraphNode) => void;
 
 export type AdjacencyList = Map<string, string[]>; // node id -> list of node ids

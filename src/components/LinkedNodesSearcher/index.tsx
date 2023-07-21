@@ -1,7 +1,7 @@
 import { Form, Select, Empty, InputNumber, message, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { LinkedNodesSearcherProps } from './index.t';
-import { NodeEdgeSearchObjectClass } from './index.t';
+import { LinkedNodesSearchObjectClass } from './index.t';
 import { makeRelationTypes, getMaxDigits, getRelationOption } from './utils';
 import {
   type RelationCount,
@@ -202,7 +202,10 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
   }, [props.entityTypes]);
 
   useEffect(() => {
-    if (props.searchObject) {
+    if (
+      props.searchObject &&
+      props.searchObject.get_instance_id() === 'linked-nodes-search-object'
+    ) {
       form.setFieldsValue({
         entity_type: props.searchObject.data.entity_type,
         entity_id: props.searchObject.data.entity_id,
@@ -286,7 +289,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             limit: values.limit ? values.limit : 50,
           };
 
-          props.onOk(new NodeEdgeSearchObjectClass(payload, values.merge_mode));
+          props.onOk(new LinkedNodesSearchObjectClass(payload, values.merge_mode));
         }
       })
       .catch((error) => {
@@ -403,7 +406,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           options={MergeModeOptions}
         ></Select>
       </Form.Item>
-      <Form.Item wrapperCol={{ offset: 19, span: 5 }}>
+      <Form.Item wrapperCol={{ offset: 18, span: 6 }}>
         <Button style={{ marginRight: '10px' }} onClick={props.onCancel}>
           Cancel
         </Button>

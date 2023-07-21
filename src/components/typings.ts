@@ -46,6 +46,17 @@ export type Entity2D = {
   color?: string;
 };
 
+export type Entity2DRecordsResponse = {
+  /** Total number of records. */
+  total: number;
+  /** List of records. */
+  records: Entity2D[];
+  /** Page number. */
+  page: number;
+  /** Num of items per page. */
+  page_size: number;
+};
+
 export type Relation = {
   id: number;
   relation_type: string;
@@ -154,7 +165,7 @@ export type GraphHistoryResponse = {
   total: number;
   page: number;
   page_size: number;
-  data: GraphHistoryItem[];
+  records: GraphHistoryItem[];
 };
 
 export type GraphHistoryParams = {
@@ -218,7 +229,7 @@ export type APIs = {
   // Graph History
   GetGraphHistoryFn: (params: GraphHistoryParams) => Promise<GraphHistoryResponse>;
   PostGraphHistoryFn: (payload: GraphHistoryItemPayload) => Promise<GraphHistoryItemPayload>;
-  DeleteGraphHistoryFn: (params: { id: number }) => Promise<void>;
+  DeleteGraphHistoryFn: (params: { id: string }) => Promise<void>;
   // Prediction
   GetNodesFn: (params: { node_ids: string[] }) => Promise<GraphData>;
   GetSimilarityNodesFn: (params: {
@@ -228,7 +239,8 @@ export type APIs = {
   }) => Promise<GraphData>;
   GetOneStepLinkedNodesFn: (params: EntityQueryParams) => Promise<GraphData>;
   GetConnectedNodesFn: (params: { node_ids: string[] }) => Promise<GraphData>;
-  GetEntity2DFn: (params: EntityQueryParams) => Promise<GraphData>;
+  GetEntity2DFn: (params: EntityQueryParams) => Promise<Entity2DRecordsResponse>;
+  GetEntityColorMapFn: () => Promise<Record<string, string>>;
 };
 
 // ------------------ Search Object ------------------
@@ -239,6 +251,10 @@ export type APIs = {
 export type MergeMode = 'append' | 'replace' | 'subtract';
 export interface SearchObjectInterface {
   process(apis: APIs): Promise<GraphData>;
+
+  get_current_node_id(): string | undefined;
+
+  get_instance_id(): string;
 
   data: any;
 
@@ -261,6 +277,14 @@ export class PathSearchObjectClass implements SearchObjectInterface {
   constructor(data: PathSearchObject, merge_mode: MergeMode) {
     this.data = data;
     this.merge_mode = merge_mode;
+  }
+
+  get_instance_id(): string {
+    return `path-search-object`;
+  }
+
+  get_current_node_id(): string {
+    return `${this.data.source_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_type}`;
   }
 
   process(apis: APIs): Promise<GraphData> {

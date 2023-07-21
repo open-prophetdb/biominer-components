@@ -32,8 +32,8 @@ const EdgeInfoPanel: React.FC<EdgeInfoPanelProps> = (props) => {
   useEffect(() => {
     console.log('EdgeInfoPanel: ', edge, startNode, endNode);
     if (edge && startNode && endNode) {
-      const startNodeType = startNode.nlabel;
-      const endNodeType = endNode.nlabel;
+      const startNodeType = startNode.data.label;
+      const endNodeType = endNode.data.label;
       const relationTypes = [startNodeType, endNodeType].sort().join('');
 
       console.log('relationTypes: ', relationTypes, relationType);

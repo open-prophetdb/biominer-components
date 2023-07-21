@@ -1,4 +1,4 @@
-import type { APIs, GetGeneInfoFn, GetItems4GenePanelFn } from './interface';
+import type { APIs, GetGeneInfoFn, GetItems4GenePanelFn } from '../typings';
 
 export type KnowledgeGraphProps = {
   postMessage?: (message: any) => void;

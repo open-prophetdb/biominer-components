@@ -8,6 +8,7 @@ import type {
   ComposeQueryItem,
   QueryItem,
 } from '../typings';
+import { COMPOSED_ENTITY_DELIMITER } from '../typings';
 
 export type LinkedNodesSearcherProps = {
   /**
@@ -30,7 +31,7 @@ export type LinkedNodesSearcherProps = {
    * @description A listener to listen the submit event.
    * @default undefined
    */
-  onOk?: (searchObj: NodeEdgeSearchObjectClass) => void;
+  onOk?: (searchObj: LinkedNodesSearchObjectClass) => void;
   /**
    * @description A listener to listen the cancel event.
    * @default undefined
@@ -40,11 +41,11 @@ export type LinkedNodesSearcherProps = {
    * @description A initial search object.
    * @default undefined
    */
-  searchObject?: NodeEdgeSearchObjectClass;
+  searchObject?: LinkedNodesSearchObjectClass;
 };
 
 // Allow to query the linked nodes and related edges of a node, these nodes may connect with the node by one or several hops.
-type NodeEdgeSearchObject = {
+type LinkedNodesSearchObject = {
   entity_type: string;
   entity_id: string;
   relation_types?: string[];
@@ -52,13 +53,21 @@ type NodeEdgeSearchObject = {
   limit?: number;
 };
 
-export class NodeEdgeSearchObjectClass implements SearchObjectInterface {
-  data: NodeEdgeSearchObject;
+export class LinkedNodesSearchObjectClass implements SearchObjectInterface {
+  data: LinkedNodesSearchObject;
   merge_mode: MergeMode;
 
-  constructor(data: NodeEdgeSearchObject, merge_mode: MergeMode) {
+  constructor(data: LinkedNodesSearchObject, merge_mode: MergeMode) {
     this.data = data;
     this.merge_mode = merge_mode;
+  }
+
+  get_instance_id(): string {
+    return `linked-nodes-search-object`;
+  }
+
+  get_current_node_id(): string | undefined {
+    return `${this.data.entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_type}`;
   }
 
   async process(apis: APIs): Promise<GraphData> {
@@ -67,12 +76,12 @@ export class NodeEdgeSearchObjectClass implements SearchObjectInterface {
         operator: 'and',
         items: [
           {
-            field: 'entity_type',
+            field: 'source_type',
             operator: '=',
             value: this.data.entity_type,
           },
           {
-            field: 'entity_id',
+            field: 'source_id',
             operator: '=',
             value: this.data.entity_id,
           },

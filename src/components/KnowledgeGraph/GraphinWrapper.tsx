@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Graphin, { Components, Behaviors, GraphinContext, IG6GraphEvent } from '@antv/graphin';
-import { CustomGraphinContext } from './Context/CustomGraphinContext';
+import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
-import Moveable from './Components/Movable';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import {
   BoxPlotOutlined,
@@ -28,21 +27,22 @@ import {
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
+import Moveable from '../Movable';
 import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu } from 'antd';
 import { makeDataSource, layouts, prepareGraphData } from './utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
-  GraphNode,
   OnClickEdgeFn,
   OnClickNodeFn,
-  GraphEdge,
   OnCanvasMenuClickFn,
   AdjacencyList,
 } from './typings';
+import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
 import { GraphLayoutPredict } from '@antv/vis-predict-engine';
 import voca from 'voca';
+
 import './GraphinWrapper.less';
 
 const { MiniMap, SnapLine, Tooltip, Legend } = Components;
@@ -824,6 +824,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       'y',
       'type',
       'category',
+      'nlabel',
+      'identity',
     ]);
     const items = Object.keys(dataSource).map((key) => {
       if (dataSource[key]) {

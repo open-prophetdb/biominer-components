@@ -13,8 +13,8 @@ const NodeInfoPanel: React.FC<NodeInfoPanelProps> = (props) => {
 
   // You should add your own logic here to map the node label to the panel type
   const mapNode2Type = (node: GraphNode | undefined) => {
-    if (node && node.nlabel) {
-      const label = node.nlabel.toLocaleLowerCase();
+    if (node && node.data.label) {
+      const label = node.data.label.toLocaleLowerCase();
 
       if (['gene', 'protein'].includes(label)) {
         return (

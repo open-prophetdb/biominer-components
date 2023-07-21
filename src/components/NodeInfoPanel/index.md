@@ -74,7 +74,7 @@ export default () => {
   useEffect(() => {
     getNodes().then((data) => {
       console.log('Get nodes data: ', data);
-      setData(filter(data.nodes, (item: any) => item.nlabel === 'Gene'));
+      setData(filter(data.nodes, (item: any) => item.data.label === 'Gene'));
     });
   }, []);
 

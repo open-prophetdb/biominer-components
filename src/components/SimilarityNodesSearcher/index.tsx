@@ -84,7 +84,10 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
   }, [props.entityTypes]);
 
   useEffect(() => {
-    if (props.searchObject) {
+    if (
+      props.searchObject &&
+      props.searchObject.get_instance_id() === `similarity-nodes-search-object`
+    ) {
       form.setFieldsValue({
         entity_type: props.searchObject.data.entity_type,
         entity_id: props.searchObject.data.entity_id,
@@ -203,7 +206,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
           options={MergeModeOptions}
         ></Select>
       </Form.Item>
-      <Form.Item wrapperCol={{ offset: 19, span: 5 }}>
+      <Form.Item wrapperCol={{ offset: 18, span: 6 }}>
         <Button style={{ marginRight: '10px' }} onClick={props.onCancel}>
           Cancel
         </Button>

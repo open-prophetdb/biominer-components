@@ -1,8 +1,10 @@
 import { Col, Empty, Row, message } from 'antd';
 import PlotlyViewer from '../PlotlyViewer';
-import type { Entity2D, SimilarityChartProps } from './index.t';
+import { CustomGraphinContext } from '../Context/CustomGraphinContext';
+import type { SimilarityChartProps } from './index.t';
+import type { Entity2D } from '../typings';
 import type { PlotlyChart } from '../PlotlyViewer/data';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { genLayout } from './BaseStyle';
 import './index.less';
 
@@ -19,11 +21,18 @@ const makeid = (length: number) => {
 };
 
 const SimilarityChart: React.FC<SimilarityChartProps> = (props) => {
+  const graphinContext = useContext(CustomGraphinContext);
   const [charts, setCharts] = useState<PlotlyChart[]>([]);
   const [divId, setDivId] = useState<string>(makeid(5));
 
   useEffect(() => {
     let selectedNodeIds: string[] = props.selectedNodeIds || [];
+    console.log('graphinContext.selectedNodes: ', graphinContext, graphinContext.selectedNodes);
+    if (graphinContext.selectedNodes) {
+      selectedNodeIds = selectedNodeIds.concat(
+        graphinContext.selectedNodes?.map((node) => node.data.id),
+      );
+    }
 
     if (props.data.length !== 0) {
       let localCharts: PlotlyChart[] = [];
@@ -98,7 +107,7 @@ const SimilarityChart: React.FC<SimilarityChartProps> = (props) => {
       console.log('localCharts: ', localCharts);
       setCharts(localCharts);
     }
-  }, [props.data, props.selectedNodeIds]);
+  }, [props.data, props.selectedNodeIds, graphinContext.selectedNodes]);
 
   const onPlotlyClick = (data: any) => {
     if (data.points.length === 1) {

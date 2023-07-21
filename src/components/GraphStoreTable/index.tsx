@@ -200,7 +200,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   };
 
   useEffect(() => {
-    if (props.treeFormat) {
+    if (props.treeFormat && props.graphs && props.graphs.length > 0) {
       const defaultTreeData = makeTree(props.graphs);
       setTreeData(defaultTreeData);
       const defaultTableData = defaultTreeData[0]
@@ -210,7 +210,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       setTreePanelSpan(defaultTreePanelSpan);
       setSelectedKeys(defaultTreeData[0] ? [defaultTreeData[0].key] : []);
     } else {
-      setTableData(props.graphs);
+      setTableData(props.graphs || []);
       setTreePanelSpan(0);
     }
   }, [props.graphs]);

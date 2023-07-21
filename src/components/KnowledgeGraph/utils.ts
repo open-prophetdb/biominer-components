@@ -1,18 +1,20 @@
 import type { TableColumnType } from 'antd';
-import type { SortOrder } from 'antd/es/table/interface';
 import { filter, uniq } from 'lodash';
 import { Graph } from '@antv/g6';
-import {
-  SearchObject,
-  GraphData,
-  GraphNode,
-  Relationship,
-  EdgeStat,
-  OptionType,
-  APIs,
-  GraphEdge,
-} from './typings';
+import { GraphNode, GraphEdge, COMPOSED_ENTITY_DELIMITER, Entity, Entity2D } from '../typings';
 import voca from 'voca';
+
+export const formatNodeIdFromEntity = (entity: Entity) => {
+  return `${entity.label}${COMPOSED_ENTITY_DELIMITER}${entity.id}`;
+};
+
+export const formatNodeIdFromEntity2D = (entity: Entity2D) => {
+  return `${entity.entity_type}${COMPOSED_ENTITY_DELIMITER}${entity.entity_id}`;
+};
+
+export const formatNodeIdFromGraphNode = (node: GraphNode) => {
+  return `${node.data.label}${COMPOSED_ENTITY_DELIMITER}${node.data.id}`;
+};
 
 export const processEdges = (edges: GraphEdge[], options: any): GraphEdge[] => {
   const edgeMap: Map<string, GraphEdge[]> = new Map();
@@ -92,7 +94,7 @@ export const makeDataSources = (dataSource: Array<Record<string, any>>) => {
 };
 
 export const removeComplexData = (dataItem: Record<string, any>, blackList?: Array<string>) => {
-  const newObj = {};
+  const newObj: any = {};
   const keys = Object.keys(dataItem);
   const filteredKeys = filter(keys, (key) => {
     if (blackList) {
@@ -113,138 +115,19 @@ export const removeComplexData = (dataItem: Record<string, any>, blackList?: Arr
 export const makeDataSource = (dataItem: Record<string, any>, blackList?: Array<string>) => {
   if (dataItem.data) {
     return {
-      ...removeComplexData(dataItem, blackList),
       ...removeComplexData(dataItem.data, blackList),
+      ...removeComplexData(dataItem, blackList),
     };
   } else {
     return removeComplexData(dataItem);
   }
 };
 
-export function makeQueryStr(
-  params: any, // DataType & PageParams
-  sort: Record<string, SortOrder>,
-  filter: Record<string, React.ReactText[] | null>,
-): string {
-  console.log('makeQueryStr filter: ', filter);
-  const query_str = `:select [:*]`;
-  let sort_clause = '';
-  let query_clause = '';
-  if (sort) {
-    const key = Object.keys(sort)[0];
-    const value = Object.values(sort)[0];
-    if (key && value) {
-      if (value === 'ascend') {
-        sort_clause = `:order-by [:${key}]`;
-      } else {
-        sort_clause = `:order-by [[:${key} :desc]]`;
-      }
-    }
-  }
-
-  if (params) {
-    const subclauses = [];
-    for (const key of Object.keys(params)) {
-      if (['current', 'pageSize'].indexOf(key) < 0 && params[key].length > 0) {
-        subclauses.push(`[:like [:upper :${key}] [:upper "%${params[key]}%"]]`);
-      }
-    }
-
-    if (subclauses.length == 1) {
-      query_clause = `:where ${subclauses[0]}`;
-    } else if (subclauses.length > 1) {
-      query_clause = `:where [:or ${subclauses.join(' ')}]`;
-    }
-  }
-
-  return `{${query_str} ${sort_clause} ${query_clause}}`;
-}
-
-export function makeGraphQueryStr(
-  matchClause: string,
-  whereClause: string,
-  returnClause?: string,
-  limit?: number,
-): Record<string, any> {
-  let returnClauseStr = returnClause ? returnClause : 'n,m,r';
-  let queryStr: any = {
-    match: matchClause,
-    where: whereClause,
-    return: returnClauseStr,
-  };
-
-  if (limit !== undefined) {
-    queryStr = {
-      ...queryStr,
-      limit: limit ? limit : 50,
-    };
-  }
-  return queryStr;
-}
-
-export const makeGraphQueryStrWithIds = (apis: APIs, ids: number[]): Promise<GraphData> => {
-  // Remove all undefined and null values
-  const filterIds = ids.filter((item) => item);
-  let query_map = {
-    match: '(n)',
-    where: `ID(n) in [${filterIds}]`,
-    return: 'n',
-  };
-  return new Promise((resolve, reject) => {
-    apis
-      .postGraph({ query_map: query_map })
-      .then((res) => {
-        if (res) {
-          resolve(res);
-        } else {
-          reject(res);
-        }
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
-
-export function autoConnectNodes(apis: APIs, nodes: GraphNode[]): Promise<GraphData> {
-  // To convert the js object into a literal string
-  let nodeList = nodes.map((item) => {
-    // In fact, id is a number in neo4j, but it is converted to a string in the front end.
-    return { id: parseInt(item.id), label: item.nlabel };
-  });
-  let nodeListStr = JSON.stringify(nodeList, null).replace(/"([^"]+)":/g, '$1:');
-  let idListStr = JSON.stringify(
-    nodes.map((item) => parseInt(item.id)),
-    null,
-  );
-  let query_map = {
-    with: `${nodeListStr} as nodeList, ${idListStr} as idList`,
-    unwind: 'nodeList AS node',
-    match: '(n)-[r]-(m)',
-    where: 'node.label in labels(n) and ID(n) = node.id and ID(m) in idList',
-    return: 'n,m,r',
-  };
-  return new Promise((resolve, reject) => {
-    apis
-      .postGraph({ query_map: query_map })
-      .then((res) => {
-        if (res) {
-          resolve(res);
-        } else {
-          reject(res);
-        }
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-}
-
 export const getDefaultRelSep = () => {
   return '<>';
 };
 
-export const getRelationshipOption = (
+export const getRelationOption = (
   relationType: string,
   resource: string,
   sourceNodeType: string,
@@ -255,418 +138,11 @@ export const getRelationshipOption = (
   // Two formats of relationships are supported:
   // 1. Single field mode: bioarx::Covid2_acc_host_gene::Disease:Gene
   // 2. Multiple fields mode: relationshipType<>resource<>sourceNodeType<>targetNodeType
-  if (relationType.indexOf('::') >= 0) {
+  if (relationType.indexOf(COMPOSED_ENTITY_DELIMITER) >= 0) {
     return relationType;
   } else {
     return [relationType, resource, sourceNodeType, targetNodeType].join(sep);
   }
-};
-
-function makeRelationMaps(relationships: string[]): Relationship[] {
-  let relationMaps = [];
-  let sep = getDefaultRelSep();
-  for (let i = 0; i < relationships.length; i++) {
-    let [relationshipType, resource, sourceNode, targetNode] = relationships[i].split(sep);
-    let relationMap = {
-      relationshipType: relationshipType,
-      sourceNodeType: sourceNode,
-      targetNodeType: targetNode,
-      resource: resource,
-    };
-
-    relationMaps.push(relationMap);
-  }
-
-  return relationMaps;
-}
-
-export const getMaxDigits = (nums: number[]): number => {
-  let max = 0;
-  nums.forEach((element: number) => {
-    let digits = element.toString().length;
-    if (digits > max) {
-      max = digits;
-    }
-  });
-
-  return max;
-};
-
-export const makeRelationshipTypes = (edgeStat: EdgeStat[]): OptionType[] => {
-  let o: OptionType[] = [];
-  const maxDigits = getMaxDigits(edgeStat.map((element: EdgeStat) => element.relation_count));
-
-  edgeStat.forEach((element: EdgeStat) => {
-    const relation_count = element.relation_count.toString().padStart(maxDigits, '0');
-    const relationshipType = getRelationshipOption(
-      element.relation_type,
-      element.source,
-      element.start_node_type,
-      element.end_node_type,
-    );
-
-    o.push({
-      order: element.relation_count,
-      label: `[${relation_count}] ${relationshipType}`,
-      value: relationshipType,
-    });
-  });
-
-  return o.sort((a: any, b: any) => a.order - b.order);
-};
-
-export const isValidNodeMode = (searchObject: SearchObject): boolean => {
-  const { mode, node_type, node_id } = searchObject;
-  if (mode == 'node' && node_type && node_id) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isValidBatchIdsMode = (searchObject: SearchObject): boolean => {
-  const { mode, node_ids } = searchObject;
-  if (mode == 'batchIds' && node_ids && node_ids.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isValidSimilarityMode = (searchObject: SearchObject): boolean => {
-  const { mode, node_id, node_type } = searchObject;
-  if (mode == 'similarity' && node_id && node_type) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isValidBatchNodesMode = (searchObject: SearchObject): boolean => {
-  const { mode, nodes, node_type } = searchObject;
-  if (mode == 'batchNodes' && nodes && nodes.length > 0 && node_type) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isValidPathMode = (searchObject: SearchObject): boolean => {
-  const { mode, nodes } = searchObject;
-  if (mode == 'path' && nodes && nodes.length > 0) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export const isValidSearchObject = (searchObject: SearchObject): boolean => {
-  if (
-    isValidNodeMode(searchObject) ||
-    isValidBatchIdsMode(searchObject) ||
-    isValidSimilarityMode(searchObject) ||
-    isValidBatchNodesMode(searchObject) ||
-    isValidPathMode(searchObject)
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-export function makeGraphQueryStrWithSearchObject(
-  apis: APIs,
-  searchObject: SearchObject,
-): Promise<GraphData> {
-  console.log('makeGraphQueryStrWithSearchObject: ', searchObject);
-  const {
-    node_type,
-    node_id,
-    relation_types,
-    all_relation_types,
-    enable_prediction,
-    limit,
-    mode,
-    node_ids,
-    topk,
-    nodes,
-  } = searchObject;
-  return new Promise((resolve, reject) => {
-    let payload = {};
-    let query_str = {};
-
-    let defaultLimit = limit ? limit : 50;
-
-    if (mode == 'node' || mode == 'batchIds' || mode == 'batchNodes' || mode == 'path') {
-      if (isValidNodeMode(searchObject)) {
-        query_str = makeGraphQueryStr(
-          `(n:${node_type})-[r]-(m)`,
-          `n.id = '${node_id}'`,
-          undefined,
-          defaultLimit,
-        );
-
-        if (!relation_types || relation_types?.length == 0) {
-          if (searchObject.nsteps && searchObject.nsteps <= 1) {
-            query_str = makeGraphQueryStr(
-              `(n:${node_type})-[r]-(m)`,
-              `n.id = '${node_id}'`,
-              undefined,
-              defaultLimit,
-            );
-          } else {
-            // This is a bug in the backend, if we use *1..${searchObject.nsteps} it will not return the correct result
-            // But it will not be ran into this case, since we will not have nsteps > 1 in the frontend
-            query_str = makeGraphQueryStr(
-              `(n:${node_type})-[r*1..${searchObject.nsteps}]-(m)`,
-              `n.id = '${node_id}'`,
-              'n,r,m',
-              defaultLimit,
-            );
-          }
-
-          // It will cause performance issue if we enable prediction for all relation types
-          // So we need to filter out the relation types that are not related to the node type or warn the user that he/she should pick up at least one relation type
-          const allRelationTypes = all_relation_types
-            ? all_relation_types.filter((item) => item.match(node_type || ''))
-            : [];
-          const relationshipMaps = makeRelationMaps(allRelationTypes);
-          const relationTypes = relationshipMaps.map((item) => `'${item.relationshipType}'`);
-          payload = {
-            source_id: `${node_id}`,
-            relation_types: relationTypes,
-            topk: 10,
-            enable_prediction: enable_prediction,
-          };
-        } else {
-          const relationshipMaps = makeRelationMaps(relation_types);
-          // TODO: Do we need to filter out the relation types that are not related to the node type?
-          // const filteredRelationshipMaps = relationshipMaps.filter(item => item.sourceNodeType == node_type);
-
-          const filtered_labels = relationshipMaps.filter((item) => item.targetNodeType);
-          let labels_clause = '';
-          if (filtered_labels.length > 0) {
-            const labels = uniq(relationshipMaps.map((item) => `m:${item.targetNodeType}`)).join(
-              ' or ',
-            );
-            labels_clause = labels ? `( ${labels} ) and ` : '';
-          }
-
-          const filtered_resources = relationshipMaps.filter((item) => item.resource);
-          let resources_clause = '';
-          if (filtered_resources.length > 0) {
-            const resources = uniq(relationshipMaps.map((item) => `'${item.resource}'`)).join(',');
-            resources_clause = resources ? `r.resource in [${resources}] and ` : '';
-          }
-
-          const relationTypes = uniq(relationshipMaps.map((item) => item.relationshipType));
-          const relationConditions = relationTypes
-            .map((item) => `type(r) = '${item}'`)
-            .join(' or ');
-          const whereRelClause = relationConditions ? `( ${relationConditions} )` : '';
-
-          const whereNodeClause = `${labels_clause} ${resources_clause} ${whereRelClause}`;
-          if (searchObject.nsteps && searchObject.nsteps <= 1) {
-            query_str = makeGraphQueryStr(
-              `(n:${node_type})-[r]-(m)`,
-              `n.id = '${node_id}' and ${whereNodeClause}`,
-              undefined,
-              defaultLimit,
-            );
-          } else {
-            query_str = makeGraphQueryStr(
-              `(n:${node_type})-[r*1..${searchObject.nsteps}]-(m)`,
-              `n.id = '${node_id}' and ${whereNodeClause}`,
-              undefined,
-              defaultLimit,
-            );
-          }
-
-          payload = {
-            source_id: node_id,
-            relation_types: relationTypes,
-            topk: topk ? topk : 10,
-            enable_prediction: enable_prediction,
-          };
-        }
-      }
-
-      if (isValidBatchIdsMode(searchObject)) {
-        const nodeIds = node_ids
-          ?.filter((id) => id)
-          .map((id) => `'${id}'`)
-          .join(',');
-        query_str = makeGraphQueryStr(`(n)`, `n.id in [${nodeIds}]`, 'n', defaultLimit);
-      }
-
-      if (isValidBatchNodesMode(searchObject)) {
-        const whereClause = uniq(
-          nodes?.map((item) => `(n.id = '${item.data.id}' and n:${item.nlabel})`),
-        ).join(' or ');
-
-        let relationConditions = '';
-        if (searchObject.relation_types && searchObject.relation_types.length > 0) {
-          const relationTypes = uniq(searchObject.relation_types.map((item) => `'${item}'`)).join(
-            ',',
-          );
-          relationConditions = relationTypes ? `type(r) in [${relationTypes}]` : '';
-        }
-
-        if (searchObject.query_mode == 'each') {
-          // MATCH (n)-[r]-(:Gene)
-          // WHERE ((n.id = 'DB00005' and n:Compound) or (n.id = 'DB00016' and n:Compound))
-          // CALL {
-          //   WITH n
-          //   MATCH (n)-[r]-(m: Gene)
-          //   WHERE type(r) in ["DRUGBANK::target::Compound:Gene"]
-          //   RETURN m
-          //   LIMIT 3
-          // }
-          // RETURN n,r,m
-          const whereClauses = `(${whereClause}) ${
-            relationConditions ? 'and ' + relationConditions : ''
-          }`;
-          const callClauseRelConditions = relationConditions ? `WHERE ${relationConditions}` : '';
-          const callClause = `CALL { WITH n MATCH (n)-[r]-(m:${node_type}) ${callClauseRelConditions}  RETURN m LIMIT ${defaultLimit} }`;
-          // Don't set limit here, otherwise it will not return the correct result
-          query_str = makeGraphQueryStr(
-            `(n)-[r]-(:${node_type})`,
-            `${whereClauses} ${callClause}`,
-            `n,r,m`,
-          );
-        } else {
-          query_str = makeGraphQueryStr(
-            `(n)-[r]-(m:${node_type})`,
-            `${whereClause} ${relationConditions}`,
-            'n,r,m',
-            defaultLimit,
-          );
-        }
-      }
-
-      if (isValidPathMode(searchObject)) {
-        const { nodes, nsteps } = searchObject;
-        const nWhereClause = uniq(
-          nodes?.map((item) => `(n.id = '${item.data.id}' and n:${item.nlabel})`),
-        ).join(' or ');
-        const mWhereClause = uniq(
-          nodes?.map((item) => `(m.id = '${item.data.id}' and m:${item.nlabel})`),
-        ).join(' or ');
-        // When to use and when to use or?
-        const whereClause = `(${nWhereClause}) ${
-          nsteps && nsteps == 1 ? 'and' : 'or'
-        } (${mWhereClause})`;
-        query_str = makeGraphQueryStr(
-          `(n)-[r*1..${nsteps ? nsteps : 3}]-(m)`,
-          whereClause,
-          'n,r,m',
-          // TODO: We need to allow user to specify the limit
-          defaultLimit,
-        );
-      }
-
-      console.log('query_str: ', query_str);
-      if (Object.keys(query_str).length > 0) {
-        apis
-          .postGraph({ query_map: query_str, ...payload })
-          .then((res) => {
-            if (res) {
-              resolve(res);
-            } else {
-              reject(res);
-            }
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      } else {
-        resolve({ nodes: [], edges: [] });
-      }
-    }
-
-    if (isValidSimilarityMode(searchObject)) {
-      // TODO: Current version only support the format of node_id = "node_type:node_id"
-      // How to keep consistency with the format of node_id in the deep learning model?
-      apis
-        .postSimilarity({
-          source_type: node_type,
-          // node_id may be a integer, but the backend only support string
-          source_id: `${node_id}`,
-          topk: topk ? topk : 10,
-        })
-        .then((res) => {
-          console.log('Find similar nodes: ', res);
-          if (res) {
-            resolve(res);
-          } else {
-            reject(res);
-          }
-        })
-        .catch((err) => {
-          console.log('Error when finding similar nodes: ', err);
-          reject(err);
-        });
-    }
-  });
-}
-
-export const searchRelationshipsById = (
-  apis: APIs,
-  label: string,
-  id: string | undefined,
-): Promise<GraphData> => {
-  return new Promise((resolve, reject) => {
-    if (label && id) {
-      apis
-        .postGraph({ query_map: makeGraphQueryStr(`(n:${label})-[r]-(m)`, `n.id = '${id}'`) })
-        .then((res) => {
-          if (res) {
-            resolve(res);
-          } else {
-            reject(res);
-          }
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    } else {
-      resolve({
-        nodes: [],
-        edges: [],
-      });
-    }
-  });
-};
-
-export const predictRelationships = (
-  apis: APIs,
-  sourceId: string,
-  targetIds: string[],
-): Promise<GraphData> => {
-  return new Promise((resolve, reject) => {
-    const sourceNodeId = sourceId.split('::')[1];
-    const targetNodeIds = targetIds.map((item) => `'${item.split('::')[1]}'`).join(`,`);
-    apis
-      .postGraph({
-        query_map: makeGraphQueryStr(
-          `(n)-[r]-(m)`,
-          `n.id = '${sourceNodeId}' and m.id in [${targetNodeIds}]`,
-        ),
-        source_id: sourceId,
-        target_ids: targetIds,
-        enable_prediction: true,
-      })
-      .then((res) => {
-        if (res) {
-          resolve(res);
-        } else {
-          reject(res);
-        }
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
 };
 
 export const defaultLayout = {
@@ -686,7 +162,7 @@ export const legacyDefaultLayout = {
   clustering: true,
   leafCluster: true,
   preventOverlap: true,
-  nodeClusterBy: 'nlabel', // 节点聚类的映射字段
+  nodeClusterBy: 'cluster', // 节点聚类的映射字段
   clusterNodeStrength: 40, // 节点聚类作用力
   minNodeSpacing: 20,
   nodeSize: 40,
@@ -737,8 +213,8 @@ export const layouts = [
     clustering: true,
     leafCluster: true,
     preventOverlap: true,
-    clusterAttr: 'nlabel',
-    nodeClusterBy: 'nlabel', // 节点聚类的映射字段
+    clusterAttr: 'cluster',
+    nodeClusterBy: 'cluster', // 节点聚类的映射字段
     clusterNodeStrength: 40, // 节点聚类作用力
     minNodeSpacing: 20,
     nodeSize: 40,

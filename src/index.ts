@@ -10,6 +10,7 @@ export { default as MarkdownViewer } from './components/MarkdownViewer';
 export { default as ReactChatPlugin, AiIcon, UserIcon } from './components/ReactChatPlugin';
 export { default as PlotlyViewer } from './components/PlotlyViewer';
 export { default as KnowledgeGraphEditor } from './components/KnowledgeGraphEditor';
+export { default as KnowledgeGraph } from './components/KnowledgeGraph';
 
 // Subcomponents
 export { default as StatisticsChart } from './components/StatisticsChart';
