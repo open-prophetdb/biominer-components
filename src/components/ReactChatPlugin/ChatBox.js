@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'antd';
 import PropTypes from 'prop-types';
 
 import { KEYS, TIMESTAMPFORMAT } from './constant';
@@ -77,8 +78,9 @@ class ChatBox extends React.Component {
           >
             <div className="react-chat-header">
               <div className="react-chat-headerTitle">{title || 'ChatBot'}</div>
-              <button
-                className="button round-button red-button"
+              <Button
+                danger
+                shape="round"
                 onClick={() => {
                   if (this.props.clearHistory) {
                     this.props.clearHistory();
@@ -86,7 +88,7 @@ class ChatBox extends React.Component {
                 }}
               >
                 Clear
-              </button>
+              </Button>
             </div>
             <div className="react-chat-messagesList" ref={(el) => (this.messagesList = el)}>
               <div className="react-chat-messagesListContent">
