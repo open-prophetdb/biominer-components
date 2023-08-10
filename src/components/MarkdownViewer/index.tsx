@@ -1,23 +1,16 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Empty } from 'antd';
 import ReactMarkdown from 'react-markdown';
-// How to load library dynamically
-import { createElement } from 'react';
 import remarkGfm from 'remark-gfm';
 import type { MarkdownProps } from './index.t';
 
 import './index.less';
 
-const plugins = {
-  enableToc: ['rehype-toc', 'rehype-autolink-headings', 'remark-toc'],
-  enableVideo: ['rehype-video'],
-  enableRaw: ['rehype-raw'],
-  enableSlug: ['rehype-slug'],
-};
-
 const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
   const [markdown, setMarkdown] = useState<string | null>(null);
   const [key, setKey] = useState<string>('');
+  const [rehypePlugins, setRehypePlugins] = useState<any>([]);
+  const [remarkPlugins, setRemarkPlugins] = useState<any>([remarkGfm]);
 
   const fetchMarkdown = function (url: string): Promise<string> {
     if (url.match(/^(minio|file):\/\//)) {
@@ -75,31 +68,41 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
 
   console.log('MarkdownViewer: updated');
 
-  let rehypePlugins: any = [];
-  let remarkPlugins: any = [remarkGfm];
-  if (props.enableToc) {
-    const rehypeToc = createElement(plugins['enableToc'][0]);
-    const rehypeAutolinkHeadings = createElement(plugins['enableToc'][1]);
-    rehypePlugins.concat([rehypeToc, rehypeAutolinkHeadings]);
+  useEffect(() => {
+    if (props.enableToc) {
+      // How to load library dynamically
+      import('rehype-toc').then((module) => {
+        setRehypePlugins([...rehypePlugins, module.default]);
+      });
 
-    const remarkToc = createElement(plugins['enableToc'][2]);
-    remarkPlugins.concat([remarkToc]);
-  }
+      import('rehype-autolink-headings').then((module) => {
+        setRehypePlugins([...rehypePlugins, module.default]);
+      });
 
-  if (props.enableVideo) {
-    const rehypeVideo = createElement(plugins['enableVideo'][0]);
-    rehypePlugins.concat([rehypeVideo]);
-  }
+      import('remark-toc').then((module) => {
+        setRemarkPlugins([...remarkPlugins, module.default]);
+      });
+    }
 
-  if (props.enableRaw) {
-    const rehypeRaw = createElement(plugins['enableRaw'][0]);
-    rehypePlugins.concat([rehypeRaw]);
-  }
+    if (props.enableVideo) {
+      import('rehype-video').then((module) => {
+        setRehypePlugins([...rehypePlugins, module.default]);
+      });
+    }
 
-  if (props.enableSlug) {
-    const rehypeSlug = createElement(plugins['enableSlug'][0]);
-    rehypePlugins.concat([rehypeSlug]);
-  }
+    if (props.enableRaw) {
+      import('rehype-raw').then((module) => {
+        setRehypePlugins([...rehypePlugins, module.default]);
+        console.log('MarkdownViewer: enableRaw', rehypePlugins);
+      });
+    }
+
+    if (props.enableSlug) {
+      import('rehype-slug').then((module) => {
+        setRehypePlugins([...rehypePlugins, module.default]);
+      });
+    }
+  }, [props.enableToc, props.enableVideo, props.enableRaw, props.enableSlug]);
 
   return markdown ? (
     <ReactMarkdown

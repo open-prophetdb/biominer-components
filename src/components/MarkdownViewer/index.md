@@ -37,12 +37,16 @@ const markdown = `
 
 ![Image](https://via.placeholder.com/150)
 
+<img src="https://via.placeholder.com/150" alt="Image" width="150" />
+
+<a href="https://www.google.com" target="_blank">Link</a>
+
 \`\`\`javascript
 const foo = 'bar';
 \`\`\`
 `;
 
-export default () => <MarkdownViewer markdown={markdown} />;
+export default () => <MarkdownViewer markdown={markdown} enableRaw />;
 ```
 
 <API></API>

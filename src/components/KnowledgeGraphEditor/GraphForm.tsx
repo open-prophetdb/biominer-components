@@ -339,7 +339,11 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         footer={null}
         width={'60%'}
       >
-        <MarkdownViewer url={`/README/knowledge_editor_${anchor}.md`} getFile={null} />
+        <MarkdownViewer
+          url={`${window.publicPath}README/knowledge_editor_${anchor}.md`}
+          getFile={null}
+          enableRaw
+        />
       </Modal>
       <Form
         name="basic"
