@@ -128,10 +128,14 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
   };
 
   const updateCuratorId = () => {
-    getIdentity().then((visitorId) => {
-      localStorage.setItem('rapex-visitor-id', visitorId);
-      form.setFieldsValue({ curator: visitorId });
-    });
+    if (props.curator) {
+      form.setFieldsValue({ curator: props.curator });
+    } else {
+      getIdentity().then((visitorId) => {
+        localStorage.setItem('rapex-visitor-id', visitorId);
+        form.setFieldsValue({ curator: visitorId });
+      });
+    }
   };
 
   useEffect(() => {

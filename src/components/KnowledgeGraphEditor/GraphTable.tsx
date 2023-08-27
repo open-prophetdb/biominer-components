@@ -202,6 +202,10 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       });
   }, [page, pageSize, refreshKey]);
 
+  const getRowKey = (record: GraphEdge) => {
+    return `${record.source_id}-${record.target_id}-${record.relation_type}-${record.pmid}-${record.curator}`;
+  };
+
   return (
     <Row className="graph-table-container">
       <Table
@@ -211,11 +215,13 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
         loading={loading}
         scroll={{ x: 1000, y: 'calc(100vh - 240px)' }}
         dataSource={data.data}
-        rowKey={(record) => `${record.source_id}-${record.target_id}`}
+        rowKey={(record) => getRowKey(record)}
         expandable={{
           expandedRowRender: (record) => (
             <p style={{ margin: 0 }}>
               <Tag>Key Sentence</Tag> {record.key_sentence || 'No Key Sentence'}
+              <br />
+              <Tag>Curator</Tag> {record.curator || 'Unknown'}
             </p>
           ),
         }}

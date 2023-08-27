@@ -139,6 +139,7 @@ export type GraphFormProps = {
   formData?: GraphEdge;
   getEntities: GetEntitiesFn;
   getStatistics: GetStatistics;
+  curator?: string;
 };
 
 export type KnowledgeGetterParams = {
