@@ -23,6 +23,10 @@ type GraphTableProps = {
   getTableData: (page: number, pageSize: number) => Promise<GraphTableData>;
   editKnowledge?: (record: GraphEdge) => void;
   deleteKnowledgeById?: DeleteKnowledgeByIdFn;
+  className?: string;
+  style?: React.CSSProperties;
+  yScroll?: number | string;
+  xScroll?: number | string;
 };
 
 const GraphTable: React.FC<GraphTableProps> = (props) => {
@@ -209,11 +213,12 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   return (
     <Row className="graph-table-container">
       <Table
+        className={props.className + ' graph-table'}
+        style={props.style}
         size="small"
-        className="graph-table"
         columns={columns}
         loading={loading}
-        scroll={{ x: 1000, y: 'calc(100vh - 240px)' }}
+        scroll={{ x: props.xScroll || 1000, y: props.yScroll || 'calc(100vh - 240px)' }}
         dataSource={data.data}
         rowKey={(record) => getRowKey(record)}
         expandable={{
