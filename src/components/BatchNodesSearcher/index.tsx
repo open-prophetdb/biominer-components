@@ -144,7 +144,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
                 loading
                   ? 'Searching...'
                   : entityOptions !== undefined
-                  ? 'Not Found'
+                  ? 'Not Found or Too Short Input'
                   : entityType === undefined
                   ? 'Please select a node type first.'
                   : `Enter your interested ${entityType} ...`

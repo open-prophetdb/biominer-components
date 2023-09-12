@@ -398,7 +398,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
                   loading
                     ? 'Searching...'
                     : entityOptions !== undefined
-                    ? 'Not Found'
+                    ? 'Not Found or Too Short Input'
                     : sourceType
                     ? `Enter your interested ${sourceType} ...`
                     : 'Select source node type first.'
@@ -457,7 +457,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
                   loading
                     ? 'Searching...'
                     : entityOptions !== undefined
-                    ? 'Not Found'
+                    ? 'Not Found or Too Short Input'
                     : targetType
                     ? `Enter your interested ${targetType} ...`
                     : 'Select source node type first.'

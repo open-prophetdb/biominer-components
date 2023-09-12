@@ -170,7 +170,14 @@ export function makeQueryEntityStr(params: Partial<Entity>, order?: string[]): s
   });
 
   if (label_query_item.field) {
-    query['items'].push(label_query_item);
+    if (query['operator'] === 'and') {
+      query['items'].push(label_query_item);
+    } else {
+      query = {
+        operator: 'and',
+        items: [query, label_query_item],
+      };
+    }
   }
 
   return JSON.stringify(query);
@@ -186,6 +193,7 @@ export const fetchNodes = async (
   value: string,
   callback: (any: any) => void,
 ) => {
+  // We might not get good results when the value is short than 3 characters.
   if (value.length < 3) {
     callback([]);
     return;

@@ -129,7 +129,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
                 loading
                   ? 'Searching...'
                   : entityOptions !== undefined
-                  ? 'Not Found'
+                  ? 'Not Found or Too Short Input'
                   : entityType === undefined
                   ? 'Please select a node type first.'
                   : `Enter your interested ${entityType} ...`

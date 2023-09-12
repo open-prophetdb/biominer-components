@@ -87,7 +87,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
               loading
                 ? 'Searching...'
                 : entityOptions !== undefined
-                ? 'Not Found'
+                ? 'Not Found or Too Short Input'
                 : entityType === undefined
                 ? `Please select a node type ...`
                 : `Enter your interested ${entityType} ...`

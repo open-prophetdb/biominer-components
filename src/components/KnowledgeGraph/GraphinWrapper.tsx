@@ -694,7 +694,7 @@ const NodeSearcher = () => {
             searchLoading
               ? 'Searching...'
               : nodeOptions !== undefined
-              ? 'Not Found'
+              ? 'Not Found or Too Short Input'
               : `Enter your interested node ...`
           }
         />

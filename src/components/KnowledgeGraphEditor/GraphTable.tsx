@@ -207,7 +207,8 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   }, [page, pageSize, refreshKey]);
 
   const getRowKey = (record: GraphEdge) => {
-    return `${record.source_id}-${record.target_id}-${record.relation_type}-${record.pmid}-${record.curator}`;
+    // return `${record.source_id}-${record.target_id}-${record.relation_type}-${record.pmid}-${record.curator}`;
+    return record.id || `${JSON.stringify(record)}`;
   };
 
   return (
