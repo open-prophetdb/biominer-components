@@ -6,6 +6,7 @@ import type {
   ComposeQueryItem,
   APIs,
 } from './typings';
+import { filter } from 'lodash';
 import { COMPOSED_ENTITY_DELIMITER } from './typings';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
@@ -130,26 +131,8 @@ export const makeRelationTypes = (edgeStat: RelationStat[]): OptionType[] => {
 
 // **************************************************************
 // Prepare the list of entities.
-export function makeQueryEntityStr(params: Partial<Entity>): string {
+export function makeQueryEntityStr(params: Partial<Entity>, order?: string[]): string {
   let query: ComposeQueryItem = {} as ComposeQueryItem;
-
-  let id_query_item = {} as QueryItem;
-  if (params.id) {
-    id_query_item = {
-      operator: 'ilike',
-      field: 'id',
-      value: `%${params.id}%`,
-    };
-  }
-
-  let name_query_item = {} as QueryItem;
-  if (params.name) {
-    name_query_item = {
-      operator: 'ilike',
-      field: 'name',
-      value: `%${params.name}%`,
-    };
-  }
 
   let label_query_item = {} as QueryItem;
   if (params.label) {
@@ -160,33 +143,34 @@ export function makeQueryEntityStr(params: Partial<Entity>): string {
     };
   }
 
-  if (id_query_item && name_query_item) {
+  let filteredKeys = filter(Object.keys(params), (key) => key !== 'label');
+  if (filteredKeys.length > 1) {
     query = {
       operator: 'or',
-      items: [id_query_item, name_query_item],
+      items: [],
     };
-  } else if (id_query_item) {
-    query = {
-      operator: 'and',
-      items: [id_query_item],
-    };
-  } else if (name_query_item) {
-    query = {
-      operator: 'and',
-      items: [name_query_item],
-    };
-  }
 
-  if (query.operator == 'or') {
-    query = {
-      operator: 'and',
-      items: [query, label_query_item],
-    };
+    if (order) {
+      // Order and filter the keys.
+      filteredKeys = order.filter((key) => filteredKeys.includes(key));
+    }
   } else {
     query = {
       operator: 'and',
-      items: [...query.items, label_query_item],
+      items: [],
     };
+  }
+
+  query['items'] = filteredKeys.map((key) => {
+    return {
+      operator: 'ilike',
+      field: key,
+      value: `%${params[key as keyof Entity]}%`,
+    };
+  });
+
+  if (label_query_item.field) {
+    query['items'].push(label_query_item);
   }
 
   return JSON.stringify(query);
@@ -202,14 +186,32 @@ export const fetchNodes = async (
   value: string,
   callback: (any: any) => void,
 ) => {
+  if (value.length < 3) {
+    callback([]);
+    return;
+  }
+
   if (timeout) {
     clearTimeout(timeout);
     timeout = null;
   }
 
+  // TODO: Check if the value is a valid id.
+
+  let queryMap = {};
+  let order: string[] = [];
+  // If the value is a number, then maybe it is an id or xref but not for name or synonyms.
+  if (value && !isNaN(Number(value))) {
+    queryMap = { id: value, xrefs: value, label: entityType };
+    order = ['id', 'xrefs'];
+  } else {
+    queryMap = { name: value, synonyms: value, xrefs: value, id: value, label: entityType };
+    order = ['name', 'synonyms', 'xrefs', 'id'];
+  }
+
   const fetchData = () => {
     getEntities({
-      query_str: makeQueryEntityStr({ id: value, name: value, label: entityType }),
+      query_str: makeQueryEntityStr(queryMap, order),
       page: 1,
       page_size: 50,
     })

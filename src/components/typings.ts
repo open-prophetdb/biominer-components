@@ -33,6 +33,10 @@ export type Entity = {
   label: string;
   resource: string;
   description?: string;
+  taxid?: string;
+  synonyms?: string;
+  xrefs?: string;
+  pmid?: string;
 };
 
 export type Entity2D = {
