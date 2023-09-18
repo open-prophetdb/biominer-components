@@ -68,10 +68,12 @@ const style = {
 
 const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [modal, contextHolder] = Modal.useModal();
-  const [data, setData] = useState<GraphData>({
-    nodes: [],
-    edges: [],
-  });
+  const [data, setData] = useState<GraphData>(
+    props.data || {
+      nodes: [],
+      edges: [],
+    },
+  );
 
   const [nodeStat, setNodeStat] = useState<EntityStat[]>([]);
   const [edgeStat, setEdgeStat] = useState<RelationStat[]>([]);
