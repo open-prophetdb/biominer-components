@@ -22,6 +22,8 @@ const exampleData: GraphEdge[] = [
 type GraphTableProps = {
   getTableData: (page: number, pageSize: number) => Promise<GraphTableData>;
   editKnowledge?: (record: GraphEdge) => void;
+  page?: number;
+  pageSize?: number;
   deleteKnowledgeById?: DeleteKnowledgeByIdFn;
   className?: string;
   style?: React.CSSProperties;
@@ -32,8 +34,8 @@ type GraphTableProps = {
 const GraphTable: React.FC<GraphTableProps> = (props) => {
   const [data, setData] = useState<GraphTableData>({} as GraphTableData);
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(30);
+  const [page, setPage] = useState<number>(props.page || 1);
+  const [pageSize, setPageSize] = useState<number>(props.pageSize || 30);
   const [refreshKey, setRefreshKey] = useState<number>(0);
 
   const columns: ColumnsType<GraphEdge> = [
