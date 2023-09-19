@@ -25,6 +25,7 @@ type GraphTableProps = {
   page?: number;
   pageSize?: number;
   deleteKnowledgeById?: DeleteKnowledgeByIdFn;
+  pageSizeOptions?: string[];
   className?: string;
   style?: React.CSSProperties;
   yScroll?: number | string;
@@ -236,7 +237,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
         pagination={{
           showSizeChanger: true,
           showQuickJumper: true,
-          pageSizeOptions: ['10', '20', '50', '100'],
+          pageSizeOptions: props.pageSizeOptions || ['10', '20', '50', '100', '300', '500', '1000'],
           current: page,
           pageSize: pageSize,
           total: data.total || 0,

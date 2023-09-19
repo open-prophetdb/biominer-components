@@ -88,6 +88,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
           cursor: 'pointer',
           borderStyle: 'solid',
           borderWidth: '20px',
+          boxSizing: 'border-box',
           ...style,
         }}
         onClick={() => {
