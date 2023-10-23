@@ -24,12 +24,13 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   CloudServerOutlined,
+  TagFilled,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Movable';
 import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu } from 'antd';
-import { makeDataSource, layouts, prepareGraphData } from './utils';
+import { makeDataSource, layouts, prepareGraphData, getDefaultBadge } from './utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
@@ -37,6 +38,9 @@ import type {
   OnClickNodeFn,
   OnCanvasMenuClickFn,
   AdjacencyList,
+  MenuItem,
+  CanvasMenuItem,
+  NodeBadge,
 } from './typings';
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
@@ -205,6 +209,8 @@ type NodeMenuProps = {
   item?: IG6GraphEvent['item'];
 };
 
+// Add menu items for the node. If you want to some functions executed when a node is clicked, you can add the function here.
+// Some functions are related with graph styles, so we only need to add handler functions in this component, otherwises we need to add the handler functions in the parent component.
 const NodeMenu = (props: NodeMenuProps) => {
   const { graph, apis } = useContext(GraphinContext);
   const { item, chatbotVisible } = props;
@@ -228,7 +234,7 @@ const NodeMenu = (props: NodeMenuProps) => {
     }
   }, []);
 
-  const options: any[] = [
+  const options: MenuItem[] = [
     {
       key: 'show-node-details',
       icon: <InfoCircleFilled />,
@@ -254,6 +260,22 @@ const NodeMenu = (props: NodeMenuProps) => {
       key: 'reverse-selected-nodes',
       icon: <CloseCircleOutlined />,
       label: 'Reverse Selected Nodes',
+      handler: (node: GraphNode) => {
+        graph.getNodes().forEach((node) => {
+          if (node.hasState('selected')) {
+            graph.setItemState(node, 'selected', false);
+          } else {
+            graph.setItemState(node, 'selected', true);
+          }
+        });
+
+        if (node) {
+          // Reset the status of the current node to unselected, even if it is not selected.
+          graph.setItemState(node.id, 'selected', false);
+        }
+
+        setVisible(false);
+      },
     },
     {
       key: 'predict-relationships',
@@ -289,11 +311,77 @@ const NodeMenu = (props: NodeMenuProps) => {
         },
       ],
     },
-    // {
-    //     key: 'tag',
-    //     icon: <TagFilled />,
-    //     name: 'Tag Node',
-    // },
+    {
+      key: 'tag',
+      icon: <TagFilled />,
+      label: 'Tag Node',
+      children: [
+        {
+          key: 'tag-imported-nodes',
+          icon: <TagFilled color="grey" />,
+          label: 'Imported Nodes (Marked as M)',
+          handler: (node: GraphNode) => {
+            const seletedNodes = graph.getNodes().filter((node) => {
+              return node.hasState('selected');
+            });
+
+            if (seletedNodes.length >= 1) {
+              seletedNodes.map((node) => {
+                graph.updateItem(node, {
+                  style: {
+                    badges: [
+                      // I: Imported
+                      getDefaultBadge('grey', 'M'),
+                    ],
+                  },
+                });
+              });
+            } else {
+              graph.updateItem(node.id, {
+                style: {
+                  badges: [
+                    // I: Imported
+                    getDefaultBadge('grey', 'M'),
+                  ],
+                },
+              });
+            }
+          },
+        },
+        {
+          key: 'tag-interested-nodes',
+          icon: <TagFilled color="grey" />,
+          label: 'Interested Nodes (Marked as I)',
+          handler: (node: GraphNode) => {
+            const seletedNodes = graph.getNodes().filter((node) => {
+              return node.hasState('selected');
+            });
+
+            if (seletedNodes.length >= 1) {
+              seletedNodes.map((node) => {
+                graph.updateItem(node, {
+                  style: {
+                    badges: [
+                      // I: Imported
+                      getDefaultBadge('grey', 'I'),
+                    ],
+                  },
+                });
+              });
+            } else {
+              graph.updateItem(node.id, {
+                style: {
+                  badges: [
+                    // I: Imported
+                    getDefaultBadge('grey', 'I'),
+                  ],
+                },
+              });
+            }
+          },
+        },
+      ],
+    },
     {
       key: 'delete-nodes',
       icon: <DeleteFilled />,
@@ -317,30 +405,27 @@ const NodeMenu = (props: NodeMenuProps) => {
     });
   }
 
-  const onChange = function (menuItem: any) {
-    // Only need to change the status of the nodes, so no need to call the onChange function.
-    if (menuItem.key === 'reverse-selected-nodes') {
-      graph.getNodes().forEach((node) => {
-        if (node.hasState('selected')) {
-          graph.setItemState(node, 'selected', false);
-        } else {
-          graph.setItemState(node, 'selected', true);
-        }
-      });
+  const onChange = function (menuKey: string) {
+    const menuItem = options.find((item) => {
+      return item.key === menuKey;
+    });
 
-      if (node) {
-        // Reset the status of the current node to unselected, even if it is not selected.
-        graph.setItemState(node.id, 'selected', false);
-      }
-
-      setVisible(false);
-    } else {
-      if (props.onChange && node && graph && apis) {
-        props.onChange(menuItem, node, graph, apis);
-        setVisible(false);
+    if (menuItem) {
+      // Only need to change the status of the nodes, so no need to call the onChange function.
+      if (menuItem.handler) {
+        menuItem.handler(node);
       } else {
-        message.warning('Cannot catch the changes.');
+        if (props.onChange && node && graph && apis) {
+          props.onChange(menuItem, node, graph, apis);
+          setVisible(false);
+        } else {
+          message.warning('Cannot catch the changes.');
+        }
       }
+    } else {
+      console.log('Cannot find the menu item: ', menuKey, options);
+      // TODO: It doesn't happen.
+      message.warning('Cannot catch the changes.');
     }
   };
 
@@ -349,7 +434,9 @@ const NodeMenu = (props: NodeMenuProps) => {
       items={options.filter((item) => {
         return !item.hidden;
       })}
-      onClick={onChange}
+      onClick={(menuInfo) => {
+        onChange(menuInfo.key);
+      }}
     />
   ) : null;
 };
@@ -363,7 +450,7 @@ type CanvasMenuProps = {
 const CanvasMenu = (props: CanvasMenuProps) => {
   const { graph, contextmenu, apis } = useContext(GraphinContext);
   const context = contextmenu.canvas;
-  const handleDownloadCanvas = () => {
+  const handleDownloadCanvas = (item: CanvasMenuItem) => {
     if (graph.getNodes().length == 0) {
       message.warning('No data to download');
       return;
@@ -376,7 +463,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     context.handleClose();
   };
 
-  const handleDownloadData = () => {
+  const handleDownloadData = (item: CanvasMenuItem) => {
     const payload = prepareGraphData(graph);
 
     if (payload.data.nodes.length == 0) {
@@ -398,20 +485,13 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     link.click();
   };
 
-  const handleAutoConnect = () => {
+  const handleAutoConnect = (item: CanvasMenuItem) => {
     if (props.onCanvasClick) {
-      props.onCanvasClick(
-        {
-          key: 'auto-connect',
-          name: 'AutoConnect',
-        },
-        graph,
-        apis,
-      );
+      props.onCanvasClick(item, graph, apis);
     }
   };
 
-  const handleClear = () => {
+  const handleClear = (item: CanvasMenuItem) => {
     // TODO: It doesn't work well. why?
     // graph.clear();
     if (props.onClearGraph) {
@@ -423,47 +503,97 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     context.handleClose();
   };
 
-  // const handleStopLayout = () => {
+  // const handleStopLayout = (item: CanvasMenuItem) => {
   //     message.info(`Stop layout successfully`);
   //     graph.stopAnimate();
   //     context.handleClose();
   // };
 
-  const handleOpenFishEye = () => {
+  const handleOpenFishEye = (item: CanvasMenuItem) => {
     if (props.handleOpenFishEye) {
       props.handleOpenFishEye();
     }
   };
 
+  const handleClearNodeEdgeStatus = (item: CanvasMenuItem) => {
+    const nodes = graph.getNodes();
+    nodes.forEach((node) => {
+      graph.setItemState(node, 'inactive', false);
+      graph.setItemState(node, 'active', false);
+    });
+
+    const edges = graph.getEdges();
+    edges.forEach((edge) => {
+      graph.setItemState(edge, 'inactive', false);
+      graph.setItemState(edge, 'active', false);
+    });
+  };
+
+  const options: CanvasMenuItem[] = [
+    {
+      key: 'auto-connect',
+      icon: <ForkOutlined />,
+      name: 'Auto Connect Graph',
+      handler: handleAutoConnect,
+    },
+    {
+      key: 'enable-fish-eye',
+      icon: <EyeOutlined />,
+      name: 'Enable FishEye',
+      handler: handleOpenFishEye,
+    },
+    {
+      key: 'download-data',
+      icon: <DownloadOutlined />,
+      name: 'Download Graph Data',
+      handler: handleDownloadData,
+    },
+    {
+      key: 'download-canvas',
+      icon: <CloudDownloadOutlined />,
+      name: 'Save As Image',
+      handler: handleDownloadCanvas,
+    },
+    {
+      key: 'clear-node-edge-status',
+      icon: <DeleteOutlined />,
+      name: 'Clear Node/Edge Status',
+      handler: handleClearNodeEdgeStatus,
+    },
+    {
+      key: 'clear-node-badges',
+      icon: <DeleteOutlined />,
+      name: 'Clear Node Tags',
+      handler: (item: CanvasMenuItem) => {
+        const nodes = graph.getNodes();
+        nodes.forEach((node) => {
+          graph.updateItem(node, {
+            style: {
+              badges: [],
+            },
+          });
+        });
+      },
+    },
+    {
+      key: 'clear-canvas',
+      icon: <DeleteOutlined />,
+      name: 'Clear Canvas',
+      danger: true,
+      handler: handleClear,
+    },
+  ];
+
   return (
-    <Menu bindType="canvas">
-      <Menu.Item onClick={handleAutoConnect}>
-        <Button type="text">
-          <ForkOutlined /> Auto Connect Graph
-        </Button>
-      </Menu.Item>
-      <Menu.Item onClick={handleOpenFishEye}>
-        <Button type="text">
-          <EyeOutlined /> Enable FishEye
-        </Button>
-      </Menu.Item>
-      <Menu.Item onClick={handleDownloadData}>
-        <Button type="text">
-          <DownloadOutlined /> Download Graph Data
-        </Button>
-      </Menu.Item>
-      <Menu.Item onClick={handleDownloadCanvas}>
-        <Button type="text">
-          <CloudDownloadOutlined /> Save As Image
-        </Button>
-      </Menu.Item>
-      <Menu.Item onClick={handleClear}>
-        <Button type="text" danger>
-          <DeleteOutlined />
-          Clear Canvas
-        </Button>
-      </Menu.Item>
-    </Menu>
+    <Menu
+      bindType="canvas"
+      options={options}
+      onChange={(item, data) => {
+        if (item.handler) {
+          item.handler(item, graph, apis);
+        }
+      }}
+    />
   );
 };
 

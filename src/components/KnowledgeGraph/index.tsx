@@ -49,7 +49,7 @@ import type {
   Entity2D,
   MergeMode,
 } from '../typings';
-import { EdgeInfo } from './typings';
+import { EdgeInfo, MenuItem, CanvasMenuItem } from './typings';
 import Movable from '../Movable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
@@ -427,7 +427,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
-  const onCanvasMenuClick = (menuItem: { key: string; name: string }, graph: any, apis: any) => {
+  const onCanvasMenuClick = (menuItem: CanvasMenuItem, graph: any, apis: any) => {
     if (menuItem.key == 'auto-connect') {
       message.info('Auto connecting nodes, please wait...');
       setLoading(true);
@@ -463,7 +463,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   const onEdgeMenuClick = (
-    menuItem: { key: string; name: string },
+    menuItem: MenuItem,
     source: GraphNode,
     target: GraphNode,
     edge: GraphEdge,
@@ -487,7 +487,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
-  const onNodeMenuClick = (menuItem: any, node: GraphNode, graph: Graph, graphin: any) => {
+  const onNodeMenuClick = (menuItem: MenuItem, node: GraphNode, graph: Graph, graphin: any) => {
     console.log(`onNodeMenuClick [${menuItem.key}]: `, menuItem, node);
     if (menuItem.key == 'delete-nodes') {
       const nodes = getSelectedNodes(graph);

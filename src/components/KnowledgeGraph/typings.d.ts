@@ -12,21 +12,45 @@ export type OptionType = {
   value: string;
 };
 
+export type MenuItem = {
+  key: string;
+  label: string;
+  hidden?: boolean;
+  danger?: boolean;
+  children?: MenuItem[];
+  icon: string | React.ReactNode;
+  handler?: (node: GraphNode, graph?: Graph, apis?: ApisType) => void;
+};
+
+export type CanvasMenuItem = {
+  key: string;
+  name: string;
+  hidden?: boolean;
+  danger?: boolean;
+  icon: string | React.Element;
+  handler?: (item: CanvasMenuItem, graph?: Graph, apis?: ApisType) => void;
+};
+
+export type NodeBadge = {
+  position: 'RT' | 'RB' | 'LT' | 'LB';
+  type: 'text';
+  value: number | string;
+  size: [15, 15];
+  fill: string;
+  color: '#fff';
+};
+
 export type OnNodeMenuClickFn = (
-  item: { key: string; name: string },
+  item: MenuItem,
   data: GraphNode,
   graph: Graph,
   graphin: any,
 ) => void;
 
-export type OnCanvasMenuClickFn = (
-  item: { key: string; name: string },
-  graph: Graph,
-  graphin: any,
-) => void;
+export type OnCanvasMenuClickFn = (item: CanvasMenuItem, graph: Graph, graphin: any) => void;
 
 export type OnEdgeMenuClickFn = (
-  item: { key: string; name: string },
+  item: MenuItem,
   source: GraphNode,
   target: GraphNode,
   edge: GraphEdge,

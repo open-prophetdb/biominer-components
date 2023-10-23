@@ -1,4 +1,4 @@
-import { Form, Select, Empty, InputNumber, message, Button } from 'antd';
+import { Form, Select, Empty, InputNumber, message, Button, Spin } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { LinkedNodesSearcherProps } from './index.t';
 import { LinkedNodesSearchObjectClass } from './index.t';
@@ -37,6 +37,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
   const [totalLinkedNodes, setTotalLinkedNodes] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [relationTypeOptions, setRelationTypeOptions] = useState<OptionType[]>([]);
+  const [relationTypeOptionsLoading, setRelationTypeOptionsLoading] = useState<boolean>(false);
   const [helpWarning, setHelpWarning] = useState<string>('');
 
   const [placeholder, setPlaceholder] = useState<string>('Search nodes ...');
@@ -188,6 +189,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
 
   useEffect(() => {
     if (entityId && entityType) {
+      setRelationTypeOptionsLoading(true);
       fetchRelationTypes(
         entityId,
         entityType,
@@ -218,16 +220,18 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             if (merged) {
               const filtered_merged = merged.filter((item: OptionType | null) => item !== null);
               console.log('Update the number of relationships: ', merged);
-              setRelationTypeOptions(
-                // @ts-ignore, It's weird, because the item of filtered_merged is not null.
-                filtered_merged.sort((a: OptionType, b: OptionType) => {
-                  let anum = parseInt(a.label.split(' ')[0].replace('[', '').replace(']', ''));
-                  let bnum = parseInt(b.label.split(' ')[0].replace('[', '').replace(']', ''));
-                  return bnum - anum;
-                }),
-              );
+              // @ts-ignore, It's weird, because the item of filtered_merged is not null.
+              const options = filtered_merged.sort((a: OptionType, b: OptionType) => {
+                let anum = parseInt(a.label.split(' ')[0].replace('[', '').replace(']', ''));
+                let bnum = parseInt(b.label.split(' ')[0].replace('[', '').replace(']', ''));
+                return bnum - anum;
+              }) as OptionType[];
+
+              setRelationTypeOptions(uniqBy(options, 'value'));
+              setRelationTypeOptionsLoading(false);
             } else {
               setRelationTypeOptions([]);
+              setRelationTypeOptionsLoading(false);
             }
           }
         },
@@ -320,7 +324,9 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         ></Select>
       </Form.Item>
       <Form.Item label="Total Linked Nodes" name="total_linked_nodes">
-        <span>{totalLinkedNodes.toLocaleString()}</span>
+        <Spin size="small" spinning={relationTypeOptionsLoading}>
+          <span>{totalLinkedNodes.toLocaleString()}</span>
+        </Spin>
       </Form.Item>
       <Form.Item
         name="relation_types"
@@ -337,6 +343,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       >
         <Select
           mode="multiple"
+          loading={relationTypeOptionsLoading}
           onChange={updateFormStatus}
           filterOption={(input, option) => {
             // @ts-ignore

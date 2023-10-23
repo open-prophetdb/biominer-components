@@ -1,8 +1,20 @@
 import type { TableColumnType } from 'antd';
 import { filter, uniq } from 'lodash';
 import { Graph } from '@antv/g6';
+import type { NodeBadge } from './typings';
 import { GraphNode, GraphEdge, COMPOSED_ENTITY_DELIMITER, Entity, Entity2D } from '../typings';
 import voca from 'voca';
+
+export const getDefaultBadge = (color: string, value?: string | number): NodeBadge => {
+  return {
+    position: 'RT',
+    type: 'text',
+    value: value || '',
+    size: [15, 15],
+    fill: color,
+    color: '#fff',
+  };
+};
 
 export const formatNodeIdFromEntity = (entity: Entity) => {
   return `${entity.label}${COMPOSED_ENTITY_DELIMITER}${entity.id}`;
