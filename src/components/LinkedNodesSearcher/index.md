@@ -9,13 +9,13 @@ group:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { Row, Tag } from 'antd';
 import { LinkedNodesSearcher } from 'biominer-components';
 
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
@@ -42,7 +42,7 @@ export default () => {
       <LinkedNodesSearcher
         getEntities={(params) => {
           return new Promise((resolve, reject) => {
-            axios
+            request
               .get('http://localhost:8000/api/v1/entities', {
                 params: params,
               })
@@ -56,7 +56,7 @@ export default () => {
         }}
         getRelationCounts={(params) => {
           return new Promise((resolve, reject) => {
-            axios
+            request
               .get('http://localhost:8000/api/v1/relation-counts', {
                 params: params,
               })

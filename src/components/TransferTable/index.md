@@ -9,7 +9,7 @@ group:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { Row, Button } from 'antd';
 import { NodeUploader, TransferTable } from 'biominer-components';
 
@@ -17,7 +17,7 @@ export default () => {
   const [dataSource, setDataSource] = useState([]);
 
   const getEntities = async (queryParams) => {
-    const response = await axios.get('http://localhost:8000/api/v1/entities', {
+    const response = await request.get('http://localhost:8000/api/v1/entities', {
       params: {
         query_str: queryParams.query_str,
         page: queryParams.page,

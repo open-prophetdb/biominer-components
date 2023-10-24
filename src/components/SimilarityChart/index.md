@@ -9,7 +9,7 @@ group:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { message } from 'antd';
 import { SimilarityChart } from 'biominer-components';
 
@@ -68,7 +68,7 @@ const getEntity2D = () => {
   };
 
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/entity2d', {
         params: {
           query_str: JSON.stringify(query),

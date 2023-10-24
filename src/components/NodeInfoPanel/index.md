@@ -9,7 +9,7 @@ group:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { message } from 'antd';
 import { NodeInfoPanel, GTexViewer } from 'biominer-components';
 import type { GeneInfo } from './index.t';
@@ -50,7 +50,7 @@ const nodeIds = entityIds.map((id, index) => {
 
 const getNodes = () => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/nodes', {
         params: {
           node_ids: nodeIds.join(','),

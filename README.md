@@ -15,13 +15,15 @@ git clone github.com/yjcyxky/biominer-components.git
 cd biominer-components
 ```
 
-### Install dependencies,
+### Install dependencies
 
 ```bash
 $ yarn
 ```
 
-### Start the dev server,
+### Start the dev server
+
+Before you start the dev server, you need to run a biomedgps server locally (Port: 8000). Please refer to [biomedgps](https://github.com/yjcyxky/biomedgps) for more details.
 
 ```bash
 $ yarn start
@@ -53,11 +55,15 @@ $ yarn build
 
 ### Publish library to npm
 
+Please update the version in `package.json` before publishing.
+
 ```bash
 $ npm publish .
 ```
 
 ## For developers
+
+Only for developers who want to develop this package locally.
 
 ### Install yalc globally
 

@@ -9,12 +9,12 @@ group:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { StatisticsChart } from 'biominer-components';
 
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/statistics')
       .then((response) => {
         resolve(response.data);

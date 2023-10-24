@@ -9,13 +9,13 @@ group:
 
 ```tsx
 import React from 'react';
-import axios from 'axios';
+import { request } from '../../request';
 import { KnowledgeGraphEditor } from 'biominer-components';
 
 const getEntities = (params) => {
   console.log('Get entities', params);
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/entities', { params: params })
       .then((response) => {
         resolve(response.data);
@@ -28,7 +28,7 @@ const getEntities = (params) => {
 
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
@@ -41,7 +41,7 @@ const getStatistics = () => {
 
 const getKnowledges = (params) => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .get('http://localhost:8000/api/v1/curated-knowledges', { params: params })
       .then((response) => {
         resolve(response.data);
@@ -54,7 +54,7 @@ const getKnowledges = (params) => {
 
 const postKnowledge = (payload) => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .post('http://localhost:8000/api/v1/curated-knowledges', payload)
       .then((response) => {
         resolve(response.data);
@@ -67,7 +67,7 @@ const postKnowledge = (payload) => {
 
 const putKnowledgeById = (id, payload) => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .put(`http://localhost:8000/api/v1/curated-knowledges/${id}`, payload)
       .then((response) => {
         resolve(response.data);
@@ -80,7 +80,7 @@ const putKnowledgeById = (id, payload) => {
 
 const deleteKnowledgeById = (id) => {
   return new Promise((resolve, reject) => {
-    axios
+    request
       .delete(`http://localhost:8000/api/v1/curated-knowledges/${id}`)
       .then((response) => {
         resolve(response.data);

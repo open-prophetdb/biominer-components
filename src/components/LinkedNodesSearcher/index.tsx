@@ -14,6 +14,7 @@ import { fetchNodes } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 
 import './index.less';
+import { raw } from 'hast-util-raw';
 
 let timeout: ReturnType<typeof setTimeout> | null;
 
@@ -33,6 +34,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
   const nsteps = Form.useWatch('nsteps', form);
   const relationTypes = Form.useWatch('relation_types', form);
 
+  const rawRelationTypeOptions = makeRelationTypes(props.relationStat);
   const [entityTypeOptions, setEntityTypeOptions] = useState<OptionType[]>([]);
   const [totalLinkedNodes, setTotalLinkedNodes] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -125,9 +127,6 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         let o: OptionType[] = [];
         if (response.length > 0) {
           const maxDigits = getMaxDigits(response.map((item: RelationCount) => item.ncount));
-          const total = response.reduce((acc: number, cur: RelationCount) => acc + cur.ncount, 0);
-
-          setTotalLinkedNodes(total);
 
           response.forEach((element: RelationCount, index: number) => {
             const relationship = getRelationOption(
@@ -144,8 +143,11 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             });
           });
 
+          const total = response.reduce((acc: number, cur: RelationCount) => acc + cur.ncount, 0);
+          setTotalLinkedNodes(total);
           callback(o);
         } else {
+          setTotalLinkedNodes(0);
           callback([]);
         }
       })
@@ -182,12 +184,21 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
     }
   }, [props.searchObject]);
 
-  useEffect(() => {
-    setRelationTypeOptions(makeRelationTypes(props.relationStat));
+  const initForm = () => {
+    setRelationTypeOptions(rawRelationTypeOptions);
     setTotalLinkedNodes(stat_total_relation_count(props.relationStat));
+  };
+
+  useEffect(() => {
+    initForm();
   }, [props.relationStat]);
 
   useEffect(() => {
+    // If we don't reset the relation_types, we cannot get the full relations.
+    form.setFieldsValue({
+      relation_types: undefined,
+    });
+
     if (entityId && entityType) {
       setRelationTypeOptionsLoading(true);
       fetchRelationTypes(
@@ -196,7 +207,8 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         (o: OptionType[]) => {
           console.log('fetchRelationshipTypes within node mode: ', o);
           if (o.length > 0) {
-            const merged = relationTypeOptions?.map((item: OptionType) => {
+            const clonedRelationTypeOptions = [...rawRelationTypeOptions];
+            const merged = clonedRelationTypeOptions?.map((item: OptionType) => {
               let matched = o.find((i: OptionType) => {
                 const newlabel = i.label.split(' ')[1];
                 const oldlabel = item.label.split(' ')[1];
@@ -233,12 +245,19 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
               setRelationTypeOptions([]);
               setRelationTypeOptionsLoading(false);
             }
+          } else {
+            setRelationTypeOptions([]);
+            setRelationTypeOptionsLoading(false);
           }
         },
         relationTypes,
       );
     }
   }, [entityId, entityType]);
+
+  useEffect(() => {
+    initForm();
+  }, [entityType]);
 
   const updateFormStatus = function () {
     setHelpWarning('');
@@ -359,6 +378,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         name="nsteps"
         label="Num of Steps"
         initialValue={1}
+        hidden
         rules={[{ required: false, message: 'Please select your expected nsteps', type: 'number' }]}
       >
         <Select disabled placeholder="Please select nsteps" options={nStepsOptions}></Select>
@@ -378,10 +398,16 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         ></Select>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 18, span: 6 }}>
-        <Button style={{ marginRight: '10px' }} onClick={props.onCancel}>
-          Cancel
+        <Button
+          style={{ marginRight: '10px' }}
+          onClick={() => {
+            form.resetFields();
+            initForm();
+          }}
+        >
+          Reset
         </Button>
-        <Button type="primary" onClick={onConfirm}>
+        <Button type="primary" onClick={onConfirm} disabled={totalLinkedNodes == 0}>
           Search
         </Button>
       </Form.Item>

@@ -169,8 +169,13 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         ></Select>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 18, span: 6 }}>
-        <Button style={{ marginRight: '10px' }} onClick={props.onCancel}>
-          Cancel
+        <Button
+          style={{ marginRight: '10px' }}
+          onClick={() => {
+            form.resetFields();
+          }}
+        >
+          Reset
         </Button>
         <Button type="primary" onClick={onConfirm}>
           Search

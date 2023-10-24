@@ -25,11 +25,14 @@ import {
   DownloadOutlined,
   CloudServerOutlined,
   TagFilled,
+  UndoOutlined,
+  RedoOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Movable';
-import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu } from 'antd';
+import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu, Row } from 'antd';
+import ButtonGroup from 'antd/es/button/button-group';
 import { makeDataSource, layouts, prepareGraphData, getDefaultBadge } from './utils';
 import type {
   OnNodeMenuClickFn,
@@ -44,6 +47,7 @@ import type {
 } from './typings';
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
+import UndoRedo from './Components/UndoRedo';
 import { GraphLayoutPredict } from '@antv/vis-predict-engine';
 import voca from 'voca';
 
@@ -406,9 +410,32 @@ const NodeMenu = (props: NodeMenuProps) => {
   }
 
   const onChange = function (menuKey: string) {
-    const menuItem = options.find((item) => {
-      return item.key === menuKey;
+    const childOptions = options
+      .filter((item) => {
+        return item.children;
+      })
+      .map((item) => {
+        return item.children;
+      })
+      .flat();
+
+    const allOptions = options.filter((item) => {
+      return !item.children;
     });
+
+    const menuItem =
+      allOptions.find((item) => {
+        return item.key === menuKey;
+      }) ||
+      childOptions.find((item) => {
+        if (item) {
+          return item.key === menuKey;
+        } else {
+          return false;
+        }
+      });
+
+    console.log('NodeMenu: ', menuKey, menuItem);
 
     if (menuItem) {
       // Only need to change the status of the nodes, so no need to call the onChange function.
@@ -527,6 +554,8 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       graph.setItemState(edge, 'inactive', false);
       graph.setItemState(edge, 'active', false);
     });
+
+    message.success(`Clear node/edge status successfully`);
   };
 
   const options: CanvasMenuItem[] = [
@@ -573,6 +602,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
             },
           });
         });
+        message.success(`Clear node tags successfully`);
       },
     },
     {
@@ -767,6 +797,7 @@ const EdgeClickBehavior = (props: { onClick?: OnClickEdgeFn }) => {
 
 const NodeSearcher = () => {
   const { graph, apis } = useContext(GraphinContext);
+  const { undo, undoStack, redo, redoStack } = UndoRedo();
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [nodeOptions, setNodeOptions] = useState<any[]>([]);
@@ -805,31 +836,46 @@ const NodeSearcher = () => {
   };
 
   return (
-    <Select
-      className="node-searcher"
-      showSearch
-      allowClear
-      loading={searchLoading}
-      defaultActiveFirstOption={false}
-      showArrow={true}
-      placement={'topRight'}
-      placeholder={'Search nodes'}
-      onSearch={handleNodeSearch}
-      onChange={handleNodeSelectorChange}
-      options={nodeOptions}
-      filterOption={false}
-      notFoundContent={
-        <Empty
-          description={
-            searchLoading
-              ? 'Searching...'
-              : nodeOptions !== undefined
-              ? 'Not Found or Too Short Input'
-              : `Enter your interested node ...`
-          }
-        />
-      }
-    ></Select>
+    <Row className="node-searcher">
+      <ButtonGroup>
+        <Button
+          shape="circle"
+          icon={<UndoOutlined />}
+          onClick={undo}
+          disabled={undoStack.length < 1}
+        ></Button>
+        <Button
+          shape="circle"
+          icon={<RedoOutlined />}
+          onClick={redo}
+          disabled={redoStack.length < 1}
+        ></Button>
+      </ButtonGroup>
+      <Select
+        showSearch
+        allowClear
+        loading={searchLoading}
+        defaultActiveFirstOption={false}
+        showArrow={true}
+        placement={'topRight'}
+        placeholder={'Search nodes'}
+        onSearch={handleNodeSearch}
+        onChange={handleNodeSelectorChange}
+        options={nodeOptions}
+        filterOption={false}
+        notFoundContent={
+          <Empty
+            description={
+              searchLoading
+                ? 'Searching...'
+                : nodeOptions !== undefined
+                ? 'Not Found or Too Short Input'
+                : `Enter your interested node ...`
+            }
+          />
+        }
+      ></Select>
+    </Row>
   );
 };
 
@@ -1032,6 +1078,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         data={data}
         layout={props.layout}
         style={style}
+        enabledStack={true}
       >
         <FitView></FitView>
         {/* BUG?: This seems like it doesn't work. Maybe we need a new layout algorithm. */}
