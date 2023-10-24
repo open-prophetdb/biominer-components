@@ -3,6 +3,8 @@ import Graphin, { Components, Behaviors, GraphinContext, IG6GraphEvent } from '@
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
+import LayoutSelector from './Components/LayoutSelector';
+import LayoutNetwork from './Components/LayoutNetworks';
 import {
   BoxPlotOutlined,
   BarChartOutlined,
@@ -33,7 +35,7 @@ import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Movable';
 import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu, Row } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
-import { makeDataSource, layouts, prepareGraphData, getDefaultBadge } from './utils';
+import { makeDataSource, prepareGraphData, getDefaultBadge } from './utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
@@ -48,7 +50,6 @@ import type {
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
 import UndoRedo from './Components/UndoRedo';
-import { GraphLayoutPredict } from '@antv/vis-predict-engine';
 import voca from 'voca';
 
 import './GraphinWrapper.less';
@@ -315,77 +316,78 @@ const NodeMenu = (props: NodeMenuProps) => {
         },
       ],
     },
-    {
-      key: 'tag',
-      icon: <TagFilled />,
-      label: 'Tag Node',
-      children: [
-        {
-          key: 'tag-imported-nodes',
-          icon: <TagFilled color="grey" />,
-          label: 'Imported Nodes (Marked as M)',
-          handler: (node: GraphNode) => {
-            const seletedNodes = graph.getNodes().filter((node) => {
-              return node.hasState('selected');
-            });
+    // TODO: Cann't remove badges. It seems there is a bug in Graphin.
+    // {
+    //   key: 'tag',
+    //   icon: <TagFilled />,
+    //   label: 'Tag Node',
+    //   children: [
+    //     {
+    //       key: 'tag-imported-nodes',
+    //       icon: <TagFilled color="grey" />,
+    //       label: 'Imported Nodes (Marked as M)',
+    //       handler: (node: GraphNode) => {
+    //         const seletedNodes = graph.getNodes().filter((node) => {
+    //           return node.hasState('selected');
+    //         });
 
-            if (seletedNodes.length >= 1) {
-              seletedNodes.map((node) => {
-                graph.updateItem(node, {
-                  style: {
-                    badges: [
-                      // I: Imported
-                      getDefaultBadge('grey', 'M'),
-                    ],
-                  },
-                });
-              });
-            } else {
-              graph.updateItem(node.id, {
-                style: {
-                  badges: [
-                    // I: Imported
-                    getDefaultBadge('grey', 'M'),
-                  ],
-                },
-              });
-            }
-          },
-        },
-        {
-          key: 'tag-interested-nodes',
-          icon: <TagFilled color="grey" />,
-          label: 'Interested Nodes (Marked as I)',
-          handler: (node: GraphNode) => {
-            const seletedNodes = graph.getNodes().filter((node) => {
-              return node.hasState('selected');
-            });
+    //         if (seletedNodes.length >= 1) {
+    //           seletedNodes.map((node) => {
+    //             graph.updateItem(node, {
+    //               style: {
+    //                 badges: [
+    //                   // I: Imported
+    //                   getDefaultBadge('grey', 'M'),
+    //                 ],
+    //               },
+    //             });
+    //           });
+    //         } else {
+    //           graph.updateItem(node.id, {
+    //             style: {
+    //               badges: [
+    //                 // I: Imported
+    //                 getDefaultBadge('grey', 'M'),
+    //               ],
+    //             },
+    //           });
+    //         }
+    //       },
+    //     },
+    //     {
+    //       key: 'tag-interested-nodes',
+    //       icon: <TagFilled color="grey" />,
+    //       label: 'Interested Nodes (Marked as I)',
+    //       handler: (node: GraphNode) => {
+    //         const seletedNodes = graph.getNodes().filter((node) => {
+    //           return node.hasState('selected');
+    //         });
 
-            if (seletedNodes.length >= 1) {
-              seletedNodes.map((node) => {
-                graph.updateItem(node, {
-                  style: {
-                    badges: [
-                      // I: Imported
-                      getDefaultBadge('grey', 'I'),
-                    ],
-                  },
-                });
-              });
-            } else {
-              graph.updateItem(node.id, {
-                style: {
-                  badges: [
-                    // I: Imported
-                    getDefaultBadge('grey', 'I'),
-                  ],
-                },
-              });
-            }
-          },
-        },
-      ],
-    },
+    //         if (seletedNodes.length >= 1) {
+    //           seletedNodes.map((node) => {
+    //             graph.updateItem(node, {
+    //               style: {
+    //                 badges: [
+    //                   // I: Imported
+    //                   getDefaultBadge('grey', 'I'),
+    //                 ],
+    //               },
+    //             });
+    //           });
+    //         } else {
+    //           graph.updateItem(node.id, {
+    //             style: {
+    //               badges: [
+    //                 // I: Imported
+    //                 getDefaultBadge('grey', 'I'),
+    //               ],
+    //             },
+    //           });
+    //         }
+    //       },
+    //     },
+    //   ],
+    // },
     {
       key: 'delete-nodes',
       icon: <DeleteFilled />,
@@ -589,22 +591,26 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       name: 'Clear Node/Edge Status',
       handler: handleClearNodeEdgeStatus,
     },
-    {
-      key: 'clear-node-badges',
-      icon: <DeleteOutlined />,
-      name: 'Clear Node Tags',
-      handler: (item: CanvasMenuItem) => {
-        const nodes = graph.getNodes();
-        nodes.forEach((node) => {
-          graph.updateItem(node, {
-            style: {
-              badges: [],
-            },
-          });
-        });
-        message.success(`Clear node tags successfully`);
-      },
-    },
+    // {
+    //   key: 'clear-node-badges',
+    //   icon: <DeleteOutlined />,
+    //   name: 'Clear Node Tags',
+    //   handler: (item: CanvasMenuItem) => {
+    //     const nodes = graph.getNodes();
+    //     nodes.forEach((node) => {
+    //       const style = node.getOriginStyle();
+    //       graph.updateItem(node, {
+    //         style: {
+    //           ...style,
+    //           badges: [],
+    //         },
+    //       });
+    //       node.refresh();
+    //       node.setOriginStyle();
+    //     });
+    //     message.success(`Clear node tags successfully`);
+    //   },
+    // },
     {
       key: 'clear-canvas',
       icon: <DeleteOutlined />,
@@ -859,6 +865,9 @@ const NodeSearcher = () => {
         showArrow={true}
         placement={'topRight'}
         placeholder={'Search nodes'}
+        getPopupContainer={(triggerNode) => {
+          return triggerNode.parentNode;
+        }}
         onSearch={handleNodeSearch}
         onChange={handleNodeSelectorChange}
         options={nodeOptions}
@@ -886,13 +895,13 @@ export type GraphinProps = {
   layout: any;
   style: React.CSSProperties;
   containerId?: string;
-  changeLayout?: (layout: any) => void;
   onNodeMenuClick?: OnNodeMenuClickFn;
   onEdgeMenuClick?: OnEdgeMenuClickFn;
   onCanvasMenuClick?: OnCanvasMenuClickFn;
   queriedId?: string;
   statistics: any;
   chatbotVisible?: boolean;
+  layoutSettingPanelVisible?: boolean;
   toolbarVisible?: boolean;
   onClickNode?: OnClickNodeFn;
   onClickEdge?: OnClickEdgeFn;
@@ -933,6 +942,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
 
   const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
+  const [layout, setLayout] = React.useState({
+    type: props.layout.type || 'graphin-force',
+    options: {
+      ...props.layout,
+    },
+  });
+  const { type, options } = layout;
 
   const [currentEdge, setCurrentEdge] = useState<any>(null);
   const [currentNode, setCurrentNode] = useState<any>(null);
@@ -971,20 +987,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     // otherwise the focused nodes will be kept and make the focus mode not work.
     setFocusedNodes([]);
   }, [settings.interactiveMode]);
-
-  useEffect(() => {
-    // TODO: how to force update the layout, the following code doesn't work.
-    // @ts-ignore
-    if (ref.current && ref.current.graph) {
-      console.log('Updating layout: ', props.layout);
-      // @ts-ignore
-      ref.current.graph.updateLayout(props.layout);
-      // @ts-ignore
-      ref.current.graph.refreshPositions();
-      // @ts-ignore
-      ref.current.graph.fitView();
-    }
-  }, [props.layout]);
 
   useEffect(() => {
     // create a map to hold the adjacency list
@@ -1053,8 +1055,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     );
   };
 
-  const options = { enabledStack: true, filterCenter: true };
-
   const onChangeLegend = (checkedValue: LegendOptionType, options: LegendOptionType[]) => {
     console.log(checkedValue, options);
   };
@@ -1069,16 +1069,19 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   };
 
+  const changeLayout = (value: any) => {
+    console.log('Layout Settings: ', value);
+    setLayout(value);
+  };
+
   return (
     data && (
       <Graphin
         ref={ref}
-        layoutCache
-        options={options}
-        data={data}
-        layout={props.layout}
-        style={style}
         enabledStack={true}
+        data={data}
+        layout={{ ...options, type: type }}
+        style={style}
       >
         <FitView></FitView>
         {/* BUG?: This seems like it doesn't work. Maybe we need a new layout algorithm. */}
@@ -1145,6 +1148,11 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
           }}
         </Legend>
+        {props.layoutSettingPanelVisible ? (
+          <Moveable title="Layout Settings" width="300px" top="100px" right="120px" help={helpDoc}>
+            <LayoutSelector type={type} layouts={LayoutNetwork} onChange={changeLayout} />
+          </Moveable>
+        ) : null}
         {props.toolbarVisible ? (
           <Moveable title="Settings" width="220px" top="100px" right="30px" help={helpDoc}>
             <Toolbar
@@ -1160,70 +1168,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                 <Select
                   style={{ width: '100%' }}
                   allowClear
-                  defaultValue={props.layout.type}
-                  onChange={(value) => {
-                    // TODO: Need to notice the user that the layout is changed, but it's not working when the previous layout is not finished.
-                    if (value == 'auto') {
-                      GraphLayoutPredict.predict(data)
-                        .then((layout) => {
-                          console.log('Predicted layout: ', layout);
-                          const l = layouts.find((item) => item.type === layout.predictLayout);
-
-                          if (l) {
-                            message.info(`Predicted layout: ${layout.predictLayout}`);
-                            if (props.changeLayout) {
-                              props.changeLayout(l);
-                            }
-                          } else {
-                            message.error(
-                              `Predicted layout is ${layout.predictLayout}, but it is not supported currently.`,
-                            );
-                          }
-                        })
-                        .catch((err) => {
-                          console.log(err);
-                          message.error(`Failed to predict layout: ${err.message}`);
-                        });
-                    } else if (value == 'graphin-force') {
-                      message.warning(
-                        `The layout '${value}' may not work well with the device which doesn't support GPU.`,
-                      );
-                      const l = layouts.find((item) => item.type === value);
-                      if (props.changeLayout) {
-                        props.changeLayout(l);
-                      }
-                    } else {
-                      let l = undefined;
-                      if (value) {
-                        l = layouts.find((item) => item.type === value);
-                      } else {
-                        l = layouts.find((item) => item.type === 'force');
-                      }
-
-                      if (props.changeLayout && l) {
-                        props.changeLayout(l);
-                      }
-                    }
-                  }}
-                  placeholder="Select a layout"
-                >
-                  {layouts.map((item) => {
-                    const { type } = item;
-                    return (
-                      <Select.Option key={type} value={type}>
-                        <ForkOutlined />
-                        &nbsp;
-                        {type}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Select
-                  style={{ width: '100%' }}
-                  allowClear
                   value={settings.interactiveMode}
+                  getPopupContainer={(triggerNode) => {
+                    return triggerNode.parentNode;
+                  }}
                   onChange={(value) => {
                     setSettings({ ...settings, interactiveMode: value as any });
                   }}
@@ -1245,6 +1193,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                   style={{ width: '100%' }}
                   allowClear
                   defaultValue={'brush-select'}
+                  getPopupContainer={(triggerNode) => {
+                    return triggerNode.parentNode;
+                  }}
                   disabled={settings.interactiveMode !== 'select-nodes'}
                   onChange={(value) => {
                     setSettings({ ...settings, selectionMode: value });

@@ -11,6 +11,8 @@ import {
   CloudUploadOutlined,
   SettingFilled,
   ExclamationCircleOutlined,
+  BuildFilled,
+  BuildOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
 import { uniqBy } from 'lodash';
@@ -86,6 +88,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [edgeDataSources, setEdgeDataSources] = useState<Array<Record<string, any>>>([]);
 
   const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
+  const [layoutSettingPanelVisible, setLayoutSettingPanelVisible] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [nodeInfoPanelVisible, setNodeInfoPanelVisible] = useState<boolean>(false);
 
@@ -230,6 +233,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       checkAndSetData(payload.data);
       setLayout(payload.layout);
       setToolbarVisible(payload.toolbarVisible);
+      setLayoutSettingPanelVisible(false);
       setGraphTableVisible(false);
     }
   };
@@ -640,6 +644,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setToolbarVisible(!toolbarVisible);
   };
 
+  const onChangeLayoutSettingsPanelVisible = () => {
+    setLayoutSettingPanelVisible(!layoutSettingPanelVisible);
+  };
+
   const onClickNode = (nodeId: string, node: GraphNode): void => {
     // TODO: Get node details and pass to InfoPanel
     console.log('Node Clicked: ', nodeId, data, node);
@@ -714,6 +722,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         <Spin spinning={loading}>
           <Row className="left-toolbar">
             <Tooltip
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
               title={enterFullScreenHandler.active ? 'Exit Full Screen' : 'Enter Full Screen'}
               placement="right"
             >
@@ -734,7 +745,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 }
               />
             </Tooltip>
-            <Tooltip title={toolbarVisible ? 'Hide Toolbar' : 'Show Toolbar'} placement="right">
+            <Tooltip
+              title={toolbarVisible ? 'Hide Toolbar' : 'Show Toolbar'}
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
+              placement="right"
+            >
               <Button
                 className="toolbar-button"
                 onClick={onChangeToolbarVisible}
@@ -742,7 +759,27 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 icon={toolbarVisible ? <SettingOutlined /> : <SettingFilled />}
               />
             </Tooltip>
-            <Tooltip title="Save Graph Data" placement="right">
+            <Tooltip
+              title={layoutSettingPanelVisible ? 'Hide Layout Settings' : 'Show Layout Settings'}
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
+              placement="right"
+            >
+              <Button
+                className="layout-button"
+                onClick={onChangeLayoutSettingsPanelVisible}
+                shape="circle"
+                icon={layoutSettingPanelVisible ? <BuildOutlined /> : <BuildFilled />}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Save Graph Data"
+              placement="right"
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
+            >
               <Button
                 className="save-button"
                 onClick={saveGraphData}
@@ -750,7 +787,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 icon={<CloudUploadOutlined />}
               />
             </Tooltip>
-            <Tooltip title="Load Graph Data" placement="right">
+            <Tooltip
+              title="Load Graph Data"
+              placement="right"
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
+            >
               <Button
                 className="clear-button"
                 onClick={() => {
@@ -872,15 +915,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               queriedId={searchObject?.get_current_node_id() || ''}
               statistics={statistics}
               toolbarVisible={toolbarVisible}
+              layoutSettingPanelVisible={layoutSettingPanelVisible}
               onClearGraph={onClearGraph}
               onEdgeMenuClick={onEdgeMenuClick}
               chatbotVisible={props.postMessage ? true : false}
               onClickNode={onClickNode}
               onClickEdge={onClickEdge}
               onCanvasMenuClick={onCanvasMenuClick}
-              changeLayout={(layout) => {
-                setLayout(layout);
-              }}
               onNodeMenuClick={onNodeMenuClick}
             >
               {similarityChartVisible ? (

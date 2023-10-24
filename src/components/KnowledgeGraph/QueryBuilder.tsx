@@ -66,6 +66,9 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
     <Row className="query-builder">
       <Select
         value={entityType}
+        getPopupContainer={(triggerNode) => {
+          return triggerNode.parentNode;
+        }}
         style={{ width: 'auto', minWidth: '100px' }}
         options={entityTypeOptions}
         onSelect={handleSelectEntityType}
@@ -74,6 +77,9 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
         showSearch
         allowClear
         loading={loading}
+        getPopupContainer={(triggerNode) => {
+          return triggerNode.parentNode;
+        }}
         defaultActiveFirstOption={false}
         showArrow={true}
         placeholder={placeholder}

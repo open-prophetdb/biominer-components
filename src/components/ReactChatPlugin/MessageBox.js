@@ -136,7 +136,12 @@ function MessageBox(props) {
           <div className="react-chat-additional">
             {time !== null && time}
             <span className="react-chat-message-like">
-              <Tooltip title="Like">
+              <Tooltip
+                title="Like"
+                getTooltipContainer={(triggerNode) => {
+                  return triggerNode;
+                }}
+              >
                 <img
                   src={LikeOutlined}
                   className={'chatbox-icon'}
@@ -145,7 +150,12 @@ function MessageBox(props) {
                   }}
                 />
               </Tooltip>
-              <Tooltip title="Dislike">
+              <Tooltip
+                title="Dislike"
+                getTooltipContainer={(triggerNode) => {
+                  return triggerNode;
+                }}
+              >
                 <img
                   src={DislikeOutlined}
                   className={'chatbox-icon'}

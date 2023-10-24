@@ -299,6 +299,9 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       >
         <Select
           allowClear
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           defaultActiveFirstOption={false}
           showArrow={true}
           placeholder={'Please select a node type'}
@@ -323,6 +326,9 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           loading={loading}
           defaultActiveFirstOption={false}
           showArrow={true}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           placeholder={placeholder}
           onSearch={(value) => handleSearchNode(entityType, value)}
           options={entityOptions}
@@ -368,6 +374,9 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             // @ts-ignore
             return option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
           }}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           allowClear
           autoClearSearchValue={false}
           placeholder="Please select relation types"
@@ -381,7 +390,14 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         hidden
         rules={[{ required: false, message: 'Please select your expected nsteps', type: 'number' }]}
       >
-        <Select disabled placeholder="Please select nsteps" options={nStepsOptions}></Select>
+        <Select
+          disabled
+          placeholder="Please select nsteps"
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
+          options={nStepsOptions}
+        ></Select>
       </Form.Item>
       <Form.Item
         name="limit"
@@ -395,6 +411,9 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         <Select
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
         ></Select>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 18, span: 6 }}>

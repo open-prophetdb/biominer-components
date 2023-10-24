@@ -366,6 +366,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         >
           <Select
             allowClear
+            getPopupContainer={(triggerNode) => {
+              return triggerNode.parentNode;
+            }}
             defaultActiveFirstOption={false}
             showArrow={true}
             placeholder="Please select a node type."
@@ -384,6 +387,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
           <Select
             showSearch
             allowClear
+            getPopupContainer={(triggerNode) => {
+              return triggerNode.parentNode;
+            }}
             loading={loading}
             defaultActiveFirstOption={false}
             showArrow={true}
@@ -425,6 +431,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         >
           <Select
             allowClear
+            getPopupContainer={(triggerNode) => {
+              return triggerNode.parentNode;
+            }}
             defaultActiveFirstOption={false}
             showArrow={true}
             placeholder="Please select a node type."
@@ -444,6 +453,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
             showSearch
             allowClear
             loading={loading}
+            getPopupContainer={(triggerNode) => {
+              return triggerNode.parentNode;
+            }}
             defaultActiveFirstOption={false}
             showArrow={true}
             placeholder={placeholder}
@@ -486,6 +498,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
             showSearch
             allowClear
             loading={loading}
+            getPopupContainer={(triggerNode) => {
+              return triggerNode.parentNode;
+            }}
             defaultActiveFirstOption={false}
             showArrow={true}
             placeholder="Please select a relationship type."

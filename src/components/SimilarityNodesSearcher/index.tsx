@@ -97,6 +97,9 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
           allowClear
           defaultActiveFirstOption={false}
           showArrow={true}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           placeholder={'Please select a node type'}
           options={entityTypeOptions}
           filterOption={true}
@@ -116,6 +119,9 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         <Select
           showSearch
           allowClear
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           loading={loading}
           defaultActiveFirstOption={false}
           showArrow={true}
@@ -146,6 +152,9 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         <Select
           mode="multiple"
           allowClear
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           defaultActiveFirstOption={false}
           showArrow={true}
           placeholder={'Please select node type(s)'}
@@ -164,6 +173,9 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       </Form.Item>
       <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}
         ></Select>

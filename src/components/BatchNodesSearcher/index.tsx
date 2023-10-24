@@ -109,6 +109,9 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
       >
         <Select
           allowClear
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           defaultActiveFirstOption={false}
           showArrow={true}
           placeholder={'Please select a node type'}
@@ -135,6 +138,9 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           showArrow={true}
           placeholder={placeholder}
           onSearch={(value) => handleSearchNode(entityType, value)}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           options={entityOptions}
           filterOption={false}
           onSelect={addToNodeIdsOptions}
@@ -168,6 +174,9 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           showArrow={true}
           onSelect={clearNodeIdType}
           placeholder={'Please select composed node id'}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
           options={nodeIdsOptions}
           filterOption={true}
         />
@@ -176,6 +185,9 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
         <Select
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}
+          getPopupContainer={(triggerNode) => {
+            return triggerNode.parentNode;
+          }}
         ></Select>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 18, span: 6 }}>
