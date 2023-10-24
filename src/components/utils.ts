@@ -10,19 +10,47 @@ import { filter } from 'lodash';
 import { COMPOSED_ENTITY_DELIMITER } from './typings';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
-export const getIdentity = async () => {
-  let visitorId = localStorage.getItem('rapex-visitor-id');
-
-  if (!visitorId) {
-    const fpPromise = FingerprintJS.load();
-    // Get the visitor identifier when you need it.
-    const fp = await fpPromise;
-    const result = await fp.get();
-
-    visitorId = result.visitorId;
+const getJwtAccessToken = (): string | null => {
+  let jwtToken = null;
+  // Check if the cookie exists
+  if (document.cookie && document.cookie.includes('jwt_access_token=')) {
+    // Retrieve the cookie value
+    // @ts-ignore
+    jwtToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('jwt_access_token='))
+      .split('=')[1];
   }
 
-  return visitorId;
+  if (jwtToken) {
+    console.log('JWT access token found in the cookie.');
+    return jwtToken;
+  } else {
+    console.log('JWT access token not found in the cookie.');
+    return null;
+  }
+};
+
+export const getIdentity = async () => {
+  const jwtAccessToken = getJwtAccessToken();
+
+  if (jwtAccessToken) {
+    // Don't set a identity and let the backend get identity from an access key.
+    return null;
+  } else {
+    let visitorId = localStorage.getItem('rapex-visitor-id');
+
+    if (!visitorId) {
+      const fpPromise = FingerprintJS.load();
+      // Get the visitor identifier when you need it.
+      const fp = await fpPromise;
+      const result = await fp.get();
+
+      visitorId = result.visitorId;
+    }
+
+    return visitorId;
+  }
 };
 
 export const formatNodeId = (entityId: string, entityType: string): string => {

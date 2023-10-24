@@ -18,17 +18,25 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         payload = prepareGraphData(graph);
       }
 
-      props.onSubmit &&
-        props.onSubmit({
-          payload: JSON.stringify(payload),
-          ...values,
-          id: '0',
-          created_time: undefined,
-          // TODO: Allow to get these values from the server
-          db_version: 'v1.0.0',
-          version: 'v1.0.0',
-          owner: await getIdentity(),
-        });
+      const owner = await getIdentity();
+      let submitData = {
+        payload: JSON.stringify(payload),
+        ...values,
+        id: '0',
+        created_time: undefined,
+        // TODO: Allow to get these values from the server
+        db_version: 'v1.0.0',
+        version: 'v1.0.0',
+      };
+
+      if (owner) {
+        submitData = {
+          ...submitData,
+          owner: owner,
+        };
+      }
+
+      props.onSubmit && props.onSubmit(submitData);
     } else {
       message.error('Failed to submit graph, you must provide a payload for your graph');
     }
