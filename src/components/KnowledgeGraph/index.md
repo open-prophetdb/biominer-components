@@ -92,7 +92,7 @@ const postGraphHistory = (data) => {
   });
 };
 
-const deleteGraphHistoryById = (id) => {
+const deleteGraphHistoryById = ({ id }) => {
   return new Promise((resolve, reject) => {
     request
       .delete(`http://localhost:8000/api/v1/subgraphs/${id}`)

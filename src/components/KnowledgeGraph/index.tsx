@@ -63,6 +63,13 @@ import './index.less';
 import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
 
+// Config message globally
+message.config({
+  duration: 2,
+  maxCount: 3,
+  getContainer: () => document.getElementById('knowledge-graph-container') || document.body,
+});
+
 const style = {
   // @ts-ignore
   backgroundImage: `url(${GraphBackground})`,
@@ -261,6 +268,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   const onDeleteGraph = (graphHistoryItem: GraphHistoryItem) => {
+    console.log('Delete graph: ', graphHistoryItem);
     // TODO: add confirm dialog, it will delete the graph cascade.
     props.apis
       .DeleteGraphHistoryFn({ id: graphHistoryItem.id })

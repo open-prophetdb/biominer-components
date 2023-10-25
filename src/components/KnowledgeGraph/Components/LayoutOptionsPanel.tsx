@@ -127,7 +127,7 @@ const LayoutOptionsPanel: React.FunctionComponent<LayoutOptionsPanelProps> = (pr
                     getPopupContainer={(triggerNode: any) => {
                       return triggerNode;
                     }}
-                    style={{ minWidth: '100px' }}
+                    // style={{ minWidth: '100px' }}
                   />
                 </Col>
               </>

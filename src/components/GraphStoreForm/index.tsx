@@ -10,7 +10,10 @@ import './index.less';
 
 const GraphForm: React.FC<GraphFormProps> = (props) => {
   const { graph } = useContext(GraphinContext);
+  const [loading, setLoading] = React.useState(false);
+
   const onFinish = async (values: any) => {
+    setLoading(true);
     if (props.payload) {
       let payload = props.payload;
       if (graph) {
@@ -29,16 +32,17 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         version: 'v1.0.0',
       };
 
-      if (owner) {
-        submitData = {
-          ...submitData,
-          owner: owner,
-        };
-      }
+      submitData = {
+        ...submitData,
+        // NOTE: You must keep the value of anonymous user same as the server side
+        owner: owner ? owner : 'ANONYMOUS-USER-PLACEHOLDER',
+      };
 
       props.onSubmit && props.onSubmit(submitData);
+      setLoading(false);
     } else {
       message.error('Failed to submit graph, you must provide a payload for your graph');
+      setLoading(false);
     }
   };
 
@@ -86,7 +90,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 20, span: 4 }} hidden={!props.onSubmit}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={loading}>
             Submit
           </Button>
         </Form.Item>

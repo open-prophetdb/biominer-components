@@ -1,3 +1,5 @@
+@buttonTop: 24%;
+
 .knowledge-graph-container {
   display: flex;
   flex-direction: column;
@@ -22,7 +24,7 @@
     .layout-button,
     .clear-button {
       position: absolute;
-      top: 25%;
+      top: @buttonTop;
       left: 10px;
       z-index: 2;
       width: 30px;
@@ -30,23 +32,23 @@
     }
 
     .full-screen-button {
-      top: calc(25% - 40px);
+      top: calc(@buttonTop - 40px);
     }
 
     .toolbar-button {
-      top: 25%;
+      top: @buttonTop;
     }
 
     .layout-button {
-      top: calc(25% + 40px);
+      top: calc(@buttonTop + 40px);
     }
 
     .save-button {
-      top: calc(25% + 80px);
+      top: calc(@buttonTop + 80px);
     }
 
     .clear-button {
-      top: calc(25% + 120px);
+      top: calc(@buttonTop + 120px);
     }
   }
 }
