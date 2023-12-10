@@ -109,6 +109,7 @@ export type RelationStat = {
   relation_count: number;
   start_entity_type: string;
   end_entity_type: string;
+  description?: string;
 };
 
 export type RelationCount = {

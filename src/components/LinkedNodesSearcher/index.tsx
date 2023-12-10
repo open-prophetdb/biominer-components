@@ -380,8 +380,19 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           allowClear
           autoClearSearchValue={false}
           placeholder="Please select relation types"
-          options={relationTypeOptions}
-        ></Select>
+          // options={relationTypeOptions}
+        >
+          {relationTypeOptions.map((item: OptionType & { description?: string }) => {
+            return (
+              <Select.Option key={item.value} value={item.value}>
+                <div className="option-container">
+                  <div className="option-label">{item.label}</div>
+                  <div className="option-description">{item.description}</div>
+                </div>
+              </Select.Option>
+            );
+          })}
+        </Select>
       </Form.Item>
       <Form.Item
         name="nsteps"

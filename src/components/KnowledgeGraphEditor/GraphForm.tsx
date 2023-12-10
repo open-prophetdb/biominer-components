@@ -103,6 +103,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         relationType: item.relation_type
           .replace(/^[a-zA-Z0-9]+::/g, '')
           .replace(`::${item.start_entity_type}:${item.end_entity_type}`, ''),
+        description: item.description ? item.description : '',
       };
     });
 
@@ -119,6 +120,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
           order: 0,
           label: formatRelType(item),
           value: item.fullRelationType,
+          description: item.description,
         };
       }),
       ['label'],
@@ -132,7 +134,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
       form.setFieldsValue({ curator: props.curator });
     } else {
       getIdentity().then((visitorId) => {
-        localStorage.setItem('rapex-visitor-id', visitorId);
+        localStorage.setItem('rapex-visitor-id', visitorId as string);
         form.setFieldsValue({ curator: visitorId });
       });
     }
@@ -504,7 +506,7 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
             defaultActiveFirstOption={false}
             showArrow={true}
             placeholder="Please select a relationship type."
-            options={relationOptions}
+            // options={relationOptions}
             filterOption={false}
             notFoundContent={
               <Empty
@@ -513,7 +515,18 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
                 }
               />
             }
-          ></Select>
+          >
+            {relationOptions.map((item: OptionType & { description?: string }) => {
+              return (
+                <Select.Option key={item.value} value={item.value}>
+                  <div className="option-container">
+                    <div className="option-label">{item.label}</div>
+                    <div className="option-description">{item.description}</div>
+                  </div>
+                </Select.Option>
+              );
+            })}
+          </Select>
         </Form.Item>
 
         <Form.Item

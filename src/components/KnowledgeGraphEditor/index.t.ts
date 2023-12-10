@@ -123,7 +123,12 @@ export const RelationTypeDict: Record<string, string> = {
   Q: 'production by cell population',
 };
 
-export type RelationType = { source: string; relationType: string; fullRelationType: string };
+export type RelationType = {
+  source: string;
+  relationType: string;
+  fullRelationType: string;
+  description?: string;
+};
 
 export type GetEntitiesFn = (params: EntityQueryParams) => Promise<EntityRecordsResponse>;
 
