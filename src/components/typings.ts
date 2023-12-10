@@ -2,6 +2,7 @@ export type OptionType = {
   order: number;
   label: string;
   value: string;
+  description?: string;
 };
 
 export type QueryItem = {
@@ -297,6 +298,11 @@ export type APIs = {
     topk: number;
   }) => Promise<GraphData>;
   GetOneStepLinkedNodesFn: (params: EntityQueryParams) => Promise<GraphData>;
+  GetNStepsLinkedNodesFn: (params: {
+    start_node_id: string; // Gene::ENTREZ:1234
+    end_node_id: string;
+    nhops?: number;
+  }) => Promise<GraphData>;
   GetConnectedNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
   GetEntity2DFn: (params: EntityQueryParams) => Promise<Entity2DRecordsResponse>;
   GetEntityColorMapFn: () => Promise<Record<string, string>>;
@@ -346,11 +352,26 @@ export class PathSearchObjectClass implements SearchObjectInterface {
     return `${this.data.source_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_type}`;
   }
 
+  get_target_node_id(): string {
+    return `${this.data.target_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.target_entity_type}`;
+  }
+
+  get_source_node_id(): string {
+    return `${this.data.source_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_type}`;
+  }
+
   process(apis: APIs): Promise<GraphData> {
-    // Not implemented yet.
-    return new Promise((resolve, reject) => {
-      resolve({ nodes: [], edges: [] });
-    });
+    if (this.data.source_entity_id && this.data.target_entity_id) {
+      return apis.GetNStepsLinkedNodesFn({
+        start_node_id: this.get_source_node_id(),
+        end_node_id: this.get_target_node_id(),
+        nhops: this.data.nsteps,
+      });
+    } else {
+      return new Promise((resolve, reject) => {
+        reject('The source_entity_id and target_entity_id must be set.');
+      });
+    }
   }
 }
 

@@ -150,6 +150,7 @@ export const makeRelationTypes = (edgeStat: RelationStat[]): OptionType[] => {
       order: element.relation_count,
       label: `[${relation_count}] ${relationshipType}`,
       value: relationshipType,
+      description: element.description || 'No description available.',
     });
   });
 

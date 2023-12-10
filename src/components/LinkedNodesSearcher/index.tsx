@@ -14,9 +14,6 @@ import { fetchNodes } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 
 import './index.less';
-import { raw } from 'hast-util-raw';
-
-let timeout: ReturnType<typeof setTimeout> | null;
 
 const nStepsOptions = [
   { label: '1 Step', value: 1 },
@@ -382,7 +379,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           placeholder="Please select relation types"
           // options={relationTypeOptions}
         >
-          {relationTypeOptions.map((item: OptionType & { description?: string }) => {
+          {relationTypeOptions.map((item: OptionType) => {
             return (
               <Select.Option key={item.value} value={item.value}>
                 <div className="option-container">

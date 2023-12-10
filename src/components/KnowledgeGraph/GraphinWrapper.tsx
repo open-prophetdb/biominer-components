@@ -295,9 +295,9 @@ const NodeMenu = (props: NodeMenuProps) => {
     },
     {
       key: 'expand-all-paths',
-      hidden: true,
+      hidden: false,
       icon: <ShareAltOutlined />,
-      label: 'Expand Paths (Within 3 Steps)',
+      label: 'Expand Paths (Within 2 Steps)',
       children: [
         {
           key: 'expand-all-paths-1',
@@ -311,6 +311,7 @@ const NodeMenu = (props: NodeMenuProps) => {
         },
         {
           key: 'expand-all-paths-3',
+          hidden: true,
           icon: <ShareAltOutlined />,
           label: 'Within 3 Step',
         },

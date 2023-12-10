@@ -183,6 +183,19 @@ const getEntityColorMap = () => {
   });
 };
 
+const fetchPaths = (params) => {
+  return new Promise((resolve, reject) => {
+    request
+      .get('http://localhost:8000/api/v1/paths', { params })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export default () => {
   return (
     <Row style={{ position: 'relative', width: '900px' }}>
@@ -200,6 +213,7 @@ export default () => {
           GetOneStepLinkedNodesFn: getOneStepLinkedNodes,
           GetConnectedNodesFn: getConnectedNodes,
           GetEntity2DFn: getEntity2D,
+          GetNStepsLinkedNodesFn: fetchPaths,
           GetEntityColorMapFn: getEntityColorMap,
         }}
       />

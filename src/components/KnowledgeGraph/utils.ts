@@ -28,6 +28,14 @@ export const formatNodeIdFromGraphNode = (node: GraphNode) => {
   return `${node.data.label}${COMPOSED_ENTITY_DELIMITER}${node.data.id}`;
 };
 
+export const getEntityType = (node: GraphNode) => {
+  return node.data.label;
+};
+
+export const getEntityId = (node: GraphNode) => {
+  return node.data.id;
+};
+
 export const processEdges = (edges: GraphEdge[], options: any): GraphEdge[] => {
   const edgeMap: Map<string, GraphEdge[]> = new Map();
   edges.forEach((edge) => {
@@ -63,6 +71,7 @@ export const processEdges = (edges: GraphEdge[], options: any): GraphEdge[] => {
         },
         data: {
           ...others.data,
+          // @ts-ignore
           identity: `MultipleLabels-${source}-${target}`,
           reltypes: reltypes,
         },

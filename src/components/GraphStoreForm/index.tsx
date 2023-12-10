@@ -38,8 +38,15 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         owner: owner ? owner : 'ANONYMOUS-USER-PLACEHOLDER',
       };
 
-      props.onSubmit && props.onSubmit(submitData);
-      setLoading(false);
+      props.onSubmit &&
+        props
+          .onSubmit(submitData)
+          .then(() => {
+            setLoading(false);
+          })
+          .catch(() => {
+            setLoading(false);
+          });
     } else {
       message.error('Failed to submit graph, you must provide a payload for your graph');
       setLoading(false);

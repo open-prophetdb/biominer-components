@@ -42,7 +42,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
         let newOptions = nodeIdsOptions ? [...nodeIdsOptions] : [];
         let nodeId = formatNodeId(value, entityType);
         newOptions.push({ label: nodeId, value: nodeId, order: 0 });
-        return newOptions;
+        return uniqBy(newOptions, 'label');
       });
     }
   };
@@ -164,7 +164,10 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
         name="nodeIds"
         tooltip="Please select node id and node type from the above form first, and then select the composed node id. If you want to load a lot of nodes, please use the batch query form."
         rules={[
-          { required: true, message: 'Please select node id and node type from the above form.' },
+          {
+            required: true,
+            message: 'Please select node id and node type from the above form.',
+          },
         ]}
       >
         <Select

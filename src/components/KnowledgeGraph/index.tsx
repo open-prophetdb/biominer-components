@@ -34,6 +34,8 @@ import {
   processEdges,
   formatNodeIdFromEntity2D,
   formatNodeIdFromGraphNode,
+  getEntityId,
+  getEntityType,
 } from './utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
@@ -62,6 +64,7 @@ import { stat_total_node_count, stat_total_relation_count } from '../StatisticsC
 import './index.less';
 import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
+import { PathSearchObjectClass } from '../typings';
 
 // Config message globally
 message.config({
@@ -439,6 +442,32 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
+  const fetchNStepsNodes = (
+    sourceId: string,
+    sourceType: string,
+    targetId: string,
+    targetType: string,
+    nsteps?: number,
+  ) => {
+    if (sourceId && sourceType && targetId && targetType) {
+      let pathSearchObject = new PathSearchObjectClass(
+        {
+          source_entity_id: sourceId,
+          source_entity_type: sourceType,
+          target_entity_id: targetId,
+          target_entity_type: targetType,
+          relation_types: [],
+          nsteps: nsteps || 1,
+        },
+        'append',
+      );
+
+      setSearchObject(pathSearchObject);
+    } else {
+      message.warning('Please select two nodes to expand.');
+    }
+  };
+
   const onCanvasMenuClick = (menuItem: CanvasMenuItem, graph: any, apis: any) => {
     if (menuItem.key == 'auto-connect') {
       message.info('Auto connecting nodes, please wait...');
@@ -529,20 +558,19 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
       // TODO: How to connect two nodes within n steps?
-      // console.log('Expand All Paths: ', menuItem.key);
-      // const selectedNodes = getSelectedNodes(graph);
-      // if (selectedNodes.length == 0) {
-      //   message.info('Please select one or more nodes to expand.');
-      //   return;
-      // } else {
-      //   setSearchObject({
-      //     nodes: selectedNodes,
-      //     merge_mode: 'append',
-      //     mode: 'path',
-      //     nsteps: parseInt(menuItem.key.split('-').pop() || '1'),
-      //     limit: 50,
-      //   });
-      // }
+      console.log('Expand All Paths: ', menuItem.key);
+      const selectedNodes = getSelectedNodes(graph);
+      if (selectedNodes.length !== 2) {
+        message.info('Please select two nodes to expand.');
+        return;
+      } else {
+        const sourceType = getEntityType(selectedNodes[0]);
+        const sourceId = getEntityId(selectedNodes[0]);
+        const targetType = getEntityType(selectedNodes[1]);
+        const targetId = getEntityId(selectedNodes[1]);
+        const nsteps = Number(menuItem.key.split('-').pop());
+        fetchNStepsNodes(sourceId, sourceType, targetId, targetType, nsteps);
+      }
     } else if (menuItem.key == 'expand-selected-nodes') {
       // TODO: Do we need to expand all selected nodes?
       // const nodes = getSelectedNodes(graph);
@@ -974,11 +1002,17 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 payload={graphFormPayload}
                 parent={document.getElementById('knowledge-graph-container') as HTMLElement}
                 onClose={() => {
-                  setGraphFormVisible(false);
+                  return new Promise((resolve, reject) => {
+                    setGraphFormVisible(false);
+                    resolve();
+                  });
                 }}
                 onSubmit={(data: GraphHistoryItem) => {
-                  onSubmitGraph(data).finally(() => {
-                    setGraphFormVisible(false);
+                  return new Promise((resolve, reject) => {
+                    onSubmitGraph(data).finally(() => {
+                      resolve();
+                      setGraphFormVisible(false);
+                    });
                   });
                 }}
               ></GraphStoreForm>

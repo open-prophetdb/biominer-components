@@ -14,12 +14,12 @@ export type GraphFormProps = {
    * @description How to save the graph. If you provide this prop, the form will show a save button.
    * @default undefined
    */
-  onSubmit?: (data: GraphHistoryItem) => void;
+  onSubmit?: (data: GraphHistoryItem) => Promise<void>;
   /**
    * @description A listener for the close event.
    * @default undefined
    */
-  onClose?: () => void;
+  onClose?: () => Promise<void>;
   /**
    * @description The parent element of the form.
    * @default undefined
