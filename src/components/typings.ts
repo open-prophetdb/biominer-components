@@ -349,15 +349,15 @@ export class PathSearchObjectClass implements SearchObjectInterface {
   }
 
   get_current_node_id(): string {
-    return `${this.data.source_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_type}`;
+    return `${this.data.source_entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_id}`;
   }
 
   get_target_node_id(): string {
-    return `${this.data.target_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.target_entity_type}`;
+    return `${this.data.target_entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.target_entity_id}`;
   }
 
   get_source_node_id(): string {
-    return `${this.data.source_entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_type}`;
+    return `${this.data.source_entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.source_entity_id}`;
   }
 
   process(apis: APIs): Promise<GraphData> {

@@ -29,6 +29,7 @@ import {
   TagFilled,
   UndoOutlined,
   RedoOutlined,
+  StopOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
@@ -113,11 +114,41 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     }
   }, []);
 
-  const options = [
+  const options: MenuItem[] = [
     {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
       label: 'Show Edge Details',
+    },
+    {
+      key: 'hide-current-edges',
+      icon: <EyeOutlined />,
+      label: 'Hide Current Edge',
+      handler: (edge: GraphEdge) => {
+        console.log('Hide Current Edge: ', edge);
+        graph.getEdges().forEach((gedge) => {
+          const model = gedge.getModel() as GraphEdge;
+          if (model.relid == edge.relid) {
+            graph.hideItem(gedge, true);
+          }
+        });
+        setVisible(false);
+      },
+    },
+    {
+      key: 'hide-edges-with-same-type',
+      icon: <EyeOutlined />,
+      label: 'Hide Edges with Same Type',
+      handler: (edge: GraphEdge) => {
+        console.log('Hide Edges with Same Type: ', edge);
+        graph.getEdges().forEach((gedge) => {
+          const model = gedge.getModel() as GraphEdge;
+          if (model.reltype == edge.reltype) {
+            graph.hideItem(gedge, true);
+          }
+        });
+        setVisible(false);
+      },
     },
     {
       key: 'explain-relationship',
@@ -189,10 +220,41 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     });
   }
 
-  const onChange = function (menuItem: any) {
-    if (props.onChange && sourceNode && targetNode && edge && graph && apis) {
-      props.onChange(menuItem, sourceNode, targetNode, edge, graph, apis);
-      setVisible(false);
+  const onChange = function (menuKey: string) {
+    const childOptions = options
+      .filter((item) => {
+        return item.children;
+      })
+      .map((item) => {
+        return item.children;
+      })
+      .flat();
+
+    const allOptions = options.filter((item) => {
+      return !item.children;
+    });
+
+    const menuItem =
+      allOptions.find((item) => {
+        return item.key === menuKey;
+      }) ||
+      childOptions.find((item) => {
+        if (item) {
+          return item.key === menuKey;
+        } else {
+          return false;
+        }
+      });
+
+    console.log('EdgeMenu: ', menuKey, menuItem);
+
+    if (menuItem) {
+      if (menuItem.handler) {
+        menuItem.handler(edge);
+      } else if (props.onChange && sourceNode && targetNode && edge && graph && apis) {
+        props.onChange(menuItem, sourceNode, targetNode, edge, graph, apis);
+        setVisible(false);
+      }
     } else {
       message.warning('Cannot catch the changes.');
     }
@@ -203,7 +265,9 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       items={options.filter((item) => {
         return !item.hidden;
       })}
-      onClick={onChange}
+      onClick={(menuInfo) => {
+        onChange(menuInfo.key);
+      }}
     />
   ) : null;
 };
@@ -262,6 +326,41 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Expand Selected Nodes',
     },
     {
+      key: 'hide-selected-nodes',
+      icon: <EyeOutlined />,
+      label: 'Hide Selected Nodes',
+      handler: (node: GraphNode) => {
+        console.log('Hide Selected Nodes: ', node);
+        let nodes = graph.getNodes();
+
+        function hideRelatedEdges(node: GraphNode) {
+          // Hide the edges connected with the selected nodes.
+          const edges = graph.getEdges();
+          edges.forEach((edge) => {
+            const model = edge.getModel() as GraphEdge;
+            console.log('Hide Edge: ', node.id, model.source, model.target);
+            if (model.source == node.id || model.target == node.id) {
+              graph.hideItem(edge, true);
+            }
+          });
+        }
+
+        nodes.forEach((gnode) => {
+          if (gnode.hasState('selected')) {
+            graph.setItemState(gnode, 'inactive', true);
+            hideRelatedEdges(node);
+          }
+
+          // Hide the current node.
+          if (gnode.getModel().id == node.id) {
+            graph.setItemState(gnode, 'inactive', true);
+            hideRelatedEdges(node);
+          }
+        });
+        setVisible(false);
+      },
+    },
+    {
       key: 'reverse-selected-nodes',
       icon: <CloseCircleOutlined />,
       label: 'Reverse Selected Nodes',
@@ -309,12 +408,12 @@ const NodeMenu = (props: NodeMenuProps) => {
           icon: <ShareAltOutlined />,
           label: 'Within 2 Step',
         },
-        {
-          key: 'expand-all-paths-3',
-          hidden: true,
-          icon: <ShareAltOutlined />,
-          label: 'Within 3 Step',
-        },
+        // {
+        //   key: 'expand-all-paths-3',
+        //   hidden: true,
+        //   icon: <ShareAltOutlined />,
+        //   label: 'Within 3 Step',
+        // },
       ],
     },
     // TODO: Cann't remove badges. It seems there is a bug in Graphin.
@@ -550,12 +649,18 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     nodes.forEach((node) => {
       graph.setItemState(node, 'inactive', false);
       graph.setItemState(node, 'active', false);
+
+      // Some nodes are hidden, so we need to show them.
+      graph.showItem(node, true);
     });
 
     const edges = graph.getEdges();
     edges.forEach((edge) => {
       graph.setItemState(edge, 'inactive', false);
       graph.setItemState(edge, 'active', false);
+
+      // Some edges are hidden, so we need to show them.
+      graph.showItem(edge, true);
     });
 
     message.success(`Clear node/edge status successfully`);
@@ -1085,10 +1190,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         style={style}
       >
         <FitView></FitView>
-        {/* BUG?: This seems like it doesn't work. Maybe we need a new layout algorithm. */}
-        <DragNodeWithForce autoPin={settings.autoPin} />
+        {/* You can drag node to stop layout */}
+        <DragNodeWithForce autoPin={true} />
         {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
-        <DragNode />
+        {/* <DragNode /> */}
         <ZoomCanvas />
         {settings.selectionMode == 'lasso-select' ? <LassoSelect /> : null}
         {settings.selectionMode == 'brush-select' ? <BrushSelect /> : null}
@@ -1214,7 +1319,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                   })}
                 </Select>
               </Toolbar.Item>
-              <Toolbar.Item>
+              {/* <Toolbar.Item>
                 <Switch
                   onChange={(checked) => {
                     setSettings({ ...settings, autoPin: checked });
@@ -1223,7 +1328,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                   disabled
                 />
                 Auto Pin
-              </Toolbar.Item>
+              </Toolbar.Item> */}
               <Toolbar.Item>
                 <Switch
                   onChange={(checked) => {

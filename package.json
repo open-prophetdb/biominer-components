@@ -1,9 +1,9 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "scripts": {
-    "start": "dumi dev",
+    "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",
     "docs:deploy": "gh-pages -d docs-dist",
     "build": "father build",

@@ -55,7 +55,7 @@ export class SimilarityNodesSearchObjectClass implements SearchObjectInterface {
   }
 
   get_current_node_id(): string | undefined {
-    return `${this.data.entity_id}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_type}`;
+    return `${this.data.entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_id}`;
   }
 
   process(apis: APIs): Promise<GraphData> {
