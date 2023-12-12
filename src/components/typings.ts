@@ -18,6 +18,7 @@ export interface LayoutOptionConfig {
 export type LayoutConfig = {
   type: string;
   title: string;
+  hidden?: boolean;
   options?: LayoutOptionConfig[];
 };
 

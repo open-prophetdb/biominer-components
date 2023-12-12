@@ -138,8 +138,12 @@ const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => 
 
   const { title } = matchLayout;
   const handleChange = (selectedType: string, options?: {}) => {
-    console.log(selectedType);
+    console.log('Select Layout Type: ', selectedType, options);
     if (onChange) {
+      message.warning(
+        `Layout ${selectedType} is selected, but it may take a while to render, please wait...`,
+        5,
+      );
       onChange({ type: selectedType, options });
     }
   };
@@ -152,7 +156,11 @@ const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => 
 
   return (
     <Card title={null} bordered={false} style={{ ...style }} className="layout-settings-panel">
-      <LayoutMenu handleChange={handleChange} description={description} layouts={layouts} />
+      <LayoutMenu
+        handleChange={handleChange}
+        description={description}
+        layouts={layouts.filter((item) => !item.hidden)}
+      />
       <Divider style={{ margin: '15px 0px' }} />
       <div style={{ height: '260px', overflow: 'scroll' }}>
         <LayoutOptionsPanel

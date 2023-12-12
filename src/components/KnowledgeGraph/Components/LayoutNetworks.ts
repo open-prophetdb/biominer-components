@@ -11,6 +11,7 @@ const layouts: LayoutConfig[] = [
         title: 'Prevent Overlap?',
         defaultValue: true,
         component: 'switch',
+        description: 'Whether to Prevent Node Overlap.',
       },
       {
         key: 'linkDistance',
@@ -19,6 +20,7 @@ const layouts: LayoutConfig[] = [
         component: 'slider',
         min: 100,
         max: 500,
+        description: 'The Link Distance Between Two Adjacent Nodes.',
       },
       {
         key: 'nodeStrength',
@@ -27,6 +29,7 @@ const layouts: LayoutConfig[] = [
         component: 'slider',
         min: 10,
         max: 100,
+        description: 'The Strength of the Force Applied to the Node.',
       },
       {
         key: 'edgeStrength',
@@ -35,6 +38,7 @@ const layouts: LayoutConfig[] = [
         component: 'slider',
         min: 0,
         max: 1,
+        description: 'The Strength of the Force Applied to the Edge.',
       },
       {
         key: 'collideStrength',
@@ -43,6 +47,7 @@ const layouts: LayoutConfig[] = [
         component: 'slider',
         max: 1,
         min: 0,
+        description: 'The Strength of the Force Applied to the Collision.',
       },
     ],
   },
@@ -145,7 +150,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'preventOverlap',
         title: 'Prevent Overlap?',
-        defaultValue: false,
+        defaultValue: true,
         description:
           'Prevent Node Overlap, when enabled, it avoids nodes from overlapping; it must be used in conjunction with the nodeSize property. Collision detection is only possible when the nodeSize is set to be the same size as the nodes in the graph.',
       },
@@ -199,7 +204,7 @@ const layouts: LayoutConfig[] = [
           "Specify the Sorting Criterion, i.e., based on which node property the sorting is performed; higher values result in nodes being placed more centrally. If not specified, the node's degree will be calculated, and nodes with higher degrees will be placed more centrally.",
       },
     ],
-    title: 'Grid Layout',
+    title: 'Grid',
   },
   {
     type: 'radial',
@@ -227,7 +232,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'preventOverlap',
         title: 'Prevent Overlap?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Prevent Node Overlap.',
       },
       {
@@ -293,11 +298,11 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
-    title: 'Radial Layout',
+    title: 'Radial',
   },
   {
     type: 'dagre',
@@ -362,7 +367,7 @@ const layouts: LayoutConfig[] = [
           'Spacing Between Layers, vertical spacing between adjacent layers when rankdir is TB or BT, and horizontal spacing between adjacent layers when rankdir is LR or RL.',
       },
     ],
-    title: 'Dagre Layout',
+    title: 'Dagre',
   },
   {
     type: 'circular',
@@ -418,11 +423,11 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
-    title: 'Circular Layout',
+    title: 'Circular',
   },
 
   {
@@ -475,7 +480,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'preventOverlap',
         title: 'Prevent Overlap?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Prevent Node Overlap.',
       },
       {
@@ -521,7 +526,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
@@ -543,11 +548,11 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
-    title: 'MDS Layout',
+    title: 'Multidimensional Scaling',
   },
   {
     type: 'random',
@@ -556,7 +561,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
@@ -564,12 +569,13 @@ const layouts: LayoutConfig[] = [
   },
   {
     type: 'force2',
+    hidden: true, // The performance is not good, so hide it temporarily.
     options: [
       {
         component: 'switch',
         key: 'animate',
         title: 'Animate?',
-        defaultValue: false,
+        defaultValue: true,
         description:
           'Whether to Enable Animation. If Enabled, the Layout Will Be Animated to the Final State. But you can not change the layout during the animation until the animation ends.',
       },
@@ -620,7 +626,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'preventOverlap',
         title: 'Prevent Overlap?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Prevent Node Overlap.',
       },
       {
@@ -685,7 +691,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],
@@ -693,7 +699,7 @@ const layouts: LayoutConfig[] = [
   },
   {
     type: 'fruchterman',
-    title: 'Fruchterman Layout',
+    title: 'Fruchterman',
     options: [
       {
         component: 'select',
@@ -760,7 +766,7 @@ const layouts: LayoutConfig[] = [
         component: 'switch',
         key: 'workerEnabled',
         title: 'Worker Enabled?',
-        defaultValue: false,
+        defaultValue: true,
         description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
       },
     ],

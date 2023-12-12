@@ -22,6 +22,7 @@ import {
   QuestionCircleOutlined,
   CloudDownloadOutlined,
   EyeOutlined,
+  EyeInvisibleOutlined,
   BranchesOutlined,
   AimOutlined,
   InfoCircleFilled,
@@ -135,7 +136,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       children: [
         {
           key: 'hide-current-edge',
-          icon: <EyeOutlined />,
+          icon: <EyeInvisibleOutlined />,
           label: 'Hide Current Edge',
           handler: (edge: GraphEdge) => {
             console.log('Hide Current Edge: ', edge);
@@ -165,7 +166,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
         },
         {
           key: 'hide-edges-with-same-type',
-          icon: <EyeOutlined />,
+          icon: <EyeInvisibleOutlined />,
           label: 'Hide Edges with Same Type',
           handler: (edge: GraphEdge) => {
             console.log('Hide Edges with Same Type: ', edge);
@@ -412,7 +413,7 @@ const NodeMenu = (props: NodeMenuProps) => {
         },
         {
           key: 'hide-selected-nodes',
-          icon: <EyeOutlined />,
+          icon: <EyeInvisibleOutlined />,
           label: 'Hide Selected Nodes',
           handler: (node: GraphNode) => {
             console.log('Hide Selected Nodes: ', node);
@@ -591,7 +592,7 @@ const NodeMenu = (props: NodeMenuProps) => {
       children: [
         {
           key: 'what-is-the-node',
-          icon: <EyeOutlined />,
+          icon: <InfoCircleFilled />,
           label: `What is the node?`,
         },
       ],
@@ -1353,10 +1354,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         {props.layoutSettingPanelVisible ? (
           <Moveable
             title="Layout Settings"
-            width="300px"
-            maxWidth="300px"
+            width="320px"
+            maxWidth="320px"
             top="100px"
-            right="120px"
+            right="140px"
             help={layoutHelpDoc}
             onClose={() => {
               props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;

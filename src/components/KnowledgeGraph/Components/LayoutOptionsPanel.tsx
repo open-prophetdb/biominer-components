@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { LayoutOptionConfig } from '../../typings';
-import { Slider, Switch, Row, Col, InputNumber, Select } from 'antd';
+import { Slider, Switch, Row, Col, InputNumber, Select, Tooltip } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 interface LayoutOptionsPanelProps {
   options?: LayoutOptionConfig[];
@@ -49,6 +50,7 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
         },
         checked: value,
         step: 0.01,
+        size: 'small',
       },
     };
   }
@@ -56,10 +58,12 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
     return {
       component: Select,
       props: {
+        value,
         options: enums,
         onChange: (checked: any) => {
           onChange(key, checked);
         },
+        size: 'small',
       },
     };
   }
@@ -110,7 +114,7 @@ const LayoutOptionsPanel: React.FunctionComponent<LayoutOptionsPanelProps> = (pr
     <Row>
       {OPTIONS
         ? OPTIONS.map((item) => {
-            const { title, defaultValue, key } = item;
+            const { title, defaultValue, key, description } = item;
             // @ts-ignore
             const value = options[key];
             // @ts-ignore
@@ -120,13 +124,12 @@ const LayoutOptionsPanel: React.FunctionComponent<LayoutOptionsPanelProps> = (pr
             });
             return (
               <>
-                <Col span={12}>{title}</Col>
-                <Col
-                  span={12}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
+                <Col span={12}>
+                  <Tooltip title={description} trigger="hover">
+                    {title}
+                  </Tooltip>
+                </Col>
+                <Col span={12}>
                   <Component
                     {...ComponentProps}
                     getPopupContainer={(triggerNode: any) => {
