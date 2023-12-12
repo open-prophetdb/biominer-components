@@ -326,6 +326,41 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Expand Selected Nodes',
     },
     {
+      key: 'show-selected-nodes',
+      icon: <EyeOutlined />,
+      label: 'Show Selected Nodes',
+      handler: (node: GraphNode) => {
+        console.log('Show Selected Nodes: ', node);
+        let nodes = graph.getNodes();
+
+        function showRelatedEdges(node: GraphNode) {
+          // Show the edges connected with the selected nodes.
+          const edges = graph.getEdges();
+          edges.forEach((edge) => {
+            const model = edge.getModel() as GraphEdge;
+            console.log('Show Edge: ', node.id, model.source, model.target);
+            if (model.source == node.id || model.target == node.id) {
+              graph.showItem(edge, true);
+            }
+          });
+        }
+
+        nodes.forEach((gnode) => {
+          if (gnode.hasState('selected')) {
+            graph.setItemState(gnode, 'inactive', false);
+            showRelatedEdges(node);
+          }
+
+          // Show the current node.
+          if (gnode.getModel().id == node.id) {
+            graph.setItemState(gnode, 'inactive', false);
+            showRelatedEdges(node);
+          }
+        });
+        setVisible(false);
+      },
+    },
+    {
       key: 'hide-selected-nodes',
       icon: <EyeOutlined />,
       label: 'Hide Selected Nodes',

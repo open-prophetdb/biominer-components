@@ -12,12 +12,14 @@ import {
   ForkOutlined,
   RadarChartOutlined,
   MailOutlined,
+  AimOutlined,
 } from '@ant-design/icons';
 import LayoutOptionsPanel from './LayoutOptionsPanel';
 import { Layouts } from './LayoutNetworks';
 import './LayoutSelector.less';
 
 const iconMapByType: { [key: string]: React.ReactNode } = {
+  preset: <AimOutlined />,
   'graphin-force': <ShareAltOutlined />,
   random: <TrademarkCircleFilled />,
   concentric: <ChromeFilled />,
@@ -31,6 +33,8 @@ const iconMapByType: { [key: string]: React.ReactNode } = {
 };
 
 const LayoutAlgorithmDescriptions: { [key: string]: string } = {
+  preset:
+    'This algorithm arranges nodes in a preset layout, useful for visualizing small graphs with a known structure.',
   'graphin-force':
     'This layout algorithm uses a force-directed approach to arrange nodes in a graph, allowing them to naturally repel and attract each other for an optimized layout.',
   random:
@@ -100,6 +104,7 @@ const LayoutMenu = ({ handleChange, description, layouts }) => {
       overlay={menu}
       onOpenChange={handleVisibleChange}
       open={visible}
+      trigger={['click']}
       getPopupContainer={(triggerNode) => {
         // @ts-ignore
         return triggerNode || document.body;

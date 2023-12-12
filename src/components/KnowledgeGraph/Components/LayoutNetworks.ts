@@ -23,6 +23,11 @@ export type Layouts = {
 
 const layouts: Layouts = [
   {
+    type: 'preset',
+    title: 'Preset Layout',
+    options: undefined,
+  },
+  {
     type: 'force',
     title: 'D3 gForce',
     options: [
@@ -140,11 +145,6 @@ const layouts: Layouts = [
       },
     ],
   },
-  // {
-  //   type: 'graphin-force',
-  //   options: undefined,
-  //   title: 'Progressive gForce',
-  // },
   {
     type: 'grid',
     options: [
@@ -316,6 +316,11 @@ const layouts: Layouts = [
     type: 'random',
     options: undefined,
     title: 'Random Layout',
+  },
+  {
+    type: 'graphin-force',
+    options: undefined,
+    title: 'Progressive gForce',
   },
 ];
 

@@ -241,7 +241,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setParentGraphUUID(latestChild.id);
       setCurrentGraphUUID(graphHistoryItem.id);
       checkAndSetData(payload.data);
-      setLayout(payload.layout);
+      // setLayout(payload.layout);
+      // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
+      setLayout('preset');
       setToolbarVisible(payload.toolbarVisible);
       setLayoutSettingPanelVisible(false);
       setGraphTableVisible(false);
