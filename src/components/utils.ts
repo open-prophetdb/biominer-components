@@ -7,7 +7,8 @@ import type {
   APIs,
 } from './typings';
 import { filter } from 'lodash';
-import { COMPOSED_ENTITY_DELIMITER } from './typings';
+import { Graph } from '@antv/g6';
+import { COMPOSED_ENTITY_DELIMITER, Layout, GraphData } from './typings';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 const getJwtAccessToken = (): string | null => {
@@ -272,4 +273,45 @@ export const fetchNodes = async (
   };
 
   timeout = setTimeout(fetchData, 300);
+};
+
+export const presetLayout: Layout = {
+  type: 'preset',
+  options: undefined,
+};
+
+export const prepareGraphData = (
+  graph: Graph,
+): {
+  data: GraphData;
+  layout: Layout;
+  defaultLayout: Layout;
+} => {
+  const data = {
+    nodes: graph.getNodes().map((node: any) => {
+      const n = node.getModel();
+      return {
+        ...n,
+        style: n._initialStyle,
+        _initialStyle: n.style,
+      };
+    }),
+    edges: graph.getEdges().map((edge: any) => {
+      const e = edge.getModel();
+      return {
+        ...e,
+        style: e._initialStyle,
+        _initialStyle: e.style,
+      };
+    }),
+  };
+
+  const layout = graph.get('layout');
+
+  return {
+    data: data,
+    // We need to set the layout to preset to avoid the graph layout change when the data is loaded.
+    layout: presetLayout,
+    defaultLayout: layout,
+  };
 };

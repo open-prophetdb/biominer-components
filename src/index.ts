@@ -24,7 +24,7 @@ export { default as GraphStoreTable } from './components/GraphStoreTable';
 export { default as DataArea } from './components/DataArea';
 export { default as StatisticsDataArea } from './components/StatisticsDataArea';
 export { default as NodeUploader } from './components/NodeUploader';
-export { default as Movable } from './components/Movable';
+export { default as Movable } from './components/Moveable';
 export { default as TransferTable } from './components/TransferTable';
 export { default as LinkedNodesSearcher } from './components/LinkedNodesSearcher';
 export { default as SimilarityNodesSearcher } from './components/SimilarityNodesSearcher';

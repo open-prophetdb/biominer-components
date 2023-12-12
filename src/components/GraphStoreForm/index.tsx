@@ -3,7 +3,7 @@ import { GraphinContext } from '@antv/graphin';
 import { Button, Form, Input, message, Modal } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import type { GraphFormProps } from './index.t';
-import { prepareGraphData } from './utils';
+import { prepareGraphData } from '../utils';
 import { getIdentity } from '../utils';
 
 import './index.less';

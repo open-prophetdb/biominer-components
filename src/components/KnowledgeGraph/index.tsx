@@ -27,7 +27,6 @@ import SimilarityChart from '../SimilarityChart';
 import {
   makeColumns,
   makeDataSources,
-  defaultLayout,
   isUUID,
   getNodes,
   getSelectedNodes,
@@ -37,6 +36,7 @@ import {
   getEntityId,
   getEntityType,
 } from './utils';
+import { presetLayout } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
@@ -52,9 +52,10 @@ import type {
   SearchObjectInterface,
   Entity2D,
   MergeMode,
+  Layout,
 } from '../typings';
 import { EdgeInfo, MenuItem, CanvasMenuItem } from './typings';
-import Movable from '../Movable';
+import Movable from '../Moveable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
 import { KnowledgeGraphProps } from './index.t';
@@ -116,7 +117,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [searchObject, setSearchObject] = useState<SearchObjectInterface>();
 
   // You must have a oldLayout to make the layout work before user select a layout from the menu
-  const [layout, setLayout] = React.useState<any>(defaultLayout);
+  // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
+  const [layout, setLayout] = React.useState<Layout>(presetLayout);
 
   // Graph store
   // Why we need a parentGraphUUID and a currentGraphUUID? Because the platform don't support multiple branches for each history chain. So we always use the latest graph as the parent graph, and the current graph is the graph that user is editing.
@@ -241,9 +243,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setParentGraphUUID(latestChild.id);
       setCurrentGraphUUID(graphHistoryItem.id);
       checkAndSetData(payload.data);
-      // setLayout(payload.layout);
-      // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
-      setLayout('preset');
+      // We need to use the position of the latest child graph, otherwise it will cause the graph to be re-layouted.
+      setLayout(presetLayout);
       setToolbarVisible(payload.toolbarVisible);
       setLayoutSettingPanelVisible(false);
       setGraphTableVisible(false);
@@ -729,7 +730,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const enterFullScreenHandler = useFullScreenHandle();
 
-  const onSubmitGraph = (data: GraphHistoryItem) => {
+  const onSubmitGraph = (data: GraphHistoryItem): Promise<GraphHistoryItem> => {
     return new Promise((resolve, reject) => {
       if (parentGraphUUID && isUUID(parentGraphUUID)) {
         data = { ...data, parent: parentGraphUUID };
@@ -950,6 +951,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               data={data}
               layout={layout}
               style={style}
+              hideWhichPanel={(panelKey) => {
+                if (panelKey == 'toolbar') {
+                  setToolbarVisible(false);
+                } else if (panelKey == 'layoutSettingPanel') {
+                  setLayoutSettingPanelVisible(false);
+                }
+              }}
               queriedId={searchObject?.get_current_node_id() || ''}
               statistics={statistics}
               toolbarVisible={toolbarVisible}
@@ -1011,10 +1019,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 }}
                 onSubmit={(data: GraphHistoryItem) => {
                   return new Promise((resolve, reject) => {
-                    onSubmitGraph(data).finally(() => {
-                      resolve();
-                      setGraphFormVisible(false);
-                    });
+                    onSubmitGraph(data)
+                      .then((response) => {
+                        const id = response.id;
+                        // Keep the current canvas as the parent graph, so we can create a new graph based on the current canvas.
+                        setCurrentGraphUUID(id);
+                      })
+                      .finally(() => {
+                        resolve();
+                        setGraphFormVisible(false);
+                      });
                   });
                 }}
               ></GraphStoreForm>

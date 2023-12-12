@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { Option } from './LayoutNetworks';
+import { LayoutOptionConfig } from '../../typings';
 import { Slider, Switch, Row, Col, InputNumber, Select } from 'antd';
 
 interface LayoutOptionsPanelProps {
-  options?: Option[];
+  options?: LayoutOptionConfig[];
   /** 布局类型 */
   type: string;
   /** 回调函数 */
   handleChange: (type: string, options?: {}) => void;
 }
 
-const getAntdComponent = (option: Option, props: any) => {
+const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
   const { onChange, value } = props;
 
   const { min = 0, max = 500, component, key, enums, step = 1 } = option;
@@ -71,7 +71,7 @@ const getAntdComponent = (option: Option, props: any) => {
   }
 };
 
-const dumpOptions: Option[] = [
+const dumpOptions: LayoutOptionConfig[] = [
   {
     key: 'work-in-progress',
     component: 'text',
@@ -121,7 +121,12 @@ const LayoutOptionsPanel: React.FunctionComponent<LayoutOptionsPanelProps> = (pr
             return (
               <>
                 <Col span={12}>{title}</Col>
-                <Col span={12}>
+                <Col
+                  span={12}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
                   <Component
                     {...ComponentProps}
                     getPopupContainer={(triggerNode: any) => {

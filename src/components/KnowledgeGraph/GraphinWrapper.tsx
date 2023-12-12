@@ -1,9 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import Graphin, { Components, Behaviors, GraphinContext, IG6GraphEvent } from '@antv/graphin';
+import Graphin, {
+  Components,
+  Behaviors,
+  GraphinContext,
+  IG6GraphEvent,
+  GraphinData,
+} from '@antv/graphin';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
+import type { Layout, GraphData } from '../typings';
 import LayoutNetwork from './Components/LayoutNetworks';
 import {
   BoxPlotOutlined,
@@ -33,10 +40,11 @@ import {
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
-import Moveable from '../Movable';
+import Moveable from '../Moveable';
 import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu, Row } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
-import { makeDataSource, prepareGraphData, getDefaultBadge } from './utils';
+import { makeDataSource, getDefaultBadge } from './utils';
+import { prepareGraphData } from '../utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
@@ -121,34 +129,71 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       label: 'Show Edge Details',
     },
     {
-      key: 'hide-current-edges',
+      key: 'show-hide-edges',
       icon: <EyeOutlined />,
-      label: 'Hide Current Edge',
-      handler: (edge: GraphEdge) => {
-        console.log('Hide Current Edge: ', edge);
-        graph.getEdges().forEach((gedge) => {
-          const model = gedge.getModel() as GraphEdge;
-          if (model.relid == edge.relid) {
-            graph.hideItem(gedge, true);
-          }
-        });
-        setVisible(false);
-      },
-    },
-    {
-      key: 'hide-edges-with-same-type',
-      icon: <EyeOutlined />,
-      label: 'Hide Edges with Same Type',
-      handler: (edge: GraphEdge) => {
-        console.log('Hide Edges with Same Type: ', edge);
-        graph.getEdges().forEach((gedge) => {
-          const model = gedge.getModel() as GraphEdge;
-          if (model.reltype == edge.reltype) {
-            graph.hideItem(gedge, true);
-          }
-        });
-        setVisible(false);
-      },
+      label: 'Show/Hide Edge(s)',
+      children: [
+        {
+          key: 'hide-current-edge',
+          icon: <EyeOutlined />,
+          label: 'Hide Current Edge',
+          handler: (edge: GraphEdge) => {
+            console.log('Hide Current Edge: ', edge);
+            graph.getEdges().forEach((gedge) => {
+              const model = gedge.getModel() as GraphEdge;
+              if (model.relid == edge.relid) {
+                graph.hideItem(gedge, true);
+              }
+            });
+            setVisible(false);
+          },
+        },
+        {
+          key: 'show-current-edge',
+          icon: <EyeOutlined />,
+          label: 'Show Current Edge',
+          handler: (edge: GraphEdge) => {
+            console.log('Show Current Edge: ', edge);
+            graph.getEdges().forEach((gedge) => {
+              const model = gedge.getModel() as GraphEdge;
+              if (model.relid == edge.relid) {
+                graph.showItem(gedge, true);
+              }
+            });
+            setVisible(false);
+          },
+        },
+        {
+          key: 'hide-edges-with-same-type',
+          icon: <EyeOutlined />,
+          label: 'Hide Edges with Same Type',
+          handler: (edge: GraphEdge) => {
+            console.log('Hide Edges with Same Type: ', edge);
+            graph.getEdges().forEach((gedge) => {
+              const model = gedge.getModel() as GraphEdge;
+              if (model.reltype == edge.reltype) {
+                graph.hideItem(gedge, true);
+              }
+            });
+            setVisible(false);
+          },
+        },
+        {
+          key: 'show-edges-with-same-type',
+          icon: <EyeOutlined />,
+          label: 'Show Edges with Same Type',
+          handler: (edge: GraphEdge) => {
+            console.log('Show Edges with Same Type: ', edge);
+            graph.getEdges().forEach((gedge) => {
+              const model = gedge.getModel() as GraphEdge;
+              if (model.reltype == edge.reltype) {
+                graph.showItem(gedge, true);
+              }
+            });
+            setVisible(false);
+          },
+        },
+      ],
     },
     {
       key: 'explain-relationship',
@@ -326,74 +371,81 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Expand Selected Nodes',
     },
     {
-      key: 'show-selected-nodes',
+      key: 'show-hide-nodes',
       icon: <EyeOutlined />,
-      label: 'Show Selected Nodes',
-      handler: (node: GraphNode) => {
-        console.log('Show Selected Nodes: ', node);
-        let nodes = graph.getNodes();
+      label: 'Show/Hide Node(s)',
+      children: [
+        {
+          key: 'show-selected-nodes',
+          icon: <EyeOutlined />,
+          label: 'Show Selected Nodes',
+          handler: (node: GraphNode) => {
+            console.log('Show Selected Nodes: ', node);
+            let nodes = graph.getNodes();
 
-        function showRelatedEdges(node: GraphNode) {
-          // Show the edges connected with the selected nodes.
-          const edges = graph.getEdges();
-          edges.forEach((edge) => {
-            const model = edge.getModel() as GraphEdge;
-            console.log('Show Edge: ', node.id, model.source, model.target);
-            if (model.source == node.id || model.target == node.id) {
-              graph.showItem(edge, true);
+            function showRelatedEdges(node: GraphNode) {
+              // Show the edges connected with the selected nodes.
+              const edges = graph.getEdges();
+              edges.forEach((edge) => {
+                const model = edge.getModel() as GraphEdge;
+                console.log('Show Edge: ', node.id, model.source, model.target);
+                if (model.source == node.id || model.target == node.id) {
+                  graph.showItem(edge, true);
+                }
+              });
             }
-          });
-        }
 
-        nodes.forEach((gnode) => {
-          if (gnode.hasState('selected')) {
-            graph.setItemState(gnode, 'inactive', false);
-            showRelatedEdges(node);
-          }
+            nodes.forEach((gnode) => {
+              if (gnode.hasState('selected')) {
+                graph.setItemState(gnode, 'inactive', false);
+                showRelatedEdges(node);
+              }
 
-          // Show the current node.
-          if (gnode.getModel().id == node.id) {
-            graph.setItemState(gnode, 'inactive', false);
-            showRelatedEdges(node);
-          }
-        });
-        setVisible(false);
-      },
-    },
-    {
-      key: 'hide-selected-nodes',
-      icon: <EyeOutlined />,
-      label: 'Hide Selected Nodes',
-      handler: (node: GraphNode) => {
-        console.log('Hide Selected Nodes: ', node);
-        let nodes = graph.getNodes();
+              // Show the current node.
+              if (gnode.getModel().id == node.id) {
+                graph.setItemState(gnode, 'inactive', false);
+                showRelatedEdges(node);
+              }
+            });
+            setVisible(false);
+          },
+        },
+        {
+          key: 'hide-selected-nodes',
+          icon: <EyeOutlined />,
+          label: 'Hide Selected Nodes',
+          handler: (node: GraphNode) => {
+            console.log('Hide Selected Nodes: ', node);
+            let nodes = graph.getNodes();
 
-        function hideRelatedEdges(node: GraphNode) {
-          // Hide the edges connected with the selected nodes.
-          const edges = graph.getEdges();
-          edges.forEach((edge) => {
-            const model = edge.getModel() as GraphEdge;
-            console.log('Hide Edge: ', node.id, model.source, model.target);
-            if (model.source == node.id || model.target == node.id) {
-              graph.hideItem(edge, true);
+            function hideRelatedEdges(node: GraphNode) {
+              // Hide the edges connected with the selected nodes.
+              const edges = graph.getEdges();
+              edges.forEach((edge) => {
+                const model = edge.getModel() as GraphEdge;
+                console.log('Hide Edge: ', node.id, model.source, model.target);
+                if (model.source == node.id || model.target == node.id) {
+                  graph.hideItem(edge, true);
+                }
+              });
             }
-          });
-        }
 
-        nodes.forEach((gnode) => {
-          if (gnode.hasState('selected')) {
-            graph.setItemState(gnode, 'inactive', true);
-            hideRelatedEdges(node);
-          }
+            nodes.forEach((gnode) => {
+              if (gnode.hasState('selected')) {
+                graph.setItemState(gnode, 'inactive', true);
+                hideRelatedEdges(node);
+              }
 
-          // Hide the current node.
-          if (gnode.getModel().id == node.id) {
-            graph.setItemState(gnode, 'inactive', true);
-            hideRelatedEdges(node);
-          }
-        });
-        setVisible(false);
-      },
+              // Hide the current node.
+              if (gnode.getModel().id == node.id) {
+                graph.setItemState(gnode, 'inactive', true);
+                hideRelatedEdges(node);
+              }
+            });
+            setVisible(false);
+          },
+        },
+      ],
     },
     {
       key: 'reverse-selected-nodes',
@@ -1032,8 +1084,8 @@ const NodeSearcher = () => {
 export type GraphinProps = {
   selectedNode?: string;
   highlightMode?: 'activate' | 'focus';
-  data: any;
-  layout: any;
+  data: GraphData;
+  layout: Layout;
   style: React.CSSProperties;
   containerId?: string;
   onNodeMenuClick?: OnNodeMenuClickFn;
@@ -1043,6 +1095,7 @@ export type GraphinProps = {
   statistics: any;
   chatbotVisible?: boolean;
   layoutSettingPanelVisible?: boolean;
+  hideWhichPanel?: (panelKey: string) => void;
   toolbarVisible?: boolean;
   onClickNode?: OnClickNodeFn;
   onClickEdge?: OnClickEdgeFn;
@@ -1083,10 +1136,11 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
 
   const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
-  const [layout, setLayout] = React.useState({
-    type: props.layout.type || 'graphin-force',
+  const [layout, setLayout] = React.useState<Layout>({
+    // The random layout will be used if the layout is not specified.
+    type: props.layout.type,
     options: {
-      ...props.layout,
+      ...(props.layout.options || {}),
     },
   });
   const { type, options } = layout;
@@ -1098,10 +1152,17 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
   const ref = React.useRef(null);
 
-  const helpDoc = (
+  const toolbarHelpDoc = (
     <p style={{ width: '400px' }}>
       If you would like to select multiple nodes, please set the interactive mode to "select-nodes".
       Then press the "Shift" key and click the nodes you want to select.
+    </p>
+  );
+
+  const layoutHelpDoc = (
+    <p style={{ width: '400px' }}>
+      If you would like to change the layout, please click the "Layout Type" button and select a new
+      layout. After that, you can change the layout settings.
     </p>
   );
 
@@ -1210,7 +1271,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   };
 
-  const changeLayout = (value: any) => {
+  const changeLayout = (value: Layout) => {
     console.log('Layout Settings: ', value);
     setLayout(value);
   };
@@ -1220,7 +1281,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       <Graphin
         ref={ref}
         enabledStack={true}
-        data={data}
+        data={data as GraphinData}
         layout={{ ...options, type: type }}
         style={style}
       >
@@ -1290,12 +1351,32 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           }}
         </Legend>
         {props.layoutSettingPanelVisible ? (
-          <Moveable title="Layout Settings" width="300px" top="100px" right="120px" help={helpDoc}>
+          <Moveable
+            title="Layout Settings"
+            width="300px"
+            maxWidth="300px"
+            top="100px"
+            right="120px"
+            help={layoutHelpDoc}
+            onClose={() => {
+              props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
+            }}
+          >
             <LayoutSelector type={type} layouts={LayoutNetwork} onChange={changeLayout} />
           </Moveable>
         ) : null}
         {props.toolbarVisible ? (
-          <Moveable title="Settings" width="220px" top="100px" right="30px" help={helpDoc}>
+          <Moveable
+            title="Settings"
+            width="220px"
+            maxWidth="220px"
+            top="100px"
+            right="30px"
+            help={toolbarHelpDoc}
+            onClose={() => {
+              props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
+            }}
+          >
             <Toolbar
               style={{
                 // Remove absolute position to make it work with the Moveable component.
@@ -1483,8 +1564,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               edges={data.edges}
               onClosePathsFinder={onClosePathsFinder}
               adjacencyList={adjacencyList}
-              // TODO: hard code here, need to be fixed
-              algorithm={data.edges.length > 500 ? 'bfs' : 'dfs'}
+              // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
+              algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
             />
           </>
         ) : null}

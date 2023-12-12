@@ -166,10 +166,6 @@ export const getRelationOption = (
   }
 };
 
-export const defaultLayout = {
-  type: 'grid',
-};
-
 export const isUUID = (str: string) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(str);
@@ -191,44 +187,4 @@ export const getNodes = (graph?: Graph) => {
 
   const nodes = graph.getNodes();
   return nodes.map((node: any) => node.getModel() as GraphNode);
-};
-
-export const prepareGraphData = (
-  graph: Graph,
-): {
-  data: {
-    nodes: any[];
-    edges: any[];
-  };
-  layout: any;
-  defaultLayout: any;
-} => {
-  const data = {
-    nodes: graph.getNodes().map((node) => {
-      const n = node.getModel();
-      return {
-        ...n,
-        style: n._initialStyle,
-        _initialStyle: n.style,
-      };
-    }),
-    edges: graph.getEdges().map((edge) => {
-      const e = edge.getModel();
-      return {
-        ...e,
-        style: e._initialStyle,
-        _initialStyle: e.style,
-      };
-    }),
-  };
-
-  const layout = graph.get('layout');
-
-  return {
-    data: data,
-    layout: {
-      type: 'preset',
-    },
-    defaultLayout: layout,
-  };
 };

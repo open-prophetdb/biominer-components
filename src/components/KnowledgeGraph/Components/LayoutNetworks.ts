@@ -1,32 +1,7 @@
-export interface Option {
-  key: string;
-  title: string;
-  defaultValue?: number | string | boolean;
-  component: 'switch' | 'slider' | 'input' | 'select' | 'text';
-  description?: string;
+import { LayoutConfig } from '../../typings';
 
-  /** 仅 select 时候有效，枚举值 */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  enums?: any[];
-
-  /** 仅 slider 和input 的时候有效 */
-  max?: number;
-  min?: number;
-  step?: number;
-}
-
-export type Layouts = {
-  type: string;
-  title: string;
-  options?: Option[];
-}[];
-
-const layouts: Layouts = [
-  {
-    type: 'preset',
-    title: 'Preset Layout',
-    options: undefined,
-  },
+// More details about the layout configurations: https://g6.antv.vision/api/graph-layout/guide
+const layouts: LayoutConfig[] = [
   {
     type: 'force',
     title: 'D3 gForce',
@@ -228,7 +203,100 @@ const layouts: Layouts = [
   },
   {
     type: 'radial',
-    options: undefined,
+    options: [
+      {
+        component: 'slider',
+        key: 'linkDistance',
+        title: 'Link Distance',
+        defaultValue: 100,
+        min: 10,
+        max: 500,
+        description: 'The Link Distance Between Two Adjacent Nodes.',
+      },
+      {
+        component: 'slider',
+        key: 'maxIteration',
+        title: 'Max Iteration',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description:
+          "The Maximum Number of Iterations. If you don't want to wait too long, you can set a smaller value.",
+      },
+      {
+        component: 'switch',
+        key: 'preventOverlap',
+        title: 'Prevent Overlap?',
+        defaultValue: false,
+        description: 'Whether to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSize',
+        title: 'Node Size',
+        defaultValue: 30,
+        min: 10,
+        max: 100,
+        description: 'The Size of the Node, Used for Collision Detection to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSpacing',
+        title: 'Node Spacing',
+        defaultValue: 10,
+        min: 0,
+        max: 100,
+        description:
+          'The Spacing Between Nodes. It is only valid when the preventOverlap property is true.',
+      },
+      {
+        component: 'slider',
+        key: 'unitRadius',
+        title: 'Unit Radius',
+        defaultValue: 100,
+        min: 10,
+        max: 500,
+        description: 'The Radius of the Circle.',
+      },
+      {
+        component: 'switch',
+        key: 'strictRadial',
+        title: 'Strict Radial?',
+        defaultValue: false,
+        description:
+          'Whether the Layout is Strictly Radial. It is only valid when the preventOverlap property is true. When you set it to true, the overlaped nodes will be shown in the side of the circle for a better visual effect.',
+      },
+      {
+        component: 'select',
+        key: 'sortBy',
+        title: 'Sort By',
+        defaultValue: undefined,
+        enums: [
+          { key: null, value: null },
+          { key: 'data', value: 'data' },
+          { key: 'nlabel', value: 'nlabel' },
+          { key: 'name', value: 'name' },
+        ],
+        description:
+          'The Property of the Node Used for Sorting. The nodes in the same layer will be sorted by this property. All nodes have the closer value will be placed in the same layer as much as possible.',
+      },
+      {
+        component: 'slider',
+        key: 'sortStrength',
+        title: 'Sort Strength',
+        defaultValue: 100,
+        min: 0,
+        max: 1000,
+        description: 'The Strength of the Force Applied to the Node.',
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'Radial Layout',
   },
   {
@@ -298,29 +366,409 @@ const layouts: Layouts = [
   },
   {
     type: 'circular',
-    options: undefined,
+    options: [
+      {
+        component: 'slider',
+        key: 'radius',
+        title: 'Radius',
+        defaultValue: undefined,
+        min: 10,
+        max: 500,
+        description:
+          'The Radius of the Circular Layout. If you set the radius, then the startRadius and endRadius will be ignored.',
+      },
+      {
+        component: 'slider',
+        key: 'startRadius',
+        title: 'Start Radius',
+        defaultValue: undefined,
+        min: 10,
+        max: 500,
+        description: 'The Radius of the First Circle.',
+      },
+      {
+        component: 'slider',
+        key: 'endRadius',
+        title: 'End Radius',
+        defaultValue: undefined,
+        min: 10,
+        max: 500,
+        description: 'The Radius of the Last Circle.',
+      },
+      {
+        component: 'switch',
+        key: 'clockwise',
+        title: 'Clockwise?',
+        defaultValue: true,
+        description: 'Whether the Layout is Clockwise.',
+      },
+      {
+        component: 'select',
+        key: 'ordering',
+        title: 'Ordering',
+        defaultValue: 'degree',
+        enums: [
+          { key: 'null', value: null },
+          { key: 'degree', value: 'degree' },
+          { key: 'topology', value: 'topology' },
+        ],
+        description: 'The Sorting Criterion of the Circular Layout.',
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'Circular Layout',
   },
 
   {
     type: 'gForce',
-    options: undefined,
+    options: [
+      {
+        component: 'select',
+        key: 'preset',
+        title: 'Preset',
+        defaultValue: 'random',
+        enums: [
+          { key: 'random', value: 'random' },
+          { key: 'grid', value: 'grid' },
+          { key: 'concentric', value: 'concentric' },
+          { key: 'circular', value: 'circular' },
+          { key: 'radial', value: 'radial' },
+          { key: 'dagre', value: 'dagre' },
+        ],
+        description:
+          'The Preset Layout, Default is Random. The Preset Layout Will Be Used to Initialize the Nodes Before the Force Simulation Starts. Good Initialization Can Shorten the Layout Time.',
+      },
+      {
+        component: 'slider',
+        key: 'linkDistance',
+        title: 'Link Distance',
+        defaultValue: 100,
+        min: 10,
+        max: 500,
+        description: 'The Link Distance Between Two Adjacent Nodes.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeStrength',
+        title: 'Node Strength',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description: 'The Strength of the Force Applied to the Node.',
+      },
+      {
+        component: 'slider',
+        key: 'edgeStrength',
+        title: 'Edge Strength',
+        defaultValue: 100,
+        min: 100,
+        max: 10000,
+        description: 'The Strength of the Force Applied to the Edge.',
+      },
+      {
+        component: 'switch',
+        key: 'preventOverlap',
+        title: 'Prevent Overlap?',
+        defaultValue: false,
+        description: 'Whether to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSize',
+        title: 'Node Size',
+        defaultValue: 30,
+        min: 10,
+        max: 100,
+        description: 'The Size of the Node, Used for Collision Detection to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSpacing',
+        title: 'Node Spacing',
+        defaultValue: 10,
+        min: 0,
+        max: 100,
+        description:
+          'The Spacing Between Nodes. It is only valid when the preventOverlap property is true.',
+      },
+      {
+        component: 'slider',
+        key: 'minMovement',
+        title: 'Min Movement',
+        defaultValue: 0.5,
+        min: 0,
+        max: 10,
+        description:
+          'The Minimum Movement of the Node. When the Node Movement is Less Than this Value, the Layout Stops.',
+      },
+      {
+        component: 'slider',
+        key: 'maxIteration',
+        title: 'Max Iteration',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description:
+          "The Maximum Number of Iterations. If you don't want to wait too long, you can set a smaller value.",
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'G6 gForce',
   },
   {
     type: 'mds',
-    options: undefined,
+    options: [
+      {
+        component: 'slider',
+        key: 'linkDistance',
+        title: 'Link Distance',
+        defaultValue: 100,
+        min: 10,
+        max: 500,
+        description: 'The Link Distance Between Two Adjacent Nodes.',
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'MDS Layout',
   },
   {
     type: 'random',
-    options: undefined,
+    options: [
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'Random Layout',
   },
   {
-    type: 'graphin-force',
-    options: undefined,
+    type: 'force2',
+    options: [
+      {
+        component: 'switch',
+        key: 'animate',
+        title: 'Animate?',
+        defaultValue: false,
+        description:
+          'Whether to Enable Animation. If Enabled, the Layout Will Be Animated to the Final State. But you can not change the layout during the animation until the animation ends.',
+      },
+      {
+        component: 'select',
+        key: 'preset',
+        title: 'Preset',
+        defaultValue: 'random',
+        enums: [
+          { key: 'random', value: 'random' },
+          { key: 'grid', value: 'grid' },
+          { key: 'concentric', value: 'concentric' },
+          { key: 'circular', value: 'circular' },
+          { key: 'radial', value: 'radial' },
+          { key: 'dagre', value: 'dagre' },
+        ],
+        description:
+          'The Preset Layout, Default is Random. The Preset Layout Will Be Used to Initialize the Nodes Before the Force Simulation Starts. Good Initialization Can Shorten the Layout Time.',
+      },
+      {
+        component: 'slider',
+        key: 'linkDistance',
+        title: 'Link Distance',
+        defaultValue: 100,
+        min: 10,
+        max: 500,
+        description: 'The Link Distance Between Two Adjacent Nodes.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeStrength',
+        title: 'Node Strength',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description: 'The Strength of the Force Applied to the Node.',
+      },
+      {
+        component: 'slider',
+        key: 'edgeStrength',
+        title: 'Edge Strength',
+        defaultValue: 100,
+        min: 100,
+        max: 10000,
+        description: 'The Strength of the Force Applied to the Edge.',
+      },
+      {
+        component: 'switch',
+        key: 'preventOverlap',
+        title: 'Prevent Overlap?',
+        defaultValue: false,
+        description: 'Whether to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSize',
+        title: 'Node Size',
+        defaultValue: 30,
+        min: 10,
+        max: 100,
+        description: 'The Size of the Node, Used for Collision Detection to Prevent Node Overlap.',
+      },
+      {
+        component: 'slider',
+        key: 'nodeSpacing',
+        title: 'Node Spacing',
+        defaultValue: 10,
+        min: 0,
+        max: 100,
+        description:
+          'The Spacing Between Nodes. It is only valid when the preventOverlap property is true.',
+      },
+      {
+        component: 'slider',
+        key: 'minMovement',
+        title: 'Min Movement',
+        defaultValue: 0.5,
+        min: 0,
+        max: 10,
+        description:
+          'The Minimum Movement of the Node. When the Node Movement is Less Than this Value, the Layout Stops.',
+      },
+      {
+        component: 'slider',
+        key: 'maxIteration',
+        title: 'Max Iteration',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description:
+          "The Maximum Number of Iterations. If you don't want to wait too long, you can set a smaller value.",
+      },
+      {
+        component: 'switch',
+        key: 'clustering',
+        title: 'Clustering?',
+        defaultValue: false,
+        description:
+          'Whether to Enable Clustering. If Enabled, the Nodes Will Be Clustered Together.',
+      },
+      {
+        component: 'select',
+        key: 'nodeClusterBy',
+        title: 'Node Cluster By',
+        defaultValue: undefined,
+        enums: [
+          { key: null, value: null },
+          { key: 'nlabel', value: 'Label' },
+        ],
+        description: 'The Property of the Node Used for Clustering.',
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
     title: 'Progressive gForce',
+  },
+  {
+    type: 'fruchterman',
+    title: 'Fruchterman Layout',
+    options: [
+      {
+        component: 'select',
+        key: 'preset',
+        title: 'Preset',
+        defaultValue: 'random',
+        enums: [
+          { key: 'random', value: 'random' },
+          { key: 'grid', value: 'grid' },
+          { key: 'concentric', value: 'concentric' },
+          { key: 'circular', value: 'circular' },
+          { key: 'radial', value: 'radial' },
+          { key: 'dagre', value: 'dagre' },
+        ],
+        description:
+          'The Preset Layout, Default is Random. The Preset Layout Will Be Used to Initialize the Nodes Before the Force Simulation Starts. Good Initialization Can Shorten the Layout Time.',
+      },
+      {
+        component: 'slider',
+        key: 'gravity',
+        title: 'Gravity',
+        defaultValue: 10,
+        min: 0,
+        max: 100,
+        description: 'The Strength of the Force Applied to the Node.',
+      },
+      {
+        component: 'slider',
+        key: 'speed',
+        title: 'Speed',
+        defaultValue: 1,
+        min: 0,
+        max: 10,
+        description: 'The Speed of the Force Simulation.',
+      },
+      {
+        component: 'slider',
+        key: 'maxIteration',
+        title: 'Max Iteration',
+        defaultValue: 1000,
+        min: 100,
+        max: 10000,
+        description:
+          "The Maximum Number of Iterations. If you don't want to wait too long, you can set a smaller value.",
+      },
+      {
+        component: 'switch',
+        key: 'clustering',
+        title: 'Clustering?',
+        defaultValue: false,
+        description:
+          'Whether to Enable Clustering. If Enabled, the Nodes Will Be Clustered Together.',
+      },
+      {
+        component: 'slider',
+        key: 'clusterGravity',
+        title: 'Cluster Gravity',
+        defaultValue: 10,
+        min: 0,
+        max: 100,
+        description: 'The Strength of the Force Applied to the Cluster.',
+      },
+      {
+        component: 'switch',
+        key: 'workerEnabled',
+        title: 'Worker Enabled?',
+        defaultValue: false,
+        description: 'Whether to Enable Web Worker for Layout Calculation to Improve Performance.',
+      },
+    ],
+  },
+  {
+    type: 'preset',
+    title: 'Preset Layout',
+    options: undefined,
   },
 ];
 

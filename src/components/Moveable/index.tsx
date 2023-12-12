@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Popover } from 'antd';
 import Moveable from 'react-moveable';
-import { CloseOutlined, QuestionCircleFilled } from '@ant-design/icons';
+import { CloseCircleFilled, QuestionCircleFilled } from '@ant-design/icons';
 import { MovableProps } from './index.t';
 import './index.less';
 
@@ -41,26 +41,29 @@ const Movable: React.FC<MovableProps> = (props) => {
         style={{
           position: 'absolute',
           width: props.width || '400px',
-          maxWidth: 'auto',
-          maxHeight: 'auto',
+          height: props.height || 'auto',
+          maxWidth: props.maxWidth || 'auto',
+          maxHeight: props.maxHeight || 'auto',
         }}
         className="explanation-content"
       >
         <div className="explanation-title">
           <h3>{props.title || 'Explanation'}</h3>
-          {props.help ? (
-            <Popover content={props.help} title="Help" placement="topRight">
-              <QuestionCircleFilled />
-            </Popover>
-          ) : null}
-          {props.onClose ? (
-            <CloseOutlined
-              className="explanation-close"
-              onClick={() => {
-                props.onClose?.();
-              }}
-            />
-          ) : null}
+          <span>
+            {props.help ? (
+              <Popover content={props.help} title="Help" placement="topRight">
+                <QuestionCircleFilled />
+              </Popover>
+            ) : null}
+            {props.onClose ? (
+              <CloseCircleFilled
+                className="explanation-close"
+                onClick={() => {
+                  props.onClose?.();
+                }}
+              />
+            ) : null}
+          </span>
         </div>
         <div className="explanation-info">{props.children}</div>
       </div>

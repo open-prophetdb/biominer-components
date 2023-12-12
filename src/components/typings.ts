@@ -1,3 +1,31 @@
+export interface LayoutOptionConfig {
+  key: string;
+  title: string;
+  defaultValue?: number | string | boolean;
+  component: 'switch' | 'slider' | 'input' | 'select' | 'text';
+  description?: string;
+
+  /** 仅 select 时候有效，枚举值 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  enums?: any[];
+
+  /** 仅 slider 和input 的时候有效 */
+  max?: number;
+  min?: number;
+  step?: number;
+}
+
+export type LayoutConfig = {
+  type: string;
+  title: string;
+  options?: LayoutOptionConfig[];
+};
+
+export type Layout = {
+  type: string;
+  options?: Record<string, number | string | boolean>;
+};
+
 export type OptionType = {
   order: number;
   label: string;

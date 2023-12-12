@@ -13,13 +13,13 @@ import {
   RadarChartOutlined,
   MailOutlined,
   AimOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
 import LayoutOptionsPanel from './LayoutOptionsPanel';
-import { Layouts } from './LayoutNetworks';
+import { LayoutConfig, Layout } from '../../typings';
 import './LayoutSelector.less';
 
 const iconMapByType: { [key: string]: React.ReactNode } = {
-  preset: <AimOutlined />,
   'graphin-force': <ShareAltOutlined />,
   random: <TrademarkCircleFilled />,
   concentric: <ChromeFilled />,
@@ -27,14 +27,15 @@ const iconMapByType: { [key: string]: React.ReactNode } = {
   force: <AppstoreFilled />,
   dagre: <ApartmentOutlined />,
   grid: <CopyrightCircleFilled />,
-  radial: <RadarChartOutlined />,
+  radial: <ClockCircleOutlined />,
   gForce: <ForkOutlined />,
   mds: <MailOutlined />,
+  preset: <AimOutlined />,
+  force2: <AppstoreFilled />,
+  fruchterman: <RadarChartOutlined />,
 };
 
 const LayoutAlgorithmDescriptions: { [key: string]: string } = {
-  preset:
-    'This algorithm arranges nodes in a preset layout, useful for visualizing small graphs with a known structure.',
   'graphin-force':
     'This layout algorithm uses a force-directed approach to arrange nodes in a graph, allowing them to naturally repel and attract each other for an optimized layout.',
   random:
@@ -53,6 +54,12 @@ const LayoutAlgorithmDescriptions: { [key: string]: string } = {
   gForce:
     "An alternative force - directed layout approach, similar to 'graphin-force,' for achieving well - organized graph layouts.",
   mds: 'This algorithm employs multidimensional scaling techniques to position nodes based on their pairwise distances, often used for visualizing high - dimensional data in lower dimensions.',
+  preset:
+    'This algorithm applies a preset layout, useful for arranging nodes in a specific pattern.',
+  force2:
+    'This algorithm applies a force-directed layout, useful for arranging nodes in a specific pattern.',
+  fruchterman:
+    'This algorithm applies a force-directed layout, useful for arranging nodes in a specific pattern.',
 };
 
 interface LayoutSelectorProps {
@@ -61,10 +68,10 @@ interface LayoutSelectorProps {
   type: string;
 
   /** 布局切换的回调函数 */
-  onChange: ({ type, options }: { type?: string; options?: unknown }) => void;
+  onChange: ({ type, options }: Layout) => void;
 
   /** 所有布局信息 */
-  layouts: Layouts;
+  layouts: LayoutConfig[];
 }
 
 // @ts-ignore
@@ -81,7 +88,7 @@ const LayoutMenu = ({ handleChange, description, layouts }) => {
 
   const menu = (
     <Menu onClick={handleChangeLayoutType}>
-      {layouts.map((item: any) => {
+      {layouts.map((item: LayoutConfig) => {
         const { type, title } = item;
         return (
           <Menu.Item key={type}>
