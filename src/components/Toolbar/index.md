@@ -16,7 +16,7 @@ import { StatisticsChart, Toolbar } from 'biominer-components';
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/statistics')
+      .get('/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
       })

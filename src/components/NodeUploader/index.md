@@ -15,7 +15,7 @@ import { NodeUploader } from 'biominer-components';
 
 export default () => {
   const getEntities = async (queryParams) => {
-    const response = await request.get('http://localhost:8000/api/v1/entities', {
+    const response = await request.get('/api/v1/entities', {
       params: {
         query_str: queryParams.query_str,
         page: queryParams.page,

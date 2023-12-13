@@ -17,7 +17,7 @@ import { stat_total_node_count, stat_total_relation_count } from '../StatisticsC
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/statistics')
+      .get('/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
       })
@@ -30,7 +30,7 @@ const getStatistics = () => {
 const getEntities = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/entities', { params })
+      .get('/api/v1/entities', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -43,7 +43,7 @@ const getEntities = (params) => {
 const getRelations = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/relations', { params })
+      .get('/api/v1/relations', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -56,7 +56,7 @@ const getRelations = (params) => {
 const getRelationCounts = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/relation-counts', { params })
+      .get('/api/v1/relation-counts', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -69,7 +69,7 @@ const getRelationCounts = (params) => {
 const getGraphHistory = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/subgraphs', { params })
+      .get('/api/v1/subgraphs', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -82,7 +82,7 @@ const getGraphHistory = (params) => {
 const postGraphHistory = (data) => {
   return new Promise((resolve, reject) => {
     request
-      .post('http://localhost:8000/api/v1/subgraphs', data)
+      .post('/api/v1/subgraphs', data)
       .then((response) => {
         resolve(response.data);
       })
@@ -95,7 +95,7 @@ const postGraphHistory = (data) => {
 const deleteGraphHistoryById = ({ id }) => {
   return new Promise((resolve, reject) => {
     request
-      .delete(`http://localhost:8000/api/v1/subgraphs/${id}`)
+      .delete(`/api/v1/subgraphs/${id}`)
       .then((response) => {
         resolve(response.data);
       })
@@ -108,7 +108,7 @@ const deleteGraphHistoryById = ({ id }) => {
 const getNodes = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/nodes', { params })
+      .get('/api/v1/nodes', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -121,7 +121,7 @@ const getNodes = (params) => {
 const getSimilarityNodes = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/similarity-nodes', { params })
+      .get('/api/v1/similarity-nodes', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -134,7 +134,7 @@ const getSimilarityNodes = (params) => {
 const getOneStepLinkedNodes = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/one-step-linked-nodes', { params })
+      .get('/api/v1/one-step-linked-nodes', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -147,7 +147,7 @@ const getOneStepLinkedNodes = (params) => {
 const getConnectedNodes = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/auto-connect-nodes', { params })
+      .get('/api/v1/auto-connect-nodes', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -160,7 +160,7 @@ const getConnectedNodes = (params) => {
 const getEntity2D = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/entity2d', { params })
+      .get('/api/v1/entity2d', { params })
       .then((response) => {
         resolve(response.data);
       })
@@ -173,7 +173,7 @@ const getEntity2D = (params) => {
 const getEntityColorMap = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/entity-colormap')
+      .get('/api/v1/entity-colormap')
       .then((response) => {
         resolve(response.data);
       })
@@ -186,7 +186,7 @@ const getEntityColorMap = () => {
 const fetchPaths = (params) => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/paths', { params })
+      .get('/api/v1/paths', { params })
       .then((response) => {
         resolve(response.data);
       })

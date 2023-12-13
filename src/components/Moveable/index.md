@@ -69,7 +69,7 @@ const getEntity2D = () => {
 
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/entity2d', {
+      .get('/api/v1/entity2d', {
         params: {
           query_str: JSON.stringify(query),
         },

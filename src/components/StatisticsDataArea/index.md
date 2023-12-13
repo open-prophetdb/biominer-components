@@ -17,7 +17,7 @@ import { stat_total_node_count, stat_total_relation_count } from '../StatisticsC
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/statistics')
+      .get('/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
       })

@@ -16,7 +16,7 @@ import { QueryForm } from 'biominer-components';
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/statistics')
+      .get('/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
       })
@@ -43,7 +43,7 @@ export default () => {
         getEntities={(params) => {
           return new Promise((resolve, reject) => {
             request
-              .get('http://localhost:8000/api/v1/entities', {
+              .get('/api/v1/entities', {
                 params: params,
               })
               .then((response) => {
@@ -57,7 +57,7 @@ export default () => {
         getRelationCounts={(params) => {
           return new Promise((resolve, reject) => {
             request
-              .get('http://localhost:8000/api/v1/relation-counts', {
+              .get('/api/v1/relation-counts', {
                 params: params,
               })
               .then((response) => {

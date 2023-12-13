@@ -60,6 +60,7 @@ import type {
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
 import UndoRedo from './Components/UndoRedo';
+import { popCurrectData } from './Components/UndoRedo';
 import voca from 'voca';
 
 import './GraphinWrapper.less';
@@ -997,7 +998,7 @@ const EdgeClickBehavior = (props: { onClick?: OnClickEdgeFn }) => {
 
 const NodeSearcher = () => {
   const { graph, apis } = useContext(GraphinContext);
-  const { undo, undoStack, redo, redoStack } = UndoRedo();
+  const { undo, getUndoStack, redo, getRedoStack } = UndoRedo();
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [nodeOptions, setNodeOptions] = useState<any[]>([]);
@@ -1042,13 +1043,13 @@ const NodeSearcher = () => {
           shape="circle"
           icon={<UndoOutlined />}
           onClick={undo}
-          disabled={undoStack.length < 1}
+          disabled={getUndoStack().length < 1}
         ></Button>
         <Button
           shape="circle"
           icon={<RedoOutlined />}
           onClick={redo}
-          disabled={redoStack.length < 1}
+          disabled={getRedoStack().length < 1}
         ></Button>
       </ButtonGroup>
       <Select
@@ -1137,6 +1138,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
 
   const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
+  const [dataLayoutChangedBefore, setDataLayoutChangedBefore] = useState<GraphData | null>(null);
   const [layout, setLayout] = React.useState<Layout>({
     // The random layout will be used if the layout is not specified.
     type: props.layout.type,
@@ -1152,6 +1154,11 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [adjacencyList, setAdjacencyList] = useState<AdjacencyList>({} as AdjacencyList); // Adjacency list for the current graph
 
   const ref = React.useRef(null);
+  const dataLayoutChangedBeforeRef = React.useRef(dataLayoutChangedBefore);
+
+  useEffect(() => {
+    dataLayoutChangedBeforeRef.current = dataLayoutChangedBefore;
+  }, [dataLayoutChangedBefore]);
 
   const toolbarHelpDoc = (
     <p style={{ width: '400px' }}>
@@ -1273,6 +1280,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   };
 
   const changeLayout = (value: Layout) => {
+    // @ts-ignore
+    if (ref.current && ref.current.graph) {
+      // Save the current graph data before layout for undo/redo
+      // @ts-ignore
+      let data = ref.current.graph.save() as GraphData;
+      setDataLayoutChangedBefore(JSON.parse(JSON.stringify(data)));
+    }
     console.log('Layout Settings: ', value);
     setLayout(value);
   };
@@ -1284,7 +1298,40 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         enabledStack={true}
         data={data as GraphinData}
         layout={{ ...options, type: type }}
+        handleAfterLayout={(graph) => {
+          console.log(
+            'handleAfterLayout -> layoutChanged: ',
+            dataLayoutChangedBefore,
+            dataLayoutChangedBeforeRef.current,
+          );
+          if (dataLayoutChangedBeforeRef.current) {
+            const undoStackData = graph.getUndoStack();
+            const afterData = graph.save() as GraphinData;
+            const currentDataInStack = popCurrectData(graph, undoStackData);
+
+            if (currentDataInStack && currentDataInStack.action == 'layout') {
+              const currentData = currentDataInStack.data;
+              let data = {
+                before: {
+                  ...currentData.before,
+                  data: dataLayoutChangedBeforeRef.current,
+                },
+                after: {
+                  ...currentData.after,
+                  data: afterData,
+                },
+              };
+              graph.pushStack(currentDataInStack.action, data, 'undo');
+            }
+
+            setDataLayoutChangedBefore(null);
+          }
+
+          console.log('handleAfterLayout: ', graph.getStackData());
+        }}
         style={style}
+        // You can increase the maxStep if you want to save more history steps.
+        maxStep={20}
       >
         <FitView></FitView>
         {/* You can drag node to stop layout */}

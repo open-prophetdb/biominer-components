@@ -51,7 +51,7 @@ const nodeIds = entityIds.map((id, index) => {
 const getNodes = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/nodes', {
+      .get('/api/v1/nodes', {
         params: {
           node_ids: nodeIds.join(','),
         },

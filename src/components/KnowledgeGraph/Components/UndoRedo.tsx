@@ -40,11 +40,31 @@ const fixNodePosition = (graph: Graph, graphData: GraphData): GraphData => {
   };
 };
 
+export const removeLayoutAction = (oldStack: Stack): Stack => {
+  const stack = new Stack();
+  oldStack.toArray().forEach((item) => {
+    const { action } = item;
+    if (action !== 'layout') {
+      stack.push(item);
+    }
+  });
+
+  console.log('Remove layout action: ', oldStack.toArray(), stack.toArray());
+  return stack;
+};
+
+export const popCurrectData = (graph: Graph, stack: Stack): any => {
+  const currentData = stack.pop();
+
+  console.log('Get stack data: ', graph.getStackData());
+  return currentData;
+};
+
 const useRedoUndo = (): {
   redo: () => void;
   undo: () => void;
-  undoStack: Stack;
-  redoStack: Stack;
+  getUndoStack: () => Stack;
+  getRedoStack: () => Stack;
 } => {
   const { graph } = React.useContext(GraphinContext);
   const [stackInfo, setStackInfo] = React.useState(() => {
@@ -56,20 +76,42 @@ const useRedoUndo = (): {
 
   const redo = () => {
     const redoStack = graph.getRedoStack();
+    console.log('Do redo action: ', redoStack, graph.getStackData());
 
     if (!redoStack || redoStack.length === 0) {
       return;
     }
 
-    const currentData = redoStack.pop();
+    const currentData = popCurrectData(graph, redoStack);
+
     if (currentData) {
       const { action } = currentData;
       let data = currentData.data.after;
-      graph.pushStack(action, {
-        ...currentData.data,
-        after: fixNodePosition(graph, currentData.data.after),
-        before: fixNodePosition(graph, currentData.data.before),
-      });
+
+      if (action === 'layout') {
+        graph.pushStack(
+          action,
+          {
+            after: {
+              ...currentData.data.after,
+              data: fixNodePosition(graph, currentData.data.after.data),
+            },
+            before: {
+              ...currentData.data.before,
+              data: fixNodePosition(graph, currentData.data.before.data),
+            },
+          },
+          'undo',
+        );
+        data = currentData.data.after.data;
+      } else {
+        graph.pushStack(action, {
+          ...currentData.data,
+          after: fixNodePosition(graph, currentData.data.after),
+          before: fixNodePosition(graph, currentData.data.before),
+        });
+      }
+
       if (action === 'delete') {
         data = currentData.data.before;
       }
@@ -79,24 +121,44 @@ const useRedoUndo = (): {
 
   const undo = () => {
     const undoStack = graph.getUndoStack();
+    console.log('Do undo action: ', undoStack, graph.getStackData());
 
-    if (!undoStack || undoStack.length === 1) {
+    if (!undoStack || undoStack.length === 0) {
       return;
     }
 
-    const currentData = undoStack.pop();
+    const currentData = popCurrectData(graph, undoStack);
+
     if (currentData) {
       const { action } = currentData;
-      graph.pushStack(
-        action,
-        {
-          ...currentData.data,
-          after: fixNodePosition(graph, currentData.data.after),
-          before: fixNodePosition(graph, currentData.data.before),
-        },
-        'redo',
-      );
       let data = currentData.data.before;
+      if (action === 'layout') {
+        graph.pushStack(
+          action,
+          {
+            after: {
+              ...currentData.data.after,
+              data: fixNodePosition(graph, currentData.data.after.data),
+            },
+            before: {
+              ...currentData.data.before,
+              data: fixNodePosition(graph, currentData.data.before.data),
+            },
+          },
+          'redo',
+        );
+        data = currentData.data.before.data;
+      } else {
+        graph.pushStack(
+          action,
+          {
+            ...currentData.data,
+            after: fixNodePosition(graph, currentData.data.after),
+            before: fixNodePosition(graph, currentData.data.before),
+          },
+          'redo',
+        );
+      }
 
       if (action === 'add') {
         data = currentData.data.after;
@@ -144,6 +206,15 @@ const useRedoUndo = (): {
         });
         break;
       case 'changedata':
+        // We must set the layout type to preset, because the layout action will cause the graph to be re-rendered.
+        graph.updateLayout(
+          {
+            type: 'preset',
+          },
+          undefined,
+          undefined,
+          false,
+        );
         graph.changeData(data, false);
         break;
       case 'delete': {
@@ -183,29 +254,45 @@ const useRedoUndo = (): {
           });
         });
         break;
+      case 'layout':
+        console.log('Update layout: ', data);
+        if (data) {
+          // We must set the layout type to preset, because the layout action will cause the graph to be re-rendered.
+          graph.updateLayout(
+            {
+              type: 'preset',
+            },
+            undefined,
+            undefined,
+            false,
+          );
+          graph.changeData(data, false);
+        }
+        break;
       default:
     }
   };
 
   React.useEffect(() => {
-    const handleStackChanage = (evt: IG6GraphEvent) => {
+    const handleStackChange = (evt: IG6GraphEvent) => {
       const { undoStack, redoStack } = evt as any;
       setStackInfo({
-        undoStack,
-        redoStack,
+        undoStack: undoStack,
+        redoStack: redoStack,
       });
     };
-    graph.on('stackchange', handleStackChanage);
+    graph.on('stackchange', handleStackChange);
     return () => {
-      graph.off('stackchange', handleStackChanage);
+      graph.off('stackchange', handleStackChange);
     };
   }, [graph]);
+
   //@ts-ignore
   return {
-    ...stackInfo,
     redo,
     undo,
-    ...stackInfo,
+    getUndoStack: () => stackInfo.undoStack,
+    getRedoStack: () => stackInfo.redoStack,
   } as any;
 };
 

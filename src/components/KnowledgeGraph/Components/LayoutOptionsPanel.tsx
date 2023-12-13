@@ -12,7 +12,8 @@ interface LayoutOptionsPanelProps {
 }
 
 const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
-  const { onChange, value } = props;
+  console.log('getAntdComponent', option, props);
+  const { onChange, value, defaultValue } = props;
 
   const { min = 0, max = 500, component, key, enums, step = 1 } = option;
 
@@ -26,7 +27,8 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
           onChange(key, val);
         },
         value,
-        step,
+        step: (max - min) / 10,
+        defaultValue,
       },
     };
   }
@@ -38,6 +40,7 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
           onChange(key, val);
         },
         value,
+        defaultValue,
       },
     };
   }
@@ -48,7 +51,9 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
         onChange: (checked: any) => {
           onChange(key, checked);
         },
-        checked: value,
+        checked: value == undefined ? defaultValue : value,
+        // Using checked will cause the switch to be uncontrolled
+        defaultValue,
         step: 0.01,
         size: 'small',
       },
@@ -64,6 +69,7 @@ const getAntdComponent = (option: LayoutOptionConfig, props: any) => {
           onChange(key, checked);
         },
         size: 'small',
+        defaultValue,
       },
     };
   }
@@ -120,7 +126,8 @@ const LayoutOptionsPanel: React.FunctionComponent<LayoutOptionsPanelProps> = (pr
             // @ts-ignore
             const { component: Component, props: ComponentProps } = getAntdComponent(item, {
               onChange,
-              value: value ? value : defaultValue,
+              value: value,
+              defaultValue: defaultValue,
             });
             return (
               <>

@@ -16,7 +16,7 @@ import { SimilarityNodesSearcher } from 'biominer-components';
 const getStatistics = () => {
   return new Promise((resolve, reject) => {
     request
-      .get('http://localhost:8000/api/v1/statistics')
+      .get('/api/v1/statistics')
       .then((response) => {
         resolve(response.data);
       })
@@ -41,7 +41,7 @@ export default () => {
         getEntities={(params) => {
           return new Promise((resolve, reject) => {
             request
-              .get('http://localhost:8000/api/v1/entities', {
+              .get('/api/v1/entities', {
                 params: params,
               })
               .then((response) => {
