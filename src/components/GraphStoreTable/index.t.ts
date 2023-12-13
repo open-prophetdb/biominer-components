@@ -21,12 +21,12 @@ export type GraphTableProps = {
    * @description A callback function, executed when the user clicks the "Load" button. You may want to use this to load the graph into the graph studio.
    * @default () => {}
    */
-  onLoad?: (graph: GraphHistoryItem, latestChild: GraphHistoryItem) => void;
+  onLoad?: (graph: GraphHistoryItem, latestChild: GraphHistoryItem) => Promise<GraphHistoryItem>;
   /**
    * @description A callback function, executed when the user clicks the "Delete" button. You may want to use this to delete the graph from the graph store.
    * @default () => {}
    */
-  onDelete?: (graph: GraphHistoryItem) => void;
+  onDelete?: (graph: GraphHistoryItem) => Promise<void>;
   /**
    * @description A callback function, executed when the user clicks the "Close" button. You may want to use this to close the table.
    * @default () => {}
@@ -36,7 +36,7 @@ export type GraphTableProps = {
    * @description A callback function, executed when the user clicks the "Upload" button. You may want to use this to upload the graph to the graph store.
    * @default () => {}
    */
-  onUpload?: (graph: GraphHistoryItem) => void;
+  onUpload?: (graph: GraphHistoryItem) => Promise<GraphHistoryItem>;
   /**
    * @description A component which can be as the parent of the table.
    * @default document.body

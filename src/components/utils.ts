@@ -280,6 +280,11 @@ export const presetLayout: Layout = {
   options: undefined,
 };
 
+export const defaultLayout: Layout = {
+  type: 'random',
+  options: undefined,
+};
+
 export const prepareGraphData = (
   graph: Graph,
 ): {

@@ -36,7 +36,7 @@ import {
   getEntityId,
   getEntityType,
 } from './utils';
-import { presetLayout } from '../utils';
+import { presetLayout, defaultLayout } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
@@ -118,7 +118,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   // You must have a oldLayout to make the layout work before user select a layout from the menu
   // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
-  const [layout, setLayout] = React.useState<Layout>(presetLayout);
+  const [layout, setLayout] = React.useState<Layout>(defaultLayout);
 
   // Graph store
   // Why we need a parentGraphUUID and a currentGraphUUID? Because the platform don't support multiple branches for each history chain. So we always use the latest graph as the parent graph, and the current graph is the graph that user is editing.
@@ -251,41 +251,53 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
-  const onLoadGraph = (graphHistoryItem: GraphHistoryItem, latestChild: GraphHistoryItem) => {
+  const onLoadGraph = (
+    graphHistoryItem: GraphHistoryItem,
+    latestChild: GraphHistoryItem,
+  ): Promise<GraphHistoryItem> => {
     console.log('Load graph: ', graphHistoryItem, latestChild);
-    if (isDirty) {
-      modal.confirm({
-        title: 'You have unsaved changes',
-        icon: <ExclamationCircleOutlined />,
-        content: 'Are you sure to load another graph?',
-        okText: 'Load',
-        cancelText: 'Cancel',
-        onOk() {
-          setIsDirty(false);
-          loadGraph(graphHistoryItem, latestChild);
-        },
-        onCancel() {
-          // TODO: anything else?
-        },
-      });
-    } else {
-      loadGraph(graphHistoryItem, latestChild);
-    }
+    return new Promise((resolve, reject) => {
+      if (isDirty) {
+        modal.confirm({
+          title: 'You have unsaved changes',
+          icon: <ExclamationCircleOutlined />,
+          content: 'Are you sure to load another graph?',
+          okText: 'Load',
+          cancelText: 'Cancel',
+          onOk() {
+            setIsDirty(false);
+            loadGraph(graphHistoryItem, latestChild);
+            return resolve(graphHistoryItem);
+          },
+          onCancel() {
+            // TODO: anything else?
+            return reject(graphHistoryItem);
+          },
+        });
+      } else {
+        loadGraph(graphHistoryItem, latestChild);
+        return resolve(graphHistoryItem);
+      }
+    });
   };
 
-  const onDeleteGraph = (graphHistoryItem: GraphHistoryItem) => {
-    console.log('Delete graph: ', graphHistoryItem);
-    // TODO: add confirm dialog, it will delete the graph cascade.
-    props.apis
-      .DeleteGraphHistoryFn({ id: graphHistoryItem.id })
-      .then((response) => {
-        message.success('Graph deleted successfully.');
-        loadGraphs();
-      })
-      .catch((error) => {
-        console.log(error);
-        message.error('Failed to delete graph, please check the network connection.');
-      });
+  const onDeleteGraph = (graphHistoryItem: GraphHistoryItem): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log('Delete graph: ', graphHistoryItem);
+      // TODO: add confirm dialog, it will delete the graph cascade.
+      props.apis
+        .DeleteGraphHistoryFn({ id: graphHistoryItem.id })
+        .then((response) => {
+          message.success('Graph deleted successfully.');
+          loadGraphs();
+          return resolve();
+        })
+        .catch((error) => {
+          console.log(error);
+          message.error('Failed to delete graph, please check the network connection.');
+          return reject();
+        });
+    });
   };
 
   const loadNodeColorMap = () => {
@@ -1003,7 +1015,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   setGraphTableVisible(false);
                 }}
                 onUpload={(graphHistory: GraphHistoryItem) => {
-                  onSubmitGraph(graphHistory);
+                  return onSubmitGraph(graphHistory);
                 }}
                 selectedGraphId={currentGraphUUID}
               ></GraphStoreTable>
@@ -1018,18 +1030,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   });
                 }}
                 onSubmit={(data: GraphHistoryItem) => {
-                  return new Promise((resolve, reject) => {
-                    onSubmitGraph(data)
-                      .then((response) => {
-                        const id = response.id;
-                        // Keep the current canvas as the parent graph, so we can create a new graph based on the current canvas.
-                        setCurrentGraphUUID(id);
-                      })
-                      .finally(() => {
-                        resolve();
-                        setGraphFormVisible(false);
-                      });
-                  });
+                  return onSubmitGraph(data)
+                    .then((response) => {
+                      const id = response.id;
+                      // Keep the current canvas as the parent graph, so we can create a new graph based on the current canvas.
+                      setCurrentGraphUUID(id);
+                    })
+                    .finally(() => {
+                      setGraphFormVisible(false);
+                    });
                 }}
               ></GraphStoreForm>
             </GraphinWrapper>

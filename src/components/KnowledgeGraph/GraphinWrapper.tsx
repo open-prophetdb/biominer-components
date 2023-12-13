@@ -1141,7 +1141,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [dataLayoutChangedBefore, setDataLayoutChangedBefore] = useState<GraphData | null>(null);
   const [layout, setLayout] = React.useState<Layout>({
     // The random layout will be used if the layout is not specified.
-    type: props.layout.type,
+    type: props.layout.type || 'random',
     options: {
       ...(props.layout.options || {}),
     },

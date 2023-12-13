@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Space, Table, Modal, Button, Tree, Col, Row } from 'antd';
+import { Space, Table, Modal, Button, Tree, Col, Row, Spin } from 'antd';
 import type { GraphHistoryItem } from '../typings';
 import type { TreeGraph, GraphTableProps } from './index.t';
 import type { ColumnsType } from 'antd/es/table';
@@ -77,6 +77,7 @@ const makeTree = (graphs: GraphHistoryItem[]): TreeGraph[] => {
 
 const GraphTable: React.FC<GraphTableProps> = (props) => {
   const defaultTreePanelSpan = 6;
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [treeData, setTreeData] = React.useState<TreeGraph[]>([]);
   const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
   const [tableData, setTableData] = React.useState<GraphHistoryItem[]>([]);
@@ -139,14 +140,16 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
             type="link"
             disabled={props.selectedGraphId === record.id}
             onClick={(e) => {
+              setLoading(true);
               if (tableData) {
                 const latestChild = tableData[index];
                 if (latestChild) {
-                  props.onLoad && props.onLoad(record, latestChild);
+                  props.onLoad &&
+                    props.onLoad(record, latestChild).finally(() => setLoading(false));
                 }
               } else {
                 console.log('GraphTable load: something wrong.', tableData, index, record);
-                props.onLoad && props.onLoad(record, record);
+                props.onLoad && props.onLoad(record, record).finally(() => setLoading(false));
               }
             }}
           >
@@ -156,6 +159,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
             size="small"
             type="link"
             onClick={(e) => {
+              setLoading(true);
               // How to ensure the data format is suitable for the graph loader?
               const json = JSON.stringify(record);
               const blob = new Blob([json], { type: 'application/json' });
@@ -166,6 +170,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              setLoading(false);
             }}
           >
             Download
@@ -174,7 +179,10 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
             size="small"
             type="link"
             danger
-            onClick={(e) => props.onDelete && props.onDelete(record)}
+            onClick={(e) => {
+              setLoading(true);
+              props.onDelete && props.onDelete(record).finally(() => setLoading(false));
+            }}
           >
             Delete
           </Button>
@@ -230,6 +238,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
               <UploadGraph
                 key="upload-graph"
                 onUpload={(graph: GraphHistoryItem) => {
+                  setLoading(true);
                   if (props.onUpload) {
                     const newGraph = graph;
                     // Don't worry about it. We just want to create a new graph not linked to any existing graph
@@ -237,7 +246,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                     delete newGraph.parent;
                     // @ts-ignore
                     delete newGraph.created_time;
-                    props.onUpload(newGraph);
+                    props.onUpload(newGraph).finally(() => setLoading(false));
                   }
                 }}
               ></UploadGraph>,
@@ -245,36 +254,38 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           : null
       }
     >
-      <Row gutter={16}>
-        <Col span={treePanelSpan}>
-          {props.treeFormat ? (
-            <DirectoryTree
-              defaultExpandAll
-              selectedKeys={selectedKeys}
-              onSelect={onSelect}
-              onExpand={onExpand}
-              treeData={treeData}
-              fieldNames={{ title: 'title', key: 'key', children: 'notShown' }}
+      <Spin spinning={loading}>
+        <Row gutter={16}>
+          <Col span={treePanelSpan}>
+            {props.treeFormat ? (
+              <DirectoryTree
+                defaultExpandAll
+                selectedKeys={selectedKeys}
+                onSelect={onSelect}
+                onExpand={onExpand}
+                treeData={treeData}
+                fieldNames={{ title: 'title', key: 'key', children: 'notShown' }}
+              />
+            ) : null}
+          </Col>
+          <Col span={24 - treePanelSpan}>
+            <Table
+              rowKey={'id'}
+              columns={columns}
+              dataSource={tableData}
+              pagination={false}
+              scroll={{ y: 500, x: 800 }}
+              size="small"
+              expandable={{
+                expandedRowRender: (record) => (
+                  <p style={{ margin: 0 }}>{record.description || 'No description'}</p>
+                ),
+                rowExpandable: (record) => record.name !== 'Not Expandable',
+              }}
             />
-          ) : null}
-        </Col>
-        <Col span={24 - treePanelSpan}>
-          <Table
-            rowKey={'id'}
-            columns={columns}
-            dataSource={tableData}
-            pagination={false}
-            scroll={{ y: 500, x: 800 }}
-            size="small"
-            expandable={{
-              expandedRowRender: (record) => (
-                <p style={{ margin: 0 }}>{record.description || 'No description'}</p>
-              ),
-              rowExpandable: (record) => record.name !== 'Not Expandable',
-            }}
-          />
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </Spin>
     </Modal>
   );
 };

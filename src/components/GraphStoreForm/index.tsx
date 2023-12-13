@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { GraphinContext } from '@antv/graphin';
-import { Button, Form, Input, message, Modal } from 'antd';
+import { Button, Form, Input, message, Modal, Spin } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import type { GraphFormProps } from './index.t';
 import { prepareGraphData } from '../utils';
 import { getIdentity } from '../utils';
+import { CloudUploadOutlined } from '@ant-design/icons';
 
 import './index.less';
 
@@ -70,38 +71,40 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
       destroyOnClose
       getContainer={props.parent ? props.parent : document.body}
     >
-      <Form
-        name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        autoComplete="off"
-      >
-        <Form.Item
-          label="name"
-          name="name"
-          rules={[{ required: true, message: 'Please input a graph name!' }]}
+      <Spin spinning={loading} tip="Submitting...">
+        <Form
+          name="basic"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          style={{ maxWidth: 600 }}
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          autoComplete="off"
         >
-          <Input placeholder="Please input a graph name" />
-        </Form.Item>
+          <Form.Item
+            label="name"
+            name="name"
+            rules={[{ required: true, message: 'Please input a graph name!' }]}
+          >
+            <Input placeholder="Please input a graph name" />
+          </Form.Item>
 
-        <Form.Item
-          label="description"
-          name="description"
-          rules={[{ required: false, message: 'Please input description!' }]}
-        >
-          <TextArea rows={5} placeholder="Please input description!" />
-        </Form.Item>
+          <Form.Item
+            label="description"
+            name="description"
+            rules={[{ required: false, message: 'Please input description!' }]}
+          >
+            <TextArea rows={5} placeholder="Please input description!" />
+          </Form.Item>
 
-        <Form.Item wrapperCol={{ offset: 20, span: 4 }} hidden={!props.onSubmit}>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item wrapperCol={{ offset: 18, span: 5 }} hidden={!props.onSubmit}>
+            <Button type="primary" htmlType="submit">
+              <CloudUploadOutlined /> Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Spin>
     </Modal>
   );
 };
