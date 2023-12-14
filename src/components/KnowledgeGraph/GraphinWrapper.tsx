@@ -7,7 +7,7 @@ import Graphin, {
   GraphinData,
 } from '@antv/graphin';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
-import { INode, NodeConfig, IEdge } from '@antv/g6';
+import { INode, NodeConfig, IEdge, Graph } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
 import type { Layout, GraphData } from '../typings';
@@ -88,6 +88,133 @@ const snapLineOptions = {
   },
 };
 
+const showRelatedEdges = (node: GraphNode, graph: Graph, hideOthers?: boolean) => {
+  // TODO: How to push all edges which are changed to the stack?
+  // Show the edges connected with the selected nodes.
+  const edges = graph.getEdges();
+  edges.forEach((edge) => {
+    const model = edge.getModel() as GraphEdge;
+    if (model.source == node.id || model.target == node.id) {
+      graph.showItem(edge, false);
+    } else {
+      if (hideOthers) {
+        graph.hideItem(edge, false);
+      }
+    }
+  });
+};
+
+const hideRelatedEdges = (node: GraphNode, graph: Graph, showOthers?: boolean) => {
+  // TODO: How to push all edges which are changed to the stack?
+  // Hide the edges connected with the selected nodes.
+  const edges = graph.getEdges();
+  edges.forEach((edge) => {
+    const model = edge.getModel() as GraphEdge;
+    console.log('Hide Edge: ', node.id, model.source, model.target);
+    if (model.source == node.id || model.target == node.id) {
+      graph.hideItem(edge, false);
+    } else {
+      if (showOthers) {
+        graph.showItem(edge, false);
+      }
+    }
+  });
+};
+
+const hideSelectedNodes = (selectedNodeKeys: string[], graph: Graph, showOthers?: boolean) => {
+  // TODO: How to push all nodes which are changed to the stack?
+  if (selectedNodeKeys.length == 0) {
+    return;
+  }
+
+  const nodes = graph.getNodes();
+  nodes.forEach((gnode) => {
+    const node = gnode.getModel() as GraphNode;
+    if (selectedNodeKeys.includes(node.id)) {
+      graph.hideItem(gnode, false);
+      hideRelatedEdges(node, graph);
+    } else {
+      if (showOthers) {
+        graph.showItem(gnode, false);
+      }
+    }
+  });
+};
+
+const showSelectedNodes = (selectedNodeKeys: string[], graph: Graph, hideOthers?: boolean) => {
+  // TODO: How to push all nodes which are changed to the stack?
+  if (selectedNodeKeys.length == 0) {
+    return;
+  }
+
+  const nodes = graph.getNodes();
+  console.log('Show Selected Nodes: ', selectedNodeKeys, nodes);
+  nodes.forEach((gnode) => {
+    const node = gnode.getModel() as GraphNode;
+    if (selectedNodeKeys.includes(node.id)) {
+      console.log('Show Node: ', node.id);
+      graph.showItem(gnode, false);
+      showRelatedEdges(node, graph);
+    } else {
+      if (hideOthers) {
+        graph.hideItem(gnode, false);
+      }
+    }
+  });
+};
+
+const showAllNodes = (graph: Graph) => {
+  const nodes = graph.getNodes();
+  nodes.forEach((gnode) => {
+    graph.showItem(gnode, false);
+  });
+};
+
+const showAllEdges = (graph: Graph) => {
+  const edges = graph.getEdges();
+  edges.forEach((edge) => {
+    graph.showItem(edge, false);
+  });
+};
+
+const hideSelectedEdges = (selectedEdgeKeys: string[], graph: Graph, showOthers?: boolean) => {
+  // TODO: How to push all edges which are changed to the stack?
+  if (selectedEdgeKeys.length == 0) {
+    return;
+  }
+
+  const edges = graph.getEdges();
+  edges.forEach((gedge) => {
+    const edge = gedge.getModel() as GraphEdge;
+    if (selectedEdgeKeys.includes(edge.relid)) {
+      graph.hideItem(gedge, false);
+    } else {
+      if (showOthers) {
+        graph.showItem(gedge, false);
+      }
+    }
+  });
+};
+
+const showSelectedEdges = (selectedEdgeKeys: string[], graph: Graph, hideOthers?: boolean) => {
+  // TODO: How to push all edges which are changed to the stack?
+  if (selectedEdgeKeys.length == 0) {
+    return;
+  }
+
+  const edges = graph.getEdges();
+  edges.forEach((gedge) => {
+    const edge = gedge.getModel() as GraphEdge;
+    if (selectedEdgeKeys.includes(edge.relid)) {
+      graph.showItem(gedge, false);
+    } else {
+      if (hideOthers) {
+        graph.hideItem(gedge, false);
+      }
+    }
+  });
+};
+
 type EdgeMenuProps = {
   onChange?: OnEdgeMenuClickFn;
   chatbotVisible?: boolean;
@@ -129,73 +256,6 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
       label: 'Show Edge Details',
-    },
-    {
-      key: 'show-hide-edges',
-      icon: <EyeOutlined />,
-      label: 'Show/Hide Edge(s)',
-      children: [
-        {
-          key: 'hide-current-edge',
-          icon: <EyeInvisibleOutlined />,
-          label: 'Hide Current Edge',
-          handler: (edge: GraphEdge) => {
-            console.log('Hide Current Edge: ', edge);
-            graph.getEdges().forEach((gedge) => {
-              const model = gedge.getModel() as GraphEdge;
-              if (model.relid == edge.relid) {
-                graph.hideItem(gedge, true);
-              }
-            });
-            setVisible(false);
-          },
-        },
-        {
-          key: 'show-current-edge',
-          icon: <EyeOutlined />,
-          label: 'Show Current Edge',
-          handler: (edge: GraphEdge) => {
-            console.log('Show Current Edge: ', edge);
-            graph.getEdges().forEach((gedge) => {
-              const model = gedge.getModel() as GraphEdge;
-              if (model.relid == edge.relid) {
-                graph.showItem(gedge, true);
-              }
-            });
-            setVisible(false);
-          },
-        },
-        {
-          key: 'hide-edges-with-same-type',
-          icon: <EyeInvisibleOutlined />,
-          label: 'Hide Edges with Same Type',
-          handler: (edge: GraphEdge) => {
-            console.log('Hide Edges with Same Type: ', edge);
-            graph.getEdges().forEach((gedge) => {
-              const model = gedge.getModel() as GraphEdge;
-              if (model.reltype == edge.reltype) {
-                graph.hideItem(gedge, true);
-              }
-            });
-            setVisible(false);
-          },
-        },
-        {
-          key: 'show-edges-with-same-type',
-          icon: <EyeOutlined />,
-          label: 'Show Edges with Same Type',
-          handler: (edge: GraphEdge) => {
-            console.log('Show Edges with Same Type: ', edge);
-            graph.getEdges().forEach((gedge) => {
-              const model = gedge.getModel() as GraphEdge;
-              if (model.reltype == edge.reltype) {
-                graph.showItem(gedge, true);
-              }
-            });
-            setVisible(false);
-          },
-        },
-      ],
     },
     {
       key: 'explain-relationship',
@@ -315,6 +375,9 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       onClick={(menuInfo) => {
         onChange(menuInfo.key);
       }}
+      getPopupContainer={(triggerNode) => {
+        return (triggerNode.parentNode as HTMLElement) || document.body;
+      }}
     />
   ) : null;
 };
@@ -371,83 +434,6 @@ const NodeMenu = (props: NodeMenuProps) => {
       hidden: true,
       icon: <FullscreenOutlined />,
       label: 'Expand Selected Nodes',
-    },
-    {
-      key: 'show-hide-nodes',
-      icon: <EyeOutlined />,
-      label: 'Show/Hide Node(s)',
-      children: [
-        {
-          key: 'show-selected-nodes',
-          icon: <EyeOutlined />,
-          label: 'Show Selected Nodes',
-          handler: (node: GraphNode) => {
-            console.log('Show Selected Nodes: ', node);
-            let nodes = graph.getNodes();
-
-            function showRelatedEdges(node: GraphNode) {
-              // Show the edges connected with the selected nodes.
-              const edges = graph.getEdges();
-              edges.forEach((edge) => {
-                const model = edge.getModel() as GraphEdge;
-                console.log('Show Edge: ', node.id, model.source, model.target);
-                if (model.source == node.id || model.target == node.id) {
-                  graph.showItem(edge, true);
-                }
-              });
-            }
-
-            nodes.forEach((gnode) => {
-              if (gnode.hasState('selected')) {
-                graph.setItemState(gnode, 'inactive', false);
-                showRelatedEdges(node);
-              }
-
-              // Show the current node.
-              if (gnode.getModel().id == node.id) {
-                graph.setItemState(gnode, 'inactive', false);
-                showRelatedEdges(node);
-              }
-            });
-            setVisible(false);
-          },
-        },
-        {
-          key: 'hide-selected-nodes',
-          icon: <EyeInvisibleOutlined />,
-          label: 'Hide Selected Nodes',
-          handler: (node: GraphNode) => {
-            console.log('Hide Selected Nodes: ', node);
-            let nodes = graph.getNodes();
-
-            function hideRelatedEdges(node: GraphNode) {
-              // Hide the edges connected with the selected nodes.
-              const edges = graph.getEdges();
-              edges.forEach((edge) => {
-                const model = edge.getModel() as GraphEdge;
-                console.log('Hide Edge: ', node.id, model.source, model.target);
-                if (model.source == node.id || model.target == node.id) {
-                  graph.hideItem(edge, true);
-                }
-              });
-            }
-
-            nodes.forEach((gnode) => {
-              if (gnode.hasState('selected')) {
-                graph.setItemState(gnode, 'inactive', true);
-                hideRelatedEdges(node);
-              }
-
-              // Hide the current node.
-              if (gnode.getModel().id == node.id) {
-                graph.setItemState(gnode, 'inactive', true);
-                hideRelatedEdges(node);
-              }
-            });
-            setVisible(false);
-          },
-        },
-      ],
     },
     {
       key: 'reverse-selected-nodes',
@@ -655,6 +641,9 @@ const NodeMenu = (props: NodeMenuProps) => {
       onClick={(menuInfo) => {
         onChange(menuInfo.key);
       }}
+      getPopupContainer={(triggerNode) => {
+        return (triggerNode.parentNode as HTMLElement) || document.body;
+      }}
     />
   ) : null;
 };
@@ -714,6 +703,8 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     // graph.clear();
     if (props.onClearGraph) {
       props.onClearGraph();
+      // We must clear the stack manually, otherwise the stack will be not consistent with the graph.
+      graph.clearStack();
       message.info(`Clear canvas successfully`);
     } else {
       message.warning(`Cannot clear canvas`);
@@ -753,6 +744,10 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     });
 
     message.success(`Clear node/edge status successfully`);
+
+    if (props.onCanvasClick) {
+      props.onCanvasClick(item, graph, apis);
+    }
   };
 
   const options: CanvasMenuItem[] = [
@@ -883,37 +878,29 @@ const EdgeLabelVisible = (props: { visible: boolean }) => {
   return null;
 };
 
-const HighlightNode = (props: { selectedNode?: string; mode?: 'activate' | 'focus' }) => {
-  if (props.selectedNode) {
-    // More details on https://graphin.antv.vision/graphin/quick-start/interface
-    const { graph } = useContext(GraphinContext);
-    const nodes = graph.getNodes();
-    const edges = graph.getEdges();
+const HighlightNodeEdge = (props: { selectedNodes: string[]; selectedEdges: string[] }) => {
+  console.log('HighlightNodeEdge: ', props.selectedNodes);
+  const { graph } = useContext(GraphinContext);
+  if (props.selectedNodes.length > 0) {
+    // More details on https://graphin.antv.vision/graphin/quick-start/interface and https://graphin.antv.vision/graphin/render/status
+    // When user select multiple nodes, we need to highlight the selected nodes and disable the other nodes.
+    showSelectedNodes(props.selectedNodes, graph, true);
+  } else {
+    showAllNodes(graph);
+  }
+
+  // TODO: How to highlight the selected edges?
+  if (props.selectedEdges.length > 0) {
+    const selectedEdges = props.selectedEdges;
     // More details on https://graphin.antv.vision/graphin/render/status
 
-    if (props.mode == 'activate') {
-      // Clear all status
-      nodes.forEach((node) => {
-        graph.setItemState(node, 'inactive', false);
-        graph.setItemState(node, 'active', false);
-      });
-
-      // Highlight the selected node.
-      nodes.forEach((node) => {
-        const model = node.getModel();
-
-        if (props.selectedNode && props.selectedNode !== model.id) {
-          console.log('UnSelected Node: ', props.selectedNode, model.id);
-          graph.setItemState(node, 'inactive', true);
-        } else {
-          console.log('Selected Node: ', props.selectedNode, model.id);
-          graph.setItemState(node, 'active', true);
-        }
-      });
-    } else {
-      graph.focusItem(props.selectedNode, true);
-    }
+    showSelectedEdges(selectedEdges, graph, true);
   }
+
+  if (props.selectedNodes.length == 0 && props.selectedEdges.length == 0) {
+    showAllEdges(graph);
+  }
+
   return null;
 };
 
@@ -996,7 +983,12 @@ const EdgeClickBehavior = (props: { onClick?: OnClickEdgeFn }) => {
   return null;
 };
 
-const NodeSearcher = () => {
+type NodeSearcherProps = {
+  changeSelectedNodes?: (selectedNodes: string[]) => void;
+  changeSelectedEdges?: (selectedEdges: string[]) => void;
+};
+
+const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
   const { graph, apis } = useContext(GraphinContext);
   const { undo, getUndoStack, redo, getRedoStack } = UndoRedo();
 
@@ -1042,13 +1034,32 @@ const NodeSearcher = () => {
         <Button
           shape="circle"
           icon={<UndoOutlined />}
-          onClick={undo}
-          disabled={getUndoStack().length < 1}
+          onClick={() => {
+            undo(
+              (nodes) => {
+                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
+              },
+              (edges) => {
+                props.changeSelectedEdges && props.changeSelectedEdges(edges);
+              },
+            );
+          }}
+          // The first item in the stack is the initial layout, so we don't need to undo it.
+          disabled={getUndoStack().length <= 1}
         ></Button>
         <Button
           shape="circle"
           icon={<RedoOutlined />}
-          onClick={redo}
+          onClick={() => {
+            redo(
+              (nodes) => {
+                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
+              },
+              (edges) => {
+                props.changeSelectedEdges && props.changeSelectedEdges(edges);
+              },
+            );
+          }}
           disabled={getRedoStack().length < 1}
         ></Button>
       </ButtonGroup>
@@ -1084,8 +1095,10 @@ const NodeSearcher = () => {
 };
 
 export type GraphinProps = {
-  selectedNode?: string;
-  highlightMode?: 'activate' | 'focus';
+  selectedNodes?: string[];
+  changeSelectedNodes?: (selectedNodes: string[]) => void;
+  selectedEdges?: string[];
+  changeSelectedEdges?: (selectedEdges: string[]) => void;
   data: GraphData;
   layout: Layout;
   style: React.CSSProperties;
@@ -1133,20 +1146,28 @@ const defaultSettings: GraphinSettings = {
 };
 
 const GraphinWrapper: React.FC<GraphinProps> = (props) => {
-  const { data, style, onNodeMenuClick, onEdgeMenuClick, selectedNode, onCanvasMenuClick } = props;
+  const {
+    data,
+    style,
+    onNodeMenuClick,
+    onEdgeMenuClick,
+    selectedNodes,
+    onCanvasMenuClick,
+    selectedEdges,
+  } = props;
   const [fishEyeVisible, setFishEyeVisible] = useState(false);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
 
   const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
   const [dataLayoutChangedBefore, setDataLayoutChangedBefore] = useState<GraphData | null>(null);
+  // Don't use setLayout to change the layout, we must use changeLayout function for making the undo/redo work.
   const [layout, setLayout] = React.useState<Layout>({
     // The random layout will be used if the layout is not specified.
-    type: props.layout.type || 'random',
+    type: props.layout.type,
     options: {
       ...(props.layout.options || {}),
     },
   });
-  const { type, options } = layout;
 
   const [currentEdge, setCurrentEdge] = useState<any>(null);
   const [currentNode, setCurrentNode] = useState<any>(null);
@@ -1198,6 +1219,12 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     setFocusedNodes([]);
   }, [settings.interactiveMode]);
 
+  const hasPostions = (data: GraphData) => {
+    return data.nodes.every((node) => {
+      return node.x && node.x > 0 && node.y && node.y > 0;
+    });
+  };
+
   useEffect(() => {
     // create a map to hold the adjacency list
     const adjacencyList = new Map();
@@ -1209,6 +1236,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       adjacencyList.get(edge.target).push(edge.source);
     }
     setAdjacencyList(adjacencyList);
+
+    if (!hasPostions(data) && !layout.type) {
+      changeLayout({ type: 'random', options: { preventOverlap: true } });
+    }
   }, [data]);
 
   const handleOpenFishEye = () => {
@@ -1297,32 +1328,45 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         ref={ref}
         enabledStack={true}
         data={data as GraphinData}
-        layout={{ ...options, type: type }}
+        // We will set the layout manually for more flexibility.
+        layout={layout}
         handleAfterLayout={(graph) => {
           console.log(
             'handleAfterLayout -> layoutChanged: ',
             dataLayoutChangedBefore,
             dataLayoutChangedBeforeRef.current,
+            graph.get('layout'),
           );
+          // Graphin don't save the related data when the layout is changed, so we need to save the related data manually.
           if (dataLayoutChangedBeforeRef.current) {
             const undoStackData = graph.getUndoStack();
             const afterData = graph.save() as GraphinData;
+            console.log(
+              'handleAfterLayout -> undoStackData -> old + new: ',
+              dataLayoutChangedBeforeRef.current,
+              afterData,
+            );
             const currentDataInStack = popCurrectData(graph, undoStackData);
 
-            if (currentDataInStack && currentDataInStack.action == 'layout') {
-              const currentData = currentDataInStack.data;
-              let data = {
-                before: {
-                  ...currentData.before,
-                  data: dataLayoutChangedBeforeRef.current,
-                },
-                after: {
-                  ...currentData.after,
-                  data: afterData,
-                },
-              };
-              graph.pushStack(currentDataInStack.action, data, 'undo');
-            }
+            const currentData = currentDataInStack.data;
+            let data = {
+              before: {
+                ...currentData.before,
+                data: dataLayoutChangedBeforeRef.current,
+              },
+              after: {
+                ...currentData.after,
+                data: afterData,
+              },
+            };
+
+            console.log(
+              'handleAfterLayout -> undoStackData -> newUndo: ',
+              data,
+              afterData,
+              dataLayoutChangedBeforeRef.current,
+            );
+            graph.pushStack(currentDataInStack.action, data, 'undo');
 
             setDataLayoutChangedBefore(null);
           }
@@ -1345,7 +1389,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         {/* BUG: Cannot restore the label of edges */}
         <EdgeLabelVisible visible={settings.edgeLabelVisible} />
         <FishEye options={{}} visible={fishEyeVisible} handleEscListener={onCloseFishEye} />
-        <HighlightNode selectedNode={selectedNode} mode={props.highlightMode}></HighlightNode>
+        <HighlightNodeEdge
+          selectedNodes={selectedNodes || []}
+          selectedEdges={selectedEdges || []}
+        />
         {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
         {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
         {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
@@ -1410,7 +1457,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
             }}
           >
-            <LayoutSelector type={type} layouts={LayoutNetwork} onChange={changeLayout} />
+            <LayoutSelector type={layout.type} layouts={LayoutNetwork} onChange={changeLayout} />
           </Moveable>
         ) : null}
         {props.toolbarVisible ? (
@@ -1585,7 +1632,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           </Moveable>
         ) : null}
 
-        <NodeSearcher></NodeSearcher>
+        <NodeSearcher
+          changeSelectedEdges={props.changeSelectedEdges}
+          changeSelectedNodes={props.changeSelectedNodes}
+        />
 
         {settings.interactiveMode == 'show-paths' ? (
           <FocusBehavior

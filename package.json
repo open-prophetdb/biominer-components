@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "scripts": {
     "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",
@@ -32,6 +32,9 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^3.4.2",
     "@types/openseadragon": "^3.0.3",
+    "ag-grid-community": "^31.0.1",
+    "ag-grid-enterprise": "^31.0.1",
+    "ag-grid-react": "^31.0.1",
     "gtex-d3": "thehyve/gtex-viz#7c822b0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

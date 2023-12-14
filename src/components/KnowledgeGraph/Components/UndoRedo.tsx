@@ -56,13 +56,22 @@ export const removeLayoutAction = (oldStack: Stack): Stack => {
 export const popCurrectData = (graph: Graph, stack: Stack): any => {
   const currentData = stack.pop();
 
-  console.log('Get stack data: ', graph.getStackData());
+  console.log('Get stack data: ', graph.getStackData(), currentData);
   return currentData;
 };
 
+type changeSelectedEdgesFn = (edges: string[]) => void;
+type changeSelectedNodesFn = (nodes: string[]) => void;
+
 const useRedoUndo = (): {
-  redo: () => void;
-  undo: () => void;
+  redo: (
+    changeSelectedNodes?: changeSelectedNodesFn,
+    changeSelectedEdges?: changeSelectedEdgesFn,
+  ) => void;
+  undo: (
+    changeSelectedNodes?: changeSelectedNodesFn,
+    changeSelectedEdges?: changeSelectedEdgesFn,
+  ) => void;
   getUndoStack: () => Stack;
   getRedoStack: () => Stack;
 } => {
@@ -74,7 +83,10 @@ const useRedoUndo = (): {
     };
   });
 
-  const redo = () => {
+  const redo = (
+    changeSelectedNodes?: changeSelectedNodesFn,
+    changeSelectedEdges?: changeSelectedEdgesFn,
+  ) => {
     const redoStack = graph.getRedoStack();
     console.log('Do redo action: ', redoStack, graph.getStackData());
 
@@ -83,26 +95,41 @@ const useRedoUndo = (): {
     }
 
     const currentData = popCurrectData(graph, redoStack);
+    console.log('Current redo item: ', currentData);
 
     if (currentData) {
       const { action } = currentData;
       let data = currentData.data.after;
 
-      if (action === 'layout') {
+      if (action === 'select-nodes') {
         graph.pushStack(
           action,
           {
-            after: {
-              ...currentData.data.after,
-              data: fixNodePosition(graph, currentData.data.after.data),
-            },
-            before: {
-              ...currentData.data.before,
-              data: fixNodePosition(graph, currentData.data.before.data),
-            },
+            ...currentData.data,
           },
           'undo',
         );
+        changeSelectedNodes?.(currentData.data.after);
+
+        return;
+      }
+
+      if (action === 'select-edges') {
+        graph.pushStack(
+          action,
+          {
+            ...currentData.data,
+          },
+          'undo',
+        );
+        changeSelectedEdges?.(currentData.data.after.edges);
+        changeSelectedNodes?.(currentData.data.after.nodes);
+
+        return;
+      }
+
+      if (action === 'layout') {
+        graph.pushStack(action, currentData.data, 'undo');
         data = currentData.data.after.data;
       } else {
         graph.pushStack(action, {
@@ -119,34 +146,54 @@ const useRedoUndo = (): {
     }
   };
 
-  const undo = () => {
+  const undo = (
+    changeSelectedNodes?: changeSelectedNodesFn,
+    changeSelectedEdges?: changeSelectedEdgesFn,
+  ) => {
     const undoStack = graph.getUndoStack();
     console.log('Do undo action: ', undoStack, graph.getStackData());
 
-    if (!undoStack || undoStack.length === 0) {
+    // The first item in the undo stack is the initial layout, so we don't need to undo it.
+    if (!undoStack || undoStack.length === 1) {
       return;
     }
 
     const currentData = popCurrectData(graph, undoStack);
+    console.log('Current undo item: ', currentData);
 
     if (currentData) {
       const { action } = currentData;
       let data = currentData.data.before;
-      if (action === 'layout') {
+
+      if (action === 'select-nodes') {
         graph.pushStack(
           action,
           {
-            after: {
-              ...currentData.data.after,
-              data: fixNodePosition(graph, currentData.data.after.data),
-            },
-            before: {
-              ...currentData.data.before,
-              data: fixNodePosition(graph, currentData.data.before.data),
-            },
+            ...currentData.data,
           },
           'redo',
         );
+        changeSelectedNodes?.(currentData.data.before);
+
+        return;
+      }
+
+      if (action === 'select-edges') {
+        graph.pushStack(
+          action,
+          {
+            ...currentData.data,
+          },
+          'redo',
+        );
+        changeSelectedEdges?.(currentData.data.before.edges);
+        changeSelectedNodes?.(currentData.data.before.nodes);
+
+        return;
+      }
+
+      if (action === 'layout') {
+        graph.pushStack(action, currentData.data, 'redo');
         data = currentData.data.before.data;
       } else {
         graph.pushStack(

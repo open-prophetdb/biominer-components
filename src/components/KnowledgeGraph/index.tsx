@@ -1,8 +1,7 @@
 /* eslint-disable no-undef */
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
-import { Row, Col, Tag, Tabs, Table, message, Button, Spin, Empty, Tooltip, Modal } from 'antd';
-import type { TableColumnType } from 'antd';
+import { Row, Col, message, Button, Spin, Empty, Tooltip, Modal } from 'antd';
 import {
   CloudDownloadOutlined,
   FullscreenExitOutlined,
@@ -15,17 +14,15 @@ import {
   BuildOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
-import { uniqBy } from 'lodash';
+import { set, uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
 import CanvasStatisticsChart from '../CanvasStatisticsChart';
 import StatisticsChart from '../StatisticsChart';
 import SimilarityChart from '../SimilarityChart';
-// import ReactResizeDetector from 'react-resize-detector';
-
+import GraphTable from './Components/GraphTable';
 import {
-  makeColumns,
   makeDataSources,
   isUUID,
   getNodes,
@@ -41,7 +38,7 @@ import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
 import GraphStoreForm from '../GraphStoreForm';
-import type { Graph } from '@antv/graphin';
+import { GraphinContext, type Graph } from '@antv/graphin';
 import type {
   GraphHistoryItem,
   GraphData,
@@ -61,11 +58,13 @@ import GraphBackground from './graph-background.png';
 import { KnowledgeGraphProps } from './index.t';
 import type { StatisticsData } from '../StatisticsDataArea/index.t';
 import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
-
-import './index.less';
 import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
 import { PathSearchObjectClass } from '../typings';
+
+import './index.less';
+import { NodeAttribute } from '../NodeTable/index.t';
+import { EdgeAttribute } from '../EdgeTable/index.t';
 
 // Config message globally
 message.config({
@@ -93,9 +92,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [statistics, setStatistics] = useState<StatisticsData>({} as StatisticsData);
   const [nodeColorMap, setNodeColorMap] = useState<Record<string, string>>({});
 
-  const [nodeColumns, setNodeColumns] = useState<TableColumnType<any>[]>([]);
   const [nodeDataSources, setNodeDataSources] = useState<Array<Record<string, any>>>([]);
-  const [edgeColumns, setEdgeColumns] = useState<TableColumnType<any>[]>([]);
   const [edgeDataSources, setEdgeDataSources] = useState<Array<Record<string, any>>>([]);
 
   const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
@@ -109,16 +106,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const [similarityChartVisible, setSimilarityChartVisible] = useState<boolean>(false);
   const [similarityArray, setSimilarityArray] = useState<Entity2D[]>([]);
-  const [hightlightMode, setHightlightMode] = useState<'activate' | 'focus'>('activate');
 
-  const [currentNode, setCurrentNode] = useState<string>('');
-  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<string>>([]);
+  const [selectedNodeKeys, setSelectedNodeKeys] = useState<string[]>([]);
+  const [selectedEdgeKeys, setSelectedEdgeKeys] = useState<string[]>([]);
+
   const [advancedSearchPanelActive, setAdvancedSearchPanelActive] = useState<boolean>(false);
   const [searchObject, setSearchObject] = useState<SearchObjectInterface>();
 
   // You must have a oldLayout to make the layout work before user select a layout from the menu
   // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
-  const [layout, setLayout] = React.useState<Layout>(defaultLayout);
+  const [layout, setLayout] = React.useState<Layout>({} as Layout);
 
   // Graph store
   // Why we need a parentGraphUUID and a currentGraphUUID? Because the platform don't support multiple branches for each history chain. So we always use the latest graph as the parent graph, and the current graph is the graph that user is editing.
@@ -127,7 +124,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [isDirty, setIsDirty] = useState<boolean>(false);
 
   const [graphHistory, setGraphHistory] = useState<GraphHistoryItem[]>([]);
-  const [graphTableVisible, setGraphTableVisible] = useState<boolean>(false);
+  const [graphStoreTableVisible, setGraphStoreTableVisible] = useState<boolean>(false);
   const [graphFormVisible, setGraphFormVisible] = useState<boolean>(false);
   const [graphFormPayload, setGraphFormPayload] = useState<Record<string, any>>({});
 
@@ -155,15 +152,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     const nodes = makeDataSources(data.nodes);
     setNodeDataSources(nodes);
 
-    const nodeColumns = makeColumns(nodes, ['comboId', 'style', 'data']);
-    setNodeColumns(nodeColumns);
-
     const edges = makeDataSources(data.edges);
     setEdgeDataSources(edges);
 
-    const edgeColumns = makeColumns(edges, []);
-    setEdgeColumns(edgeColumns);
-    console.log('Node & Edge Columns: ', nodeColumns, edgeColumns);
+    console.log('Data: ', data, nodes, edges);
 
     setStatistics({
       numNodes: data.nodes.length,
@@ -247,7 +239,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setLayout(presetLayout);
       setToolbarVisible(payload.toolbarVisible);
       setLayoutSettingPanelVisible(false);
-      setGraphTableVisible(false);
+      setGraphStoreTableVisible(false);
     }
   };
 
@@ -255,7 +247,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     graphHistoryItem: GraphHistoryItem,
     latestChild: GraphHistoryItem,
   ): Promise<GraphHistoryItem> => {
-    console.log('Load graph: ', graphHistoryItem, latestChild);
+    console.log('Load graph: ', graphHistoryItem, latestChild, isDirty);
     return new Promise((resolve, reject) => {
       if (isDirty) {
         modal.confirm({
@@ -273,6 +265,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             // TODO: anything else?
             return reject(graphHistoryItem);
           },
+          getContainer: () => document.getElementById('knowledge-graph-container') || document.body,
         });
       } else {
         loadGraph(graphHistoryItem, latestChild);
@@ -515,6 +508,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         .finally(() => {
           setLoading(false);
         });
+    } else if (menuItem.key == 'clear-node-edge-status') {
+      // We must clear the selected nodes and edges, otherwise it will cause the graph to highlight the nodes and edges and hide other nodes and edges.
+      setSelectedNodeKeys([]);
+      setSelectedEdgeKeys([]);
     }
   };
 
@@ -655,30 +652,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setClickedNode(node);
       // TODO: Get node details and show in the info panel
     }
-  };
-
-  const rowSelection = {
-    selectedRowKeys: selectedRowKeys,
-  };
-
-  const TableTabs = (props: any) => {
-    const counts = React.Children.count(props.children);
-    const childrenArray = React.Children.toArray(props.children);
-    const items = [
-      { label: 'Nodes', key: 'nodes', children: counts >= 2 ? childrenArray[0] : 'No Content' },
-      { label: 'Edges', key: 'edges', children: counts >= 2 ? childrenArray[1] : 'No Content' },
-    ];
-    return (
-      <Tabs className="tabs-nav-center">
-        {items.map((item) => {
-          return (
-            <Tabs.TabPane tab={item.label} key={item.key}>
-              {item.children}
-            </Tabs.TabPane>
-          );
-        })}
-      </Tabs>
-    );
   };
 
   const saveGraphData = () => {
@@ -848,7 +821,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               <Button
                 className="clear-button"
                 onClick={() => {
-                  setGraphTableVisible(true);
+                  setGraphStoreTableVisible(true);
                 }}
                 shape="circle"
                 icon={<CloudDownloadOutlined />}
@@ -875,91 +848,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             ></AdvancedSearch>
           </Row>
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
-            <Toolbar position="top" width="300px" height="100%" closable={true} title="Statistics">
-              <StatisticsChart nodeStat={nodeStat} edgeStat={edgeStat}></StatisticsChart>
-            </Toolbar>
-            <Toolbar position="left" width={'60%'} title="Charts" closable={true}>
-              <CanvasStatisticsChart data={data}></CanvasStatisticsChart>
-            </Toolbar>
-            <Toolbar
-              position="right"
-              width={'80%'}
-              closable={false}
-              maskVisible
-              visible={nodeInfoPanelVisible}
-              onClose={onCloseInfoPanel}
-            >
-              {clickedNode && props.getGeneInfo && props.getItems4GenePanel ? (
-                <NodeInfoPanel
-                  node={clickedNode}
-                  getGeneInfo={props.getGeneInfo}
-                  getItems4GenePanel={props.getItems4GenePanel}
-                ></NodeInfoPanel>
-              ) : (
-                <Empty description="No node selected" />
-              )}
-            </Toolbar>
-            <Toolbar
-              position="right"
-              width={'80%'}
-              closable={false}
-              maskVisible
-              visible={edgeInfoPanelVisible}
-              onClose={onCloseInfoPanel}
-            >
-              {clickedEdge ? (
-                <EdgeInfoPanel edgeInfo={clickedEdge}></EdgeInfoPanel>
-              ) : (
-                <Empty description="No edge selected" />
-              )}
-            </Toolbar>
-            <Toolbar
-              position="bottom"
-              width="300px"
-              height="300px"
-              onClick={() => {
-                setCurrentNode('');
-              }}
-            >
-              <TableTabs>
-                {nodeColumns.length > 0 ? (
-                  <Table
-                    size={'small'}
-                    scroll={{ y: 200 }}
-                    rowKey={'identity'}
-                    dataSource={nodeDataSources}
-                    columns={nodeColumns}
-                    pagination={false}
-                    onRow={(record, rowIndex) => {
-                      return {
-                        onClick: (event) => {
-                          console.log('Click the node item: ', event, record);
-                          setCurrentNode(record.identity);
-                          setSelectedRowKeys([record.identity]);
-                        },
-                      };
-                    }}
-                    rowSelection={{
-                      type: 'radio',
-                      ...rowSelection,
-                    }}
-                  />
-                ) : null}
-                {nodeColumns.length > 0 ? (
-                  <Table
-                    size={'small'}
-                    scroll={{ y: 200 }}
-                    rowKey={'id'}
-                    dataSource={edgeDataSources}
-                    columns={edgeColumns}
-                    pagination={false}
-                  />
-                ) : null}
-              </TableTabs>
-            </Toolbar>
             <GraphinWrapper
-              selectedNode={currentNode}
-              highlightMode={hightlightMode}
+              selectedNodes={selectedNodeKeys}
+              selectedEdges={selectedEdgeKeys}
+              changeSelectedEdges={(edges) => {
+                setSelectedEdgeKeys(edges);
+              }}
+              changeSelectedNodes={(nodes) => {
+                setSelectedNodeKeys(nodes);
+              }}
               data={data}
               layout={layout}
               style={style}
@@ -982,11 +879,81 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               onCanvasMenuClick={onCanvasMenuClick}
               onNodeMenuClick={onNodeMenuClick}
             >
+              <Toolbar
+                position="top"
+                width="300px"
+                height="100%"
+                closable={true}
+                title="Statistics"
+              >
+                <StatisticsChart nodeStat={nodeStat} edgeStat={edgeStat}></StatisticsChart>
+              </Toolbar>
+              <Toolbar position="left" width={'60%'} title="Charts" closable={true}>
+                <CanvasStatisticsChart data={data}></CanvasStatisticsChart>
+              </Toolbar>
+              <Toolbar
+                position="right"
+                width={'80%'}
+                closable={false}
+                maskVisible
+                visible={nodeInfoPanelVisible}
+                onClose={onCloseInfoPanel}
+              >
+                {clickedNode && props.getGeneInfo && props.getItems4GenePanel ? (
+                  <NodeInfoPanel
+                    node={clickedNode}
+                    getGeneInfo={props.getGeneInfo}
+                    getItems4GenePanel={props.getItems4GenePanel}
+                  ></NodeInfoPanel>
+                ) : (
+                  <Empty description="No node selected" />
+                )}
+              </Toolbar>
+              <Toolbar
+                position="right"
+                width={'80%'}
+                closable={false}
+                maskVisible
+                visible={edgeInfoPanelVisible}
+                onClose={onCloseInfoPanel}
+              >
+                {clickedEdge ? (
+                  <EdgeInfoPanel edgeInfo={clickedEdge}></EdgeInfoPanel>
+                ) : (
+                  <Empty description="No edge selected" />
+                )}
+              </Toolbar>
+              <Toolbar position="bottom" width="300px" height="100%">
+                <GraphTable
+                  nodeDataSources={nodeDataSources as NodeAttribute[]}
+                  edgeDataSources={edgeDataSources as EdgeAttribute[]}
+                  selectedNodeKeys={selectedNodeKeys}
+                  selectedEdgeKeys={selectedEdgeKeys}
+                  onSelectedNodes={(nodes) => {
+                    return new Promise((resolve, reject) => {
+                      const nodeKeys = nodes.map((node) => node.id);
+                      setSelectedNodeKeys(nodeKeys);
+                      resolve();
+                    });
+                  }}
+                  onSelectedEdges={(edges) => {
+                    return new Promise((resolve, reject) => {
+                      const edgeKeys = edges.map((edge) => edge.relid);
+                      setSelectedEdgeKeys(edgeKeys);
+
+                      const nodeKeys = edges
+                        .map((edge) => edge.source)
+                        .concat(edges.map((edge) => edge.target));
+                      setSelectedNodeKeys(nodeKeys);
+                      resolve();
+                    });
+                  }}
+                />
+              </Toolbar>
               {similarityChartVisible ? (
                 <Movable
                   onClose={() => {
                     setSimilarityChartVisible(false);
-                    setHightlightMode('activate');
                   }}
                   width="600px"
                   title="Node Similarity [t-SNE]"
@@ -996,23 +963,20 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     method="tsne"
                     description='If you expect to highlight nodes on the chart, you need to enable the "Focus" and "Select" mode.'
                     onClick={(entity2D: Entity2D) => {
-                      setCurrentNode(formatNodeIdFromEntity2D(entity2D));
-                      setHightlightMode('activate');
-                      // TODO: Which one is better?
-                      // setHightlightMode('focus');
+                      setSelectedNodeKeys([formatNodeIdFromEntity2D(entity2D)]);
                     }}
                   ></SimilarityChart>
                 </Movable>
               ) : null}
               <GraphStoreTable
-                visible={graphTableVisible}
+                visible={graphStoreTableVisible}
                 graphs={graphHistory}
                 onLoad={onLoadGraph}
                 onDelete={onDeleteGraph}
                 treeFormat
                 parent={document.getElementById('knowledge-graph-container') as HTMLElement}
                 onClose={() => {
-                  setGraphTableVisible(false);
+                  setGraphStoreTableVisible(false);
                 }}
                 onUpload={(graphHistory: GraphHistoryItem) => {
                   return onSubmitGraph(graphHistory);
