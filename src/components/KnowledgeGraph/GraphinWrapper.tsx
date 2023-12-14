@@ -7,7 +7,7 @@ import Graphin, {
   GraphinData,
 } from '@antv/graphin';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
-import { INode, NodeConfig, IEdge, Graph } from '@antv/g6';
+import { INode, NodeConfig, IEdge } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
 import type { Layout, GraphData } from '../typings';
@@ -22,7 +22,6 @@ import {
   QuestionCircleOutlined,
   CloudDownloadOutlined,
   EyeOutlined,
-  EyeInvisibleOutlined,
   BranchesOutlined,
   AimOutlined,
   InfoCircleFilled,
@@ -34,17 +33,12 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   CloudServerOutlined,
-  TagFilled,
-  UndoOutlined,
-  RedoOutlined,
-  StopOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Moveable';
-import { message, Descriptions, Switch, Button, Select, Empty, Menu as AntdMenu, Row } from 'antd';
-import ButtonGroup from 'antd/es/button/button-group';
-import { makeDataSource, getDefaultBadge } from './utils';
+import { message, Descriptions, Switch, Button, Select, Menu as AntdMenu } from 'antd';
+import { makeDataSource } from './utils';
 import { prepareGraphData } from '../utils';
 import type {
   OnNodeMenuClickFn,
@@ -55,11 +49,11 @@ import type {
   AdjacencyList,
   MenuItem,
   CanvasMenuItem,
-  NodeBadge,
 } from './typings';
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
-import UndoRedo from './Components/UndoRedo';
+import NodeSearcherPanel from './Components/NodeSearcherPanel';
+import HighlightNodeEdge from './Components/HighlightNodeEdge';
 import { popCurrectData } from './Components/UndoRedo';
 import voca from 'voca';
 
@@ -86,133 +80,6 @@ const snapLineOptions = {
     stroke: 'lightgreen',
     lineWidth: 1,
   },
-};
-
-const showRelatedEdges = (node: GraphNode, graph: Graph, hideOthers?: boolean) => {
-  // TODO: How to push all edges which are changed to the stack?
-  // Show the edges connected with the selected nodes.
-  const edges = graph.getEdges();
-  edges.forEach((edge) => {
-    const model = edge.getModel() as GraphEdge;
-    if (model.source == node.id || model.target == node.id) {
-      graph.showItem(edge, false);
-    } else {
-      if (hideOthers) {
-        graph.hideItem(edge, false);
-      }
-    }
-  });
-};
-
-const hideRelatedEdges = (node: GraphNode, graph: Graph, showOthers?: boolean) => {
-  // TODO: How to push all edges which are changed to the stack?
-  // Hide the edges connected with the selected nodes.
-  const edges = graph.getEdges();
-  edges.forEach((edge) => {
-    const model = edge.getModel() as GraphEdge;
-    console.log('Hide Edge: ', node.id, model.source, model.target);
-    if (model.source == node.id || model.target == node.id) {
-      graph.hideItem(edge, false);
-    } else {
-      if (showOthers) {
-        graph.showItem(edge, false);
-      }
-    }
-  });
-};
-
-const hideSelectedNodes = (selectedNodeKeys: string[], graph: Graph, showOthers?: boolean) => {
-  // TODO: How to push all nodes which are changed to the stack?
-  if (selectedNodeKeys.length == 0) {
-    return;
-  }
-
-  const nodes = graph.getNodes();
-  nodes.forEach((gnode) => {
-    const node = gnode.getModel() as GraphNode;
-    if (selectedNodeKeys.includes(node.id)) {
-      graph.hideItem(gnode, false);
-      // hideRelatedEdges(node, graph);
-    } else {
-      if (showOthers) {
-        graph.showItem(gnode, false);
-      }
-    }
-  });
-};
-
-const showSelectedNodes = (selectedNodeKeys: string[], graph: Graph, hideOthers?: boolean) => {
-  // TODO: How to push all nodes which are changed to the stack?
-  if (selectedNodeKeys.length == 0) {
-    return;
-  }
-
-  const nodes = graph.getNodes();
-  console.log('Show Selected Nodes: ', selectedNodeKeys, nodes);
-  nodes.forEach((gnode) => {
-    const node = gnode.getModel() as GraphNode;
-    if (selectedNodeKeys.includes(node.id)) {
-      console.log('Show Node: ', node.id);
-      graph.showItem(gnode, false);
-      // showRelatedEdges(node, graph);
-    } else {
-      if (hideOthers) {
-        graph.hideItem(gnode, false);
-      }
-    }
-  });
-};
-
-const showAllNodes = (graph: Graph) => {
-  const nodes = graph.getNodes();
-  nodes.forEach((gnode) => {
-    graph.showItem(gnode, false);
-  });
-};
-
-const showAllEdges = (graph: Graph) => {
-  const edges = graph.getEdges();
-  edges.forEach((edge) => {
-    graph.showItem(edge, false);
-  });
-};
-
-const hideSelectedEdges = (selectedEdgeKeys: string[], graph: Graph, showOthers?: boolean) => {
-  // TODO: How to push all edges which are changed to the stack?
-  if (selectedEdgeKeys.length == 0) {
-    return;
-  }
-
-  const edges = graph.getEdges();
-  edges.forEach((gedge) => {
-    const edge = gedge.getModel() as GraphEdge;
-    if (selectedEdgeKeys.includes(edge.relid)) {
-      graph.hideItem(gedge, false);
-    } else {
-      if (showOthers) {
-        graph.showItem(gedge, false);
-      }
-    }
-  });
-};
-
-const showSelectedEdges = (selectedEdgeKeys: string[], graph: Graph, hideOthers?: boolean) => {
-  // TODO: How to push all edges which are changed to the stack?
-  if (selectedEdgeKeys.length == 0) {
-    return;
-  }
-
-  const edges = graph.getEdges();
-  edges.forEach((gedge) => {
-    const edge = gedge.getModel() as GraphEdge;
-    if (selectedEdgeKeys.includes(edge.relid)) {
-      graph.showItem(gedge, false);
-    } else {
-      if (hideOthers) {
-        graph.hideItem(gedge, false);
-      }
-    }
-  });
 };
 
 type EdgeMenuProps = {
@@ -883,32 +750,6 @@ const EdgeLabelVisible = (props: { visible: boolean }) => {
   return null;
 };
 
-const HighlightNodeEdge = (props: { selectedNodes: string[]; selectedEdges: string[] }) => {
-  console.log('HighlightNodeEdge: ', props.selectedNodes);
-  const { graph } = useContext(GraphinContext);
-  if (props.selectedNodes.length > 0) {
-    // More details on https://graphin.antv.vision/graphin/quick-start/interface and https://graphin.antv.vision/graphin/render/status
-    // When user select multiple nodes, we need to highlight the selected nodes and disable the other nodes.
-    showSelectedNodes(props.selectedNodes, graph, true);
-  } else {
-    showAllNodes(graph);
-  }
-
-  // TODO: How to highlight the selected edges?
-  if (props.selectedEdges.length > 0) {
-    const selectedEdges = props.selectedEdges;
-    // More details on https://graphin.antv.vision/graphin/render/status
-
-    showSelectedEdges(selectedEdges, graph, true);
-  }
-
-  if (props.selectedNodes.length == 0 && props.selectedEdges.length == 0) {
-    showAllEdges(graph);
-  }
-
-  return null;
-};
-
 const FocusBehavior = (props: {
   queriedId?: string;
   onClickNode?: (nodes: GraphNode) => void;
@@ -986,117 +827,6 @@ const EdgeClickBehavior = (props: { onClick?: OnClickEdgeFn }) => {
     };
   }, []);
   return null;
-};
-
-type NodeSearcherProps = {
-  changeSelectedNodes?: (selectedNodes: string[]) => void;
-  changeSelectedEdges?: (selectedEdges: string[]) => void;
-};
-
-const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
-  const { graph, apis } = useContext(GraphinContext);
-  const { undo, getUndoStack, redo, getRedoStack } = UndoRedo();
-
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [nodeOptions, setNodeOptions] = useState<any[]>([]);
-
-  const handleNodeSelectorChange = (value: string) => {
-    console.log('handleNodeSelectorChange: ', value);
-    if (value) {
-      apis.focusNodeById(value);
-    }
-  };
-
-  const handleNodeSearch = (value: string) => {
-    console.log('handleNodeSearch: ', value);
-    setSearchLoading(true);
-    if (value) {
-      const nodeOptions: any[] = [];
-      graph.getNodes().forEach((node) => {
-        const model = node.getModel() as NodeConfig & GraphNode;
-        console.log('handleNodeSearch: ', model);
-        if (
-          (model.label && model.label.toLowerCase().includes(value.toLowerCase())) ||
-          (model.data.name && model.data.name.toLowerCase().includes(value.toLowerCase()))
-        ) {
-          nodeOptions.push({
-            label: `${model.id} | ${model.data.name}`,
-            value: model.id,
-          });
-        }
-      });
-      setNodeOptions(nodeOptions);
-      setSearchLoading(false);
-    } else {
-      setNodeOptions([]);
-      setSearchLoading(false);
-    }
-  };
-
-  return (
-    <Row className="node-searcher">
-      <ButtonGroup>
-        <Button
-          shape="circle"
-          icon={<UndoOutlined />}
-          onClick={() => {
-            undo(
-              (nodes) => {
-                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
-              },
-              (edges) => {
-                props.changeSelectedEdges && props.changeSelectedEdges(edges);
-              },
-            );
-          }}
-          // The first item in the stack is the initial layout, so we don't need to undo it.
-          disabled={getUndoStack().length <= 1}
-        ></Button>
-        <Button
-          shape="circle"
-          icon={<RedoOutlined />}
-          onClick={() => {
-            redo(
-              (nodes) => {
-                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
-              },
-              (edges) => {
-                props.changeSelectedEdges && props.changeSelectedEdges(edges);
-              },
-            );
-          }}
-          disabled={getRedoStack().length < 1}
-        ></Button>
-      </ButtonGroup>
-      <Select
-        showSearch
-        allowClear
-        loading={searchLoading}
-        defaultActiveFirstOption={false}
-        showArrow={true}
-        placement={'topRight'}
-        placeholder={'Search nodes'}
-        getPopupContainer={(triggerNode) => {
-          return triggerNode.parentNode;
-        }}
-        onSearch={handleNodeSearch}
-        onChange={handleNodeSelectorChange}
-        options={nodeOptions}
-        filterOption={false}
-        notFoundContent={
-          <Empty
-            description={
-              searchLoading
-                ? 'Searching...'
-                : nodeOptions !== undefined
-                ? 'Not Found or Too Short Input'
-                : `Enter your interested node ...`
-            }
-          />
-        }
-      ></Select>
-    </Row>
-  );
 };
 
 export type GraphinProps = {
@@ -1398,7 +1128,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         enabledStack={true}
         data={data as GraphinData}
         // We will set the layout manually for more flexibility.
-        layout={layout}
+        // layout={layout} may not work well when the layout is changed.
+        layout={{ type: layout.type || 'preset', ...layout.options }}
         handleAfterLayout={(graph) => {
           console.log(
             'handleAfterLayout -> layoutChanged: ',
@@ -1701,7 +1432,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           </Moveable>
         ) : null}
 
-        <NodeSearcher
+        <NodeSearcherPanel
           changeSelectedEdges={props.changeSelectedEdges}
           changeSelectedNodes={props.changeSelectedNodes}
         />

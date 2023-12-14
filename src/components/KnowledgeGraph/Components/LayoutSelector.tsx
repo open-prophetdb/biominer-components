@@ -127,7 +127,9 @@ const LayoutMenu = ({ handleChange, description, layouts }) => {
 };
 
 const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => {
-  const { style, type, onChange, layouts } = props;
+  const { style, onChange, layouts } = props;
+  // layout type might be undefined
+  let type = (props.type || 'preset') as string;
   const matchLayout = layouts.find((item) => item.type === type);
   if (!matchLayout) {
     message.error(`Can't find layout by type ${type}`);
@@ -140,10 +142,10 @@ const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => 
   const handleChange = (selectedType: string, options?: {}) => {
     console.log('Select Layout Type: ', selectedType, options);
     if (onChange) {
-      message.warning(
-        `Layout ${selectedType} is selected, but it may take a while to render, please wait...`,
-        5,
-      );
+      // message.warning(
+      //   `Layout ${selectedType} is selected, but it may take a while to render, please wait...`,
+      //   5,
+      // );
       onChange({ type: selectedType, options });
     }
   };
@@ -174,4 +176,4 @@ const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => 
   );
 };
 
-export default LayoutSelector;
+export default React.memo(LayoutSelector);

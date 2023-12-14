@@ -188,7 +188,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     (params: any) => {
       // @ts-ignore
       params.api.forEachNode((node) => {
-        if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
+        if (props.selectedKeys && props.selectedKeys.includes(node.data.relid)) {
           node.setSelected(true);
         }
       });
