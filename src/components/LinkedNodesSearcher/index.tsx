@@ -226,6 +226,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
               }
             });
 
+            console.log('mergedRelationTypeOptions: ', merged);
             if (merged) {
               const filtered_merged = merged.filter((item: OptionType | null) => item !== null);
               console.log('Update the number of relationships: ', merged);
@@ -236,7 +237,21 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
                 return bnum - anum;
               }) as OptionType[];
 
-              setRelationTypeOptions(uniqBy(options, 'value'));
+              const uniqOptions = uniqBy(options, 'value');
+              const uniqOptionsWithDesc = uniqOptions.map((item: OptionType) => {
+                const matched = rawRelationTypeOptions.find(
+                  (i: OptionType) => i.value === item.value,
+                );
+                if (matched) {
+                  return {
+                    ...item,
+                    description: matched.description,
+                  };
+                } else {
+                  return item;
+                }
+              });
+              setRelationTypeOptions(uniqOptionsWithDesc);
               setRelationTypeOptionsLoading(false);
             } else {
               setRelationTypeOptions([]);

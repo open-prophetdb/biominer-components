@@ -132,7 +132,7 @@ const hideSelectedNodes = (selectedNodeKeys: string[], graph: Graph, showOthers?
     const node = gnode.getModel() as GraphNode;
     if (selectedNodeKeys.includes(node.id)) {
       graph.hideItem(gnode, false);
-      hideRelatedEdges(node, graph);
+      // hideRelatedEdges(node, graph);
     } else {
       if (showOthers) {
         graph.showItem(gnode, false);
@@ -154,7 +154,7 @@ const showSelectedNodes = (selectedNodeKeys: string[], graph: Graph, hideOthers?
     if (selectedNodeKeys.includes(node.id)) {
       console.log('Show Node: ', node.id);
       graph.showItem(gnode, false);
-      showRelatedEdges(node, graph);
+      // showRelatedEdges(node, graph);
     } else {
       if (hideOthers) {
         graph.hideItem(gnode, false);
@@ -864,15 +864,20 @@ const EdgeLabelVisible = (props: { visible: boolean }) => {
   const graph = useContext(GraphinContext).graph;
 
   useEffect(() => {
+    // TODO: Cannot restore the edge label status after the edge label is hidden.
     graph.getEdges().forEach((edge) => {
-      graph.updateItem(edge, {
-        style: {
-          // @ts-ignore
-          label: {
-            visible: visible,
+      graph.update(
+        edge,
+        {
+          style: {
+            // @ts-ignore
+            label: {
+              opacity: visible ? 1 : 0,
+            },
           },
         },
-      });
+        false,
+      );
     });
   }, [visible]);
   return null;
@@ -1259,6 +1264,70 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   };
 
   const HoverText: React.FC<{ data: Record<string, any>; style: any }> = ({ data, style }) => {
+    const isLink = (key: string) => {
+      return ['source_id', 'target_id', 'id', 'label'].includes(key);
+    };
+
+    const guessLink = (value: string | number | boolean | undefined) => {
+      let v = `${value}`;
+      if (v.startsWith('ENTREZ')) {
+        // return `https://www.ncbi.nlm.nih.gov/gene/${v.split(':')[1]}`;
+        return `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${v.split(':')[1]}`;
+      } else if (v.startsWith('DrugBank')) {
+        return `https://go.drugbank.com/drugs/${v.split(':')[1]}`;
+      } else if (v.startsWith('KEGG')) {
+        // https://www.genome.jp/entry/pathway+hsa00010
+        return `https://www.genome.jp/entry/pathway+${v.split(':')[1]}`;
+      } else if (v.startsWith('WikiPathways')) {
+        // https://www.wikipathways.org/pathways/WP3673.html
+        return `https://www.wikipathways.org/pathways/${v.split(':')[1]}.html`;
+      } else if (v.startsWith('MESH')) {
+        // e.g. https://bioportal.bioontology.org/ontologies/MESH/?p=classes&conceptid=D000602
+        return `https://bioportal.bioontology.org/ontologies/MESH?p=classes&conceptid=${
+          v.split(':')[1]
+        }`;
+      } else if (v.startsWith('Reactome')) {
+        // https://reactome.org/content/detail/R-HSA-70326
+        return `https://reactome.org/content/detail/${v.split(':')[1]}`;
+      } else if (v.startsWith('MONDO')) {
+        // https://bioportal.bioontology.org/ontologies/MONDO/?p=classes&conceptid=MONDO:0000001
+        return `https://bioportal.bioontology.org/ontologies/MONDO?p=classes&conceptid=${v}`;
+      } else if (v.startsWith('DOID')) {
+        // https://bioportal.bioontology.org/ontologies/DOID/?p=classes&conceptid=DOID:9351
+        return `https://bioportal.bioontology.org/ontologies/DOID?p=classes&conceptid=${v}`;
+      } else if (v.startsWith('HP')) {
+        // https://bioportal.bioontology.org/ontologies/HP/?p=classes&conceptid=HP:0000001
+        return `https://bioportal.bioontology.org/ontologies/HP?p=classes&conceptid=${v}`;
+      } else if (v.startsWith('GO')) {
+        // https://bioportal.bioontology.org/ontologies/GO/?p=classes&conceptid=GO:0008150
+        return `https://bioportal.bioontology.org/ontologies/GO?p=classes&conceptid=${v}`;
+      } else if (v.startsWith('SYMP')) {
+        // https://bioportal.bioontology.org/ontologies/SYMP/?p=classes&conceptid=SYMP:0000462
+        return `https://bioportal.bioontology.org/ontologies/SYMP?p=classes&conceptid=${v}`;
+      } else if (v.startsWith('HMDB')) {
+        // https://hmdb.ca/metabolites/HMDB00001
+        return `https://hmdb.ca/metabolites/${v.split(':')[1]}`;
+      } else if (v.startsWith('UBERON')) {
+        // https://bioportal.bioontology.org/ontologies/UBERON/?p=classes&conceptid=http://purl.obolibrary.org/obo/UBERON_0002113
+        return `https://bioportal.bioontology.org/ontologies/UBERON?p=classes&conceptid=http://purl.obolibrary.org/obo/UBERON_${
+          v.split(':')[1]
+        }`;
+      }
+    };
+
+    const formatLink = (key: string, value: string) => {
+      const externalLink = guessLink(value);
+      if (isLink(key) && externalLink) {
+        return (
+          <a href={externalLink} target="_blank">
+            {value}
+          </a>
+        );
+      } else {
+        return value;
+      }
+    };
+
     console.log('HoverText: ', data);
     const dataSource = makeDataSource(data, [
       'comboId',
@@ -1277,10 +1346,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         return (
           <Descriptions.Item
             key={key}
-            label={voca.titleCase(key)}
+            label={voca.titleCase(key.replace(/_/g, ' '))}
             style={{ height: '50px', overflowY: 'scroll' }}
           >
-            {dataSource[key]}
+            {formatLink(key, dataSource[key])}
           </Descriptions.Item>
         );
       } else {

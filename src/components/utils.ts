@@ -6,7 +6,7 @@ import type {
   ComposeQueryItem,
   APIs,
 } from './typings';
-import { filter } from 'lodash';
+import { filter, uniqBy } from 'lodash';
 import { Graph } from '@antv/g6';
 import { COMPOSED_ENTITY_DELIMITER, Layout, GraphData } from './typings';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
@@ -156,7 +156,7 @@ export const makeRelationTypes = (edgeStat: RelationStat[]): OptionType[] => {
   });
 
   console.log('makeRelationTypes', o, edgeStat);
-  return o.sort((a: any, b: any) => a.order - b.order);
+  return uniqBy(o, 'value').sort((a: any, b: any) => b.order - a.order);
 };
 
 // **************************************************************

@@ -7,6 +7,7 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { EdgeAttribute } from './index.t';
+import { SizeColumnsToContentStrategy } from 'ag-grid-enterprise';
 
 export interface Column {
   field: string;
@@ -59,7 +60,7 @@ const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
   return {
     field: fieldName,
     filter: detectFilter(fieldType),
-    minWidth: 120,
+    minWidth: 150,
     headerName: toTitleCase(fieldName),
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
@@ -84,15 +85,19 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     'reltype',
     'source',
     'target',
-    'source_id',
-    'target_id',
+    // 'source_id',
+    // 'target_id',
+    'source_name',
+    'target_name',
+    'source_resource',
+    'target_resource',
     'source_type',
     'target_type',
     'dataset',
     'resource',
-    'key_sentence',
-    'pmids',
-    'score',
+    // 'key_sentence',
+    // 'pmids',
+    // 'score',
   ];
   const [columnDefs, setColumnDefs] = useState<any[]>([
     {
@@ -105,16 +110,24 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     makeField('reltype', 'string'),
     makeField('source', 'string'),
     makeField('target', 'string'),
-    makeField('source_id', 'string'),
-    makeField('target_id', 'string'),
+    // makeField('source_id', 'string'),
+    // makeField('target_id', 'string'),
+    makeField('source_name', 'string'),
+    makeField('target_name', 'string'),
+    makeField('source_resource', 'string'),
+    makeField('target_resource', 'string'),
     makeField('source_type', 'string'),
     makeField('target_type', 'string'),
     makeField('dataset', 'string'),
     makeField('resource', 'string'),
-    makeField('key_sentence', 'string'),
-    makeField('pmids', 'string'),
-    makeField('score', 'number'),
+    // makeField('key_sentence', 'string'),
+    // makeField('pmids', 'string'),
+    // makeField('score', 'number'),
   ]);
+
+  const autoSizeStrategy: SizeColumnsToContentStrategy = {
+    type: 'fitCellContents',
+  };
 
   useEffect(() => {
     const allColumns = props.edges
@@ -212,6 +225,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           statusBar={statusBar}
           onGridReady={onGridReady}
           onSelectionChanged={onSelectedChanged}
+          autoSizeStrategy={autoSizeStrategy}
         />
       </div>
     </div>
