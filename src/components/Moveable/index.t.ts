@@ -9,4 +9,6 @@ export type MovableProps = {
   children?: JSX.Element | JSX.Element[];
   maxHeight?: string;
   maxWidth?: string;
+  minHeight?: string;
+  minWidth?: string;
 };

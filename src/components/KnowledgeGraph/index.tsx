@@ -12,6 +12,8 @@ import {
   ExclamationCircleOutlined,
   BuildFilled,
   BuildOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
 import { set, uniqBy } from 'lodash';
@@ -127,6 +129,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [graphStoreTableVisible, setGraphStoreTableVisible] = useState<boolean>(false);
   const [graphFormVisible, setGraphFormVisible] = useState<boolean>(false);
   const [graphFormPayload, setGraphFormPayload] = useState<Record<string, any>>({});
+  const [graphTableVisible, setGraphTableVisible] = useState<boolean>(false);
 
   const checkAndSetData = (data: GraphData) => {
     const nodeIds = new Set(data.nodes.map((node) => node.id));
@@ -749,6 +752,22 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               getTooltipContainer={(triggerNode) => {
                 return triggerNode;
               }}
+              title={graphTableVisible ? 'Hide Graph Table' : 'Show Graph Table'}
+              placement="right"
+            >
+              <Button
+                className="graph-table-button"
+                onClick={() => {
+                  setGraphTableVisible(!graphTableVisible);
+                }}
+                shape="circle"
+                icon={graphTableVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+              />
+            </Tooltip>
+            <Tooltip
+              getTooltipContainer={(triggerNode) => {
+                return triggerNode;
+              }}
               title={enterFullScreenHandler.active ? 'Exit Full Screen' : 'Enter Full Screen'}
               placement="right"
             >
@@ -888,7 +907,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               >
                 <StatisticsChart nodeStat={nodeStat} edgeStat={edgeStat}></StatisticsChart>
               </Toolbar>
-              <Toolbar position="left" width={'60%'} title="Charts" closable={true}>
+              <Toolbar
+                position="bottom"
+                width="300px"
+                height="60vh"
+                title="Charts"
+                closable={false}
+              >
                 <CanvasStatisticsChart data={data}></CanvasStatisticsChart>
               </Toolbar>
               <Toolbar
@@ -923,33 +948,47 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   <Empty description="No edge selected" />
                 )}
               </Toolbar>
-              <Toolbar position="bottom" width="300px" height="100%">
-                <GraphTable
-                  nodeDataSources={nodeDataSources as NodeAttribute[]}
-                  edgeDataSources={edgeDataSources as EdgeAttribute[]}
-                  selectedNodeKeys={selectedNodeKeys}
-                  selectedEdgeKeys={selectedEdgeKeys}
-                  onSelectedNodes={(nodes) => {
-                    return new Promise((resolve, reject) => {
-                      const nodeKeys = nodes.map((node) => node.id);
-                      setSelectedNodeKeys(nodeKeys);
-                      resolve();
-                    });
+              {graphTableVisible ? (
+                <Movable
+                  onClose={() => {
+                    setGraphTableVisible(false);
                   }}
-                  onSelectedEdges={(edges) => {
-                    return new Promise((resolve, reject) => {
-                      const edgeKeys = edges.map((edge) => edge.relid);
-                      setSelectedEdgeKeys(edgeKeys);
+                  minWidth="600px"
+                  minHeight="400px"
+                  width="800px"
+                  height="600px"
+                  maxWidth="80vw"
+                  maxHeight="60vh"
+                  title="Graph Table"
+                >
+                  <GraphTable
+                    style={{ width: '100%', height: '100%' }}
+                    nodeDataSources={nodeDataSources as NodeAttribute[]}
+                    edgeDataSources={edgeDataSources as EdgeAttribute[]}
+                    selectedNodeKeys={selectedNodeKeys}
+                    selectedEdgeKeys={selectedEdgeKeys}
+                    onSelectedNodes={(nodes) => {
+                      return new Promise((resolve, reject) => {
+                        const nodeKeys = nodes.map((node) => node.id);
+                        setSelectedNodeKeys(nodeKeys);
+                        resolve();
+                      });
+                    }}
+                    onSelectedEdges={(edges) => {
+                      return new Promise((resolve, reject) => {
+                        const edgeKeys = edges.map((edge) => edge.relid);
+                        setSelectedEdgeKeys(edgeKeys);
 
-                      const nodeKeys = edges
-                        .map((edge) => edge.source)
-                        .concat(edges.map((edge) => edge.target));
-                      setSelectedNodeKeys(nodeKeys);
-                      resolve();
-                    });
-                  }}
-                />
-              </Toolbar>
+                        const nodeKeys = edges
+                          .map((edge) => edge.source)
+                          .concat(edges.map((edge) => edge.target));
+                        setSelectedNodeKeys(nodeKeys);
+                        resolve();
+                      });
+                    }}
+                  />
+                </Movable>
+              ) : null}
               {similarityChartVisible ? (
                 <Movable
                   onClose={() => {

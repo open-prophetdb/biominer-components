@@ -7,7 +7,7 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { EdgeAttribute } from './index.t';
-import { SizeColumnsToContentStrategy } from 'ag-grid-enterprise';
+import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 
 export interface Column {
   field: string;
@@ -64,6 +64,7 @@ const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
     headerName: toTitleCase(fieldName),
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
+    tooltipField: fieldName,
   };
 };
 
@@ -125,8 +126,8 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     // makeField('score', 'number'),
   ]);
 
-  const autoSizeStrategy: SizeColumnsToContentStrategy = {
-    type: 'fitCellContents',
+  const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
+    type: 'fitGridWidth', // fitCellContents
   };
 
   useEffect(() => {
@@ -222,6 +223,9 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           rowGroupPanelShow={'always'}
           suppressRowClickSelection={false}
           sideBar={false}
+          enableCellTextSelection={true}
+          enableBrowserTooltips={true}
+          rowMultiSelectWithClick={true}
           statusBar={statusBar}
           onGridReady={onGridReady}
           onSelectionChanged={onSelectedChanged}

@@ -5,11 +5,16 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { NodeAttribute } from './index.t';
+import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 
 export interface Column {
   field: string;
   type: string;
 }
+
+const autoSizeStrategy: SizeColumnsToFitGridStrategy = {
+  type: 'fitGridWidth',
+};
 
 export interface NodeTableProps {
   style?: React.CSSProperties;
@@ -188,7 +193,11 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
           suppressRowClickSelection={false}
           sideBar={false}
           statusBar={statusBar}
+          enableCellTextSelection={true}
+          enableBrowserTooltips={true}
+          rowMultiSelectWithClick={true}
           onGridReady={onGridReady}
+          autoSizeStrategy={autoSizeStrategy}
           onSelectionChanged={onSelectedChanged}
         />
       </div>

@@ -8,6 +8,7 @@ import './index.less';
 const Movable: React.FC<MovableProps> = (props) => {
   const explanationPanelRef = useRef<HTMLDivElement>(null);
   const movableComponentRef = useRef<HTMLDivElement>(null);
+  const dragHandlerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (movableComponentRef.current) {
@@ -42,12 +43,14 @@ const Movable: React.FC<MovableProps> = (props) => {
           position: 'absolute',
           width: props.width || '400px',
           height: props.height || 'auto',
+          minWidth: props.minWidth || '200px',
+          minHeight: props.minHeight || '200px',
           maxWidth: props.maxWidth || 'auto',
           maxHeight: props.maxHeight || 'auto',
         }}
         className="explanation-content"
       >
-        <div className="explanation-title">
+        <div className="explanation-title" ref={dragHandlerRef}>
           <h3>{props.title || 'Explanation'}</h3>
           <span>
             {props.help ? (
@@ -65,11 +68,20 @@ const Movable: React.FC<MovableProps> = (props) => {
             ) : null}
           </span>
         </div>
-        <div className="explanation-info">{props.children}</div>
+        <div
+          className="explanation-info"
+          onDrag={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          {props.children}
+        </div>
       </div>
       {/* More details on https://daybrush.com/moveable/storybook/index.html?path=/story/basic--basic-resizable */}
       <Moveable
         target={explanationPanelRef}
+        dragTarget={dragHandlerRef}
         draggable={true}
         throttleDrag={1}
         edgeDraggable={false}

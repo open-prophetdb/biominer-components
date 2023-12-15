@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, memo, useEffect } from 'react';
 import { GraphinContext } from '@antv/graphin';
 import { NodeConfig } from '@antv/g6';
 import type { GraphNode, GraphEdge } from '../../typings';
@@ -69,9 +69,9 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             );
           }}
           // The first item in the stack is the initial layout, so we don't need to undo it.
-          disabled={getUndoStack().length <= 1}
+          disabled={getUndoStack().length - 1 < 1}
         >
-          Back [{getUndoStack().length - 1}]
+          Back [{getUndoStack().length - 1 == -1 ? 0 : getUndoStack().length - 1}]
         </Button>
         <Button
           shape="default"
@@ -88,7 +88,7 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
           }}
           disabled={getRedoStack().length < 1}
         >
-          Forward
+          Forward [{getRedoStack().length}]
         </Button>
       </ButtonGroup>
       <Select

@@ -1,34 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Empty, Tabs } from 'antd';
+import React, { useState, useContext, useEffect, memo } from 'react';
+import { Empty } from 'antd';
 import NodeTable from '../../NodeTable';
 import EdgeTable from '../../EdgeTable';
+import TableTabs from './TableTabs';
 import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 
-const TableTabs = (props: any) => {
-  const counts = React.Children.count(props.children);
-  const childrenArray = React.Children.toArray(props.children);
-  const items = [
-    { label: 'Edges', key: 'edges', children: counts >= 2 ? childrenArray[1] : 'No Content' },
-    { label: 'Nodes', key: 'nodes', children: counts >= 2 ? childrenArray[0] : 'No Content' },
-  ];
-  return (
-    <Tabs className="tabs-nav-left">
-      {items.map((item) => {
-        return (
-          <Tabs.TabPane tab={item.label} key={item.key}>
-            {item.children}
-          </Tabs.TabPane>
-        );
-      })}
-    </Tabs>
-  );
-};
+import './GraphTable.less';
 
 export interface GraphTableProps {
   style?: React.CSSProperties;
   className?: string;
+  onClose?: () => void;
   nodeDataSources: NodeAttribute[];
   edgeDataSources: EdgeAttribute[];
   selectedNodeKeys?: string[];
@@ -66,7 +50,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   }, [props.nodeDataSources, props.edgeDataSources]);
 
   return (
-    <TableTabs>
+    <TableTabs onClose={props.onClose}>
       {props.nodeDataSources.length > 0 ? (
         <NodeTable
           nodes={props.nodeDataSources as NodeAttribute[]}
@@ -106,7 +90,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                 );
               });
           }}
-          style={{ minHeight: '300px', height: 'calc(100vh - 55px)' }}
+          style={props.style ? props.style : { minHeight: '300px', height: '300px' }}
         />
       ) : (
         <Empty />
@@ -164,7 +148,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                 );
               });
           }}
-          style={{ minHeight: '300px', height: 'calc(100vh - 55px)' }}
+          style={props.style ? props.style : { minHeight: '300px', height: '60vh' }}
         />
       ) : (
         <Empty />
@@ -173,4 +157,4 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   );
 };
 
-export default GraphTable;
+export default memo(GraphTable);
