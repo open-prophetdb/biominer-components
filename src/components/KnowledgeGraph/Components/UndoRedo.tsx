@@ -1,6 +1,7 @@
 import { Stack } from '@antv/algorithm';
 import { Graph, GraphData, GraphinContext, IG6GraphEvent } from '@antv/graphin';
 import React from 'react';
+import { pushStack } from '../../utils';
 
 export interface Redo {
   visible: boolean;
@@ -53,10 +54,8 @@ export const removeLayoutAction = (oldStack: Stack): Stack => {
   return stack;
 };
 
-export const popCurrectData = (graph: Graph, stack: Stack): any => {
+export const popCurrectData = (stack: Stack): any => {
   const currentData = stack.pop();
-
-  console.log('Get stack data: ', graph.getStackData(), currentData);
   return currentData;
 };
 
@@ -88,26 +87,34 @@ const useRedoUndo = (): {
     changeSelectedEdges?: changeSelectedEdgesFn,
   ) => {
     const redoStack = graph.getRedoStack();
-    console.log('Do redo action: ', redoStack, graph.getStackData());
+    const undoStack = graph.getUndoStack();
+    console.log('Do redo action: ', redoStack.length, redoStack, undoStack, graph.getStackData());
 
-    if (!redoStack || redoStack.length === 0) {
+    if (redoStack.isEmpty()) {
       return;
     }
 
-    const currentData = popCurrectData(graph, redoStack);
-    console.log('Current redo item: ', currentData);
+    const currentData = popCurrectData(redoStack);
+    console.log('Current redo item: ', currentData, graph.getStackData());
 
     if (currentData) {
       const { action } = currentData;
       let data = currentData.data.after;
 
       if (action === 'select-nodes') {
-        graph.pushStack(
+        // graph.pushStack(
+        //   action,
+        //   {
+        //     ...currentData.data,
+        //   },
+        //   'undo',
+        // );
+        pushStack(
           action,
           {
             ...currentData.data,
           },
-          'undo',
+          graph.getUndoStack(),
         );
         changeSelectedNodes?.(currentData.data.after);
 
@@ -115,12 +122,19 @@ const useRedoUndo = (): {
       }
 
       if (action === 'select-edges') {
-        graph.pushStack(
+        // graph.pushStack(
+        //   action,
+        //   {
+        //     ...currentData.data,
+        //   },
+        //   'undo',
+        // );
+        pushStack(
           action,
           {
             ...currentData.data,
           },
-          'undo',
+          undoStack,
         );
         changeSelectedEdges?.(currentData.data.after.edges);
         changeSelectedNodes?.(currentData.data.after.nodes);
@@ -129,14 +143,24 @@ const useRedoUndo = (): {
       }
 
       if (action === 'layout') {
-        graph.pushStack(action, currentData.data, 'undo');
+        // graph.pushStack(action, currentData.data, 'undo');
+        pushStack(action, currentData.data, undoStack);
         data = currentData.data.after.data;
       } else {
-        graph.pushStack(action, {
-          ...currentData.data,
-          after: fixNodePosition(graph, currentData.data.after),
-          before: fixNodePosition(graph, currentData.data.before),
-        });
+        // graph.pushStack(action, {
+        //   ...currentData.data,
+        //   after: fixNodePosition(graph, currentData.data.after),
+        //   before: fixNodePosition(graph, currentData.data.before),
+        // });
+        pushStack(
+          action,
+          {
+            ...currentData.data,
+            after: fixNodePosition(graph, currentData.data.after),
+            before: fixNodePosition(graph, currentData.data.before),
+          },
+          undoStack,
+        );
       }
 
       if (action === 'delete') {
@@ -158,8 +182,8 @@ const useRedoUndo = (): {
       return;
     }
 
-    const currentData = popCurrectData(graph, undoStack);
-    console.log('Current undo item: ', currentData);
+    const currentData = popCurrectData(undoStack);
+    console.log('Current undo item: ', currentData, graph.getUndoStack());
 
     if (currentData) {
       const { action } = currentData;

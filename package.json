@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "scripts": {
     "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",
@@ -65,6 +65,7 @@
     "@umijs/fabric": "^2.8.1",
     "@umijs/test": "^3.0.5",
     "antd": "^5.7.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "dumi": "^1.1.0",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.33.0",

@@ -33,6 +33,7 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   CloudServerOutlined,
+  EyeInvisibleOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
@@ -56,6 +57,7 @@ import NodeSearcherPanel from './Components/NodeSearcherPanel';
 import HighlightNodeEdge from './Components/HighlightNodeEdge';
 import { popCurrectData } from './Components/UndoRedo';
 import voca from 'voca';
+import { pushStack } from '../utils';
 
 import './GraphinWrapper.less';
 
@@ -123,6 +125,23 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
       label: 'Show Edge Details',
+    },
+    {
+      key: 'hide-edges',
+      icon: <EyeInvisibleOutlined />,
+      label: 'Hide Edge(s)',
+      children: [
+        {
+          key: 'hide-current-edge',
+          icon: <EyeInvisibleOutlined />,
+          label: 'Hide Current Edge',
+        },
+        {
+          key: 'hide-edges-with-same-type',
+          icon: <EyeInvisibleOutlined />,
+          label: 'Hide Edges with the Same Type',
+        },
+      ],
     },
     {
       key: 'explain-relationship',
@@ -285,6 +304,11 @@ const NodeMenu = (props: NodeMenuProps) => {
       key: 'show-node-details',
       icon: <InfoCircleFilled />,
       label: 'Show Node Details',
+    },
+    {
+      key: 'hide-selected-nodes',
+      icon: <EyeInvisibleOutlined />,
+      label: 'Hide Selected Node(s)',
     },
     {
       key: 'expand-one-step',
@@ -1146,7 +1170,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               dataLayoutChangedBeforeRef.current,
               afterData,
             );
-            const currentDataInStack = popCurrectData(graph, undoStackData);
+            const currentDataInStack = popCurrectData(undoStackData);
 
             const currentData = currentDataInStack.data;
             let data = {
@@ -1166,7 +1190,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               afterData,
               dataLayoutChangedBeforeRef.current,
             );
-            graph.pushStack(currentDataInStack.action, data, 'undo');
+            // graph.pushStack(currentDataInStack.action, data, 'undo');
+            pushStack(currentDataInStack.action, data, graph.getUndoStack());
 
             setDataLayoutChangedBefore(null);
           }

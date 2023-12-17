@@ -16,7 +16,7 @@ import {
   MenuFoldOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
-import { set, uniqBy } from 'lodash';
+import { set, uniq, uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
@@ -540,6 +540,42 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         edge: edge,
       });
       // TODO: Get edge details and show in the info panel
+    } else if (menuItem.key == 'hide-current-edge') {
+      const currentEdgeKey = edge.relid;
+      let newSelectedEdgeKeys = [];
+      if (selectedEdgeKeys.length == 0) {
+        const allEdgeKeys = graph.getEdges().map((edge: any) => edge.getModel().relid);
+        newSelectedEdgeKeys = allEdgeKeys.filter((key) => key != currentEdgeKey);
+      } else {
+        // Remove the current edge from the selectedEdgeKeys
+        newSelectedEdgeKeys = selectedEdgeKeys.filter((key) => key != currentEdgeKey);
+      }
+
+      let allNodeKeys = graph.getNodes().map((node: any) => node.getModel().id);
+
+      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
+      setSelectedNodeKeys(uniq(allNodeKeys));
+    } else if (menuItem.key == 'hide-edges-with-same-type') {
+      const currentEdgeType = edge.reltype;
+      const relatedEdges = graph.getEdges().filter((edge: any) => {
+        const model = edge.getModel();
+        return model.reltype == currentEdgeType;
+      });
+      const relatedEdgeKeys = relatedEdges.map((edge: any) => edge.getModel().relid);
+
+      // Remove the related edges from the edges that are not hidden, they might be all edges or some edges which are in selectedEdgeKeys variable.
+      let newSelectedEdgeKeys = [];
+      if (selectedEdgeKeys.length == 0) {
+        const allEdgeKeys = graph.getEdges().map((edge: any) => edge.getModel().relid);
+        newSelectedEdgeKeys = allEdgeKeys.filter((key) => !relatedEdgeKeys.includes(key));
+      } else {
+        newSelectedEdgeKeys = selectedEdgeKeys.filter((key) => !relatedEdgeKeys.includes(key));
+      }
+
+      let allNodeKeys = graph.getNodes().map((node: any) => node.getModel().id);
+
+      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
+      setSelectedNodeKeys(uniq(allNodeKeys));
     }
   };
 
@@ -654,6 +690,39 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setNodeInfoPanelVisible(true);
       setClickedNode(node);
       // TODO: Get node details and show in the info panel
+    } else if (menuItem.key == 'hide-selected-nodes') {
+      let relatedNodes = getSelectedNodes(graph);
+      // The current node might not be selected, so we need to add it to the selectedNodes list
+      relatedNodes.push(node);
+      const relatedNodeKeys = relatedNodes.map((node) => node.id);
+      const relatedEdges = graph.getEdges().filter((edge: any) => {
+        const model = edge.getModel();
+        const nodeIds = relatedNodes.map((node) => node.id);
+        return nodeIds.includes(model.source) || nodeIds.includes(model.target);
+      });
+      const relatedEdgeKeys = relatedEdges.map((edge: any) => edge.getModel().relid);
+
+      // The relatedEdges and relatedNodes are going to be hidden, so we need to remove them from the selectedNodeKeys and selectedEdgeKeys
+      // Remove the related edges from the edges that are not hidden, they might be all edges or some edges which are in selectedEdgeKeys variable.
+      let newSelectedEdgeKeys = [];
+      if (selectedEdgeKeys.length == 0) {
+        const allEdgeKeys = graph.getEdges().map((edge: any) => edge.getModel().relid);
+        newSelectedEdgeKeys = allEdgeKeys.filter((key) => !relatedEdgeKeys.includes(key));
+      } else {
+        newSelectedEdgeKeys = selectedEdgeKeys.filter((key) => !relatedEdgeKeys.includes(key));
+      }
+
+      // Remove the related nodes from the nodes that are not hidden, they might be all nodes or some nodes which are in selectedNodeKeys variable.
+      let newSelectedNodeKeys = [];
+      if (selectedNodeKeys.length == 0) {
+        const allNodeKeys = graph.getNodes().map((node: any) => node.getModel().id);
+        newSelectedNodeKeys = allNodeKeys.filter((key) => !relatedNodeKeys.includes(key));
+      } else {
+        newSelectedNodeKeys = selectedNodeKeys.filter((key) => !relatedNodeKeys.includes(key));
+      }
+
+      setSelectedNodeKeys(uniq(newSelectedNodeKeys));
+      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
     }
   };
 
@@ -874,7 +943,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 setSelectedEdgeKeys(edges);
               }}
               changeSelectedNodes={(nodes) => {
-                setSelectedNodeKeys(nodes);
+                setSelectedNodeKeys(uniq(nodes));
               }}
               data={data}
               layout={layout}
@@ -970,7 +1039,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     onSelectedNodes={(nodes) => {
                       return new Promise((resolve, reject) => {
                         const nodeKeys = nodes.map((node) => node.id);
-                        setSelectedNodeKeys(nodeKeys);
+                        setSelectedNodeKeys(uniq(nodeKeys));
                         resolve();
                       });
                     }}
@@ -982,7 +1051,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                         const nodeKeys = edges
                           .map((edge) => edge.source)
                           .concat(edges.map((edge) => edge.target));
-                        setSelectedNodeKeys(nodeKeys);
+                        setSelectedNodeKeys(uniq(nodeKeys));
                         resolve();
                       });
                     }}

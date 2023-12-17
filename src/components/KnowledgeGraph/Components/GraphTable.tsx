@@ -8,6 +8,7 @@ import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 
 import './GraphTable.less';
+import { pushStack } from '../../utils';
 
 export interface GraphTableProps {
   style?: React.CSSProperties;
@@ -80,13 +81,21 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   oldSelectedNodeIds,
                   graph,
                 );
-                graph.pushStack(
+                // graph.pushStack(
+                //   'select-nodes',
+                //   {
+                //     after: selectedNodeIds,
+                //     before: oldSelectedNodeIds,
+                //   },
+                //   'undo',
+                // );
+                pushStack(
                   'select-nodes',
                   {
                     after: selectedNodeIds,
                     before: oldSelectedNodeIds,
                   },
-                  'undo',
+                  graph.getUndoStack(),
                 );
               });
           }}
@@ -132,7 +141,21 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   oldSelectedNodeIds,
                   graph,
                 );
-                graph.pushStack(
+                // graph.pushStack(
+                //   'select-edges',
+                //   {
+                //     after: {
+                //       edges: selectedEdgeIds,
+                //       nodes: selectedNodeIds,
+                //     },
+                //     before: {
+                //       edges: oldSelectedEdgeIds,
+                //       nodes: oldSelectedNodeIds,
+                //     },
+                //   },
+                //   'undo',
+                // );
+                pushStack(
                   'select-edges',
                   {
                     after: {
@@ -144,7 +167,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                       nodes: oldSelectedNodeIds,
                     },
                   },
-                  'undo',
+                  graph.getUndoStack(),
                 );
               });
           }}

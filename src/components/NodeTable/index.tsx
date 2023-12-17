@@ -154,17 +154,24 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     props.onSelectedRows && props.onSelectedRows(currentSelection, oldSelectedRows);
   }, []);
 
-  const onGridReady = useCallback(
-    (params: any) => {
-      // @ts-ignore
-      params.api.forEachNode((node) => {
-        if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
-          node.setSelected(true);
-        }
-      });
-    },
-    [props.selectedKeys],
-  );
+  const onGridReady = (params: any) => {
+    // @ts-ignore
+    params.api.forEachNode((node) => {
+      if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
+        node.setSelected(true);
+      } else {
+        node.setSelected(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!gridRef.current || (gridRef.current && !gridRef.current.api)) {
+      return;
+    } else {
+      onGridReady(gridRef.current);
+    }
+  }, [props.selectedKeys, props.nodes]);
 
   const statusBar = useMemo(() => {
     return {

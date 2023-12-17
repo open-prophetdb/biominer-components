@@ -185,17 +185,25 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     props.onSelectedRows && props.onSelectedRows(currentSelection, oldSelectedRows);
   }, []);
 
-  const onGridReady = useCallback(
-    (params: any) => {
-      // @ts-ignore
-      params.api.forEachNode((node) => {
-        if (props.selectedKeys && props.selectedKeys.includes(node.data.relid)) {
-          node.setSelected(true);
-        }
-      });
-    },
-    [props.selectedKeys],
-  );
+  const onGridReady = (params: any) => {
+    console.log('onGridReady - selectedKeys: ', props.selectedKeys);
+    // @ts-ignore
+    params.api.forEachNode((node) => {
+      if (props.selectedKeys && props.selectedKeys.includes(node.data.relid)) {
+        node.setSelected(true);
+      } else {
+        node.setSelected(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!gridRef.current || (gridRef.current && !gridRef.current.api)) {
+      return;
+    } else {
+      onGridReady(gridRef.current);
+    }
+  }, [props.selectedKeys, props.edges]);
 
   const statusBar = useMemo(() => {
     return {
