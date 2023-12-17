@@ -5,7 +5,8 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { NodeAttribute } from './index.t';
-import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
+import { SelectionChangedEvent } from 'ag-grid-community';
+import { SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 
 export interface Column {
   field: string;
@@ -137,7 +138,7 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     };
   }, []);
 
-  const onSelectedChanged = useCallback(() => {
+  const onSelectedChanged = useCallback((event: SelectionChangedEvent<any>) => {
     // @ts-ignore
     if (!gridRef.current || (gridRef.current && !gridRef.current.api)) {
       return;
@@ -151,16 +152,22 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
       currentSelection,
     );
     setSelectedRows(currentSelection);
-    props.onSelectedRows && props.onSelectedRows(currentSelection, oldSelectedRows);
+
+    if (event.source === 'gridInitializing') {
+      // Don't trigger onSelectedRows when the grid is initializing.
+      return;
+    } else {
+      props.onSelectedRows && props.onSelectedRows(currentSelection, oldSelectedRows);
+    }
   }, []);
 
   const onGridReady = (params: any) => {
     // @ts-ignore
     params.api.forEachNode((node) => {
       if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
-        node.setSelected(true);
+        node.setSelected(true, false, 'gridInitializing');
       } else {
-        node.setSelected(false);
+        node.setSelected(false, false, 'gridInitializing');
       }
     });
   };

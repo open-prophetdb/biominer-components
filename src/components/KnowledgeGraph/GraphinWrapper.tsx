@@ -1200,7 +1200,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         }}
         style={style}
         // You can increase the maxStep if you want to save more history steps.
-        maxStep={20}
+        maxStep={50}
       >
         <FitView></FitView>
         {/* You can drag node to stop layout */}

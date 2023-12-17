@@ -25,7 +25,7 @@ const hideRelatedEdges = (node: GraphNode, graph: Graph, showOthers?: boolean) =
   const edges = graph.getEdges();
   edges.forEach((edge) => {
     const model = edge.getModel() as GraphEdge;
-    console.log('Hide Edge: ', node.id, model.source, model.target);
+    // console.log('Hide Edge: ', node.id, model.source, model.target);
     if (model.source == node.id || model.target == node.id) {
       graph.hideItem(edge, false);
     } else {
@@ -67,7 +67,7 @@ const showSelectedNodes = (selectedNodeKeys: string[], graph: Graph, hideOthers?
   nodes.forEach((gnode) => {
     const node = gnode.getModel() as GraphNode;
     if (selectedNodeKeys.includes(node.id)) {
-      console.log('Show Node: ', node.id);
+      // console.log('Show Node: ', node.id);
       graph.showItem(gnode, false);
       // showRelatedEdges(node, graph);
     } else {

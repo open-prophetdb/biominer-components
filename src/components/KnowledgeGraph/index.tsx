@@ -35,7 +35,7 @@ import {
   getEntityId,
   getEntityType,
 } from './utils';
-import { presetLayout, defaultLayout } from '../utils';
+import { presetLayout, defaultLayout, pushStack } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
@@ -553,8 +553,24 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       let allNodeKeys = graph.getNodes().map((node: any) => node.getModel().id);
 
-      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
-      setSelectedNodeKeys(uniq(allNodeKeys));
+      const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
+      const uniqNodeKeys = uniq(allNodeKeys);
+      pushStack(
+        'select-edges',
+        {
+          after: {
+            edges: uniqEdgeKeys,
+            nodes: uniqNodeKeys,
+          },
+          before: {
+            edges: selectedEdgeKeys,
+            nodes: selectedNodeKeys,
+          },
+        },
+        graph.getUndoStack(),
+      );
+      setSelectedEdgeKeys(uniqEdgeKeys);
+      setSelectedNodeKeys(uniqNodeKeys);
     } else if (menuItem.key == 'hide-edges-with-same-type') {
       const currentEdgeType = edge.reltype;
       const relatedEdges = graph.getEdges().filter((edge: any) => {
@@ -574,8 +590,24 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       let allNodeKeys = graph.getNodes().map((node: any) => node.getModel().id);
 
-      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
-      setSelectedNodeKeys(uniq(allNodeKeys));
+      const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
+      const uniqNodeKeys = uniq(allNodeKeys);
+      pushStack(
+        'select-edges',
+        {
+          after: {
+            edges: uniqEdgeKeys,
+            nodes: uniqNodeKeys,
+          },
+          before: {
+            edges: selectedEdgeKeys,
+            nodes: selectedNodeKeys,
+          },
+        },
+        graph.getUndoStack(),
+      );
+      setSelectedEdgeKeys(uniqEdgeKeys);
+      setSelectedNodeKeys(uniqNodeKeys);
     }
   };
 
@@ -721,8 +753,25 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         newSelectedNodeKeys = selectedNodeKeys.filter((key) => !relatedNodeKeys.includes(key));
       }
 
-      setSelectedNodeKeys(uniq(newSelectedNodeKeys));
-      setSelectedEdgeKeys(uniq(newSelectedEdgeKeys));
+      const uniqNodeKeys = uniq(newSelectedNodeKeys);
+      const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
+      // We must push these data into the undo stack, because the GraphTable only do this job when the GraphTable opened.
+      pushStack(
+        'select-edges',
+        {
+          after: {
+            edges: uniqEdgeKeys,
+            nodes: uniqNodeKeys,
+          },
+          before: {
+            edges: selectedEdgeKeys,
+            nodes: selectedNodeKeys,
+          },
+        },
+        graph.getUndoStack(),
+      );
+      setSelectedNodeKeys(uniqNodeKeys);
+      setSelectedEdgeKeys(uniqEdgeKeys);
     }
   };
 

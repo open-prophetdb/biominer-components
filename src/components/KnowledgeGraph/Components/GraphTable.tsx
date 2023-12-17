@@ -6,9 +6,10 @@ import TableTabs from './TableTabs';
 import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
+import { pushStack } from '../../utils';
+import { uniq } from 'lodash';
 
 import './GraphTable.less';
-import { pushStack } from '../../utils';
 
 export interface GraphTableProps {
   style?: React.CSSProperties;
@@ -59,8 +60,8 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           onSelectedRows={(selectedRows: NodeAttribute[], oldSelectedRows: NodeAttribute[]) => {
             props.onSelectedNodes &&
               props.onSelectedNodes(selectedRows).then((rows) => {
-                const selectedNodeIds = selectedRows.map((row) => row.id);
-                const oldSelectedNodeIds = oldSelectedRows.map((row) => row.id);
+                const selectedNodeIds = uniq(selectedRows.map((row) => row.id));
+                const oldSelectedNodeIds = uniq(oldSelectedRows.map((row) => row.id));
                 if (selectedNodeIds.length === 0 || !graph) {
                   return;
                 }
@@ -111,15 +112,19 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           onSelectedRows={(selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => {
             props.onSelectedEdges &&
               props.onSelectedEdges(selectedRows).then((rows) => {
-                const selectedEdgeIds = selectedRows.map((row) => row.relid);
-                const selectedNodeIds = selectedRows
-                  .map((row) => row.source)
-                  .concat(selectedRows.map((row) => row.target));
+                const selectedEdgeIds = uniq(selectedRows.map((row) => row.relid));
+                const selectedNodeIds = uniq(
+                  selectedRows
+                    .map((row) => row.source)
+                    .concat(selectedRows.map((row) => row.target)),
+                );
 
-                const oldSelectedNodeIds = oldSelectedRows
-                  .map((row) => row.source)
-                  .concat(oldSelectedRows.map((row) => row.target));
-                const oldSelectedEdgeIds = oldSelectedRows.map((row) => row.relid);
+                const oldSelectedNodeIds = uniq(
+                  oldSelectedRows
+                    .map((row) => row.source)
+                    .concat(oldSelectedRows.map((row) => row.target)),
+                );
+                const oldSelectedEdgeIds = uniq(oldSelectedRows.map((row) => row.relid));
 
                 if (selectedEdgeIds.length === 0 || !graph || selectedNodeIds.length === 0) {
                   return;

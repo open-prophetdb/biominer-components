@@ -71,7 +71,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
           // The first item in the stack is the initial layout, so we don't need to undo it.
           disabled={getUndoStack().length - 1 < 1}
         >
-          Back [{getUndoStack().length - 1 == -1 ? 0 : getUndoStack().length - 1}]
+          {/* Back [{getUndoStack().length - 1 == -1 ? 0 : getUndoStack().length - 1}] */}
+          Back
         </Button>
         <Button
           shape="default"
@@ -88,7 +89,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
           }}
           disabled={getRedoStack().length < 1}
         >
-          Forward [{getRedoStack().length}]
+          {/* Forward [{getRedoStack().length}] */}
+          Forward
         </Button>
       </ButtonGroup>
       <Select
