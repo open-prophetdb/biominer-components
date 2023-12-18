@@ -51,6 +51,7 @@ import type {
   AdjacencyList,
   MenuItem,
   CanvasMenuItem,
+  EdgeInfo,
 } from './typings';
 import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
@@ -895,10 +896,35 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     </p>
   );
 
+  const allowNodeEdgeMenu = () => {
+    // @ts-ignore
+    if (ref && ref.current && ref.current.graph) {
+      // @ts-ignore
+      const graph = ref.current.graph;
+      const setEdge = (e: any) => {
+        setCurrentEdge(e.item);
+      };
+
+      const setNode = (e: any) => {
+        setCurrentNode(e.item);
+      };
+
+      graph.on('edge:contextmenu', setEdge);
+      graph.on('node:contextmenu', setNode);
+
+      return () => {
+        // 清除事件监听
+        graph.off('edge:contextmenu', setEdge);
+        graph.off('node:contextmenu', setNode);
+      };
+    }
+  };
+
   // All initializations
   // Save the node or edge when the context menu is clicked.
   useEffect(() => {
     loadSettings();
+    allowNodeEdgeMenu();
   }, []);
 
   useEffect(() => {
@@ -924,17 +950,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       setSize(newSize);
     }
 
-    // @ts-ignore
-    if (ref && ref.current && ref.current.graph) {
-      // @ts-ignore
-      ref.current.graph.on('edge:contextmenu', (e) => {
-        setCurrentEdge(e.item);
-      });
-      // @ts-ignore
-      ref.current.graph.on('node:contextmenu', (e) => {
-        setCurrentNode(e.item);
-      });
-    }
+    allowNodeEdgeMenu();
   }, [data, layout]);
 
   useEffect(() => {
@@ -1102,8 +1118,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     data && (
       <Graphin
         key={`${size.width}-${size.height}`}
-        width={size.width}
-        height={size.height}
         ref={ref}
         enabledStack={true}
         data={data as GraphinData}
