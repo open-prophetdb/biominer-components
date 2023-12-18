@@ -34,6 +34,7 @@ import {
   DownloadOutlined,
   CloudServerOutlined,
   EyeInvisibleOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
@@ -382,78 +383,6 @@ const NodeMenu = (props: NodeMenuProps) => {
         // },
       ],
     },
-    // TODO: Cann't remove badges. It seems there is a bug in Graphin.
-    // {
-    //   key: 'tag',
-    //   icon: <TagFilled />,
-    //   label: 'Tag Node',
-    //   children: [
-    //     {
-    //       key: 'tag-imported-nodes',
-    //       icon: <TagFilled color="grey" />,
-    //       label: 'Imported Nodes (Marked as M)',
-    //       handler: (node: GraphNode) => {
-    //         const seletedNodes = graph.getNodes().filter((node) => {
-    //           return node.hasState('selected');
-    //         });
-
-    //         if (seletedNodes.length >= 1) {
-    //           seletedNodes.map((node) => {
-    //             graph.updateItem(node, {
-    //               style: {
-    //                 badges: [
-    //                   // I: Imported
-    //                   getDefaultBadge('grey', 'M'),
-    //                 ],
-    //               },
-    //             });
-    //           });
-    //         } else {
-    //           graph.updateItem(node.id, {
-    //             style: {
-    //               badges: [
-    //                 // I: Imported
-    //                 getDefaultBadge('grey', 'M'),
-    //               ],
-    //             },
-    //           });
-    //         }
-    //       },
-    //     },
-    //     {
-    //       key: 'tag-interested-nodes',
-    //       icon: <TagFilled color="grey" />,
-    //       label: 'Interested Nodes (Marked as I)',
-    //       handler: (node: GraphNode) => {
-    //         const seletedNodes = graph.getNodes().filter((node) => {
-    //           return node.hasState('selected');
-    //         });
-
-    //         if (seletedNodes.length >= 1) {
-    //           seletedNodes.map((node) => {
-    //             graph.updateItem(node, {
-    //               style: {
-    //                 badges: [
-    //                   // I: Imported
-    //                   getDefaultBadge('grey', 'I'),
-    //                 ],
-    //               },
-    //             });
-    //           });
-    //         } else {
-    //           graph.updateItem(node.id, {
-    //             style: {
-    //               badges: [
-    //                 // I: Imported
-    //                 getDefaultBadge('grey', 'I'),
-    //               ],
-    //             },
-    //           });
-    //         }
-    //       },
-    //     },
-    //   ],
-    // },
     {
       key: 'delete-nodes',
       icon: <DeleteFilled />,
@@ -645,70 +574,81 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     {
       key: 'auto-connect',
       icon: <ForkOutlined />,
-      name: 'Auto Connect Graph',
+      label: 'Auto Connect Graph',
       handler: handleAutoConnect,
+    },
+    {
+      key: 'refresh-graph',
+      icon: <ReloadOutlined />,
+      label: 'Refresh Graph',
+      handler: () => {
+        graph.refresh();
+        message.success(`Refresh graph successfully`);
+      },
     },
     {
       key: 'enable-fish-eye',
       icon: <EyeOutlined />,
-      name: 'Enable FishEye',
+      label: 'Enable FishEye',
       handler: handleOpenFishEye,
     },
     {
       key: 'download-data',
       icon: <DownloadOutlined />,
-      name: 'Download Graph Data',
+      label: 'Download Graph Data',
       handler: handleDownloadData,
     },
     {
       key: 'download-canvas',
       icon: <CloudDownloadOutlined />,
-      name: 'Save As Image',
+      label: 'Save As Image',
       handler: handleDownloadCanvas,
     },
     {
       key: 'clear-node-edge-status',
       icon: <DeleteOutlined />,
-      name: 'Clear Node/Edge Status',
+      danger: true,
+      label: 'Clear Node/Edge Status',
       handler: handleClearNodeEdgeStatus,
     },
-    // {
-    //   key: 'clear-node-badges',
-    //   icon: <DeleteOutlined />,
-    //   name: 'Clear Node Tags',
-    //   handler: (item: CanvasMenuItem) => {
-    //     const nodes = graph.getNodes();
-    //     nodes.forEach((node) => {
-    //       const style = node.getOriginStyle();
-    //       graph.updateItem(node, {
-    //         style: {
-    //           ...style,
-    //           badges: [],
-    //         },
-    //       });
-    //       node.refresh();
-    //       node.setOriginStyle();
-    //     });
-    //     message.success(`Clear node tags successfully`);
-    //   },
-    // },
     {
       key: 'clear-canvas',
       icon: <DeleteOutlined />,
-      name: 'Clear Canvas',
+      label: 'Clear Canvas',
       danger: true,
       handler: handleClear,
     },
   ];
 
+  const onChange = function (menuKey: string) {
+    const menuItem = options.find((item) => {
+      return item.key === menuKey;
+    });
+
+    if (menuItem) {
+      // Only need to change the status of the nodes, so no need to call the onChange function.
+      if (menuItem.handler) {
+        menuItem.handler(menuItem);
+      } else {
+        console.log('Cannot find the handler function for the menu item: ', menuItem);
+      }
+    } else {
+      console.log('Cannot find the menu item: ', menuKey, options);
+      // TODO: It doesn't happen.
+      message.warning('Cannot catch the changes.');
+    }
+  };
+
   return (
-    <Menu
-      bindType="canvas"
-      options={options}
-      onChange={(item, data) => {
-        if (item.handler) {
-          item.handler(item, graph, apis);
-        }
+    <AntdMenu
+      items={options.filter((item) => {
+        return !item.hidden;
+      })}
+      onClick={(menuInfo) => {
+        onChange(menuInfo.key);
+      }}
+      getPopupContainer={(triggerNode) => {
+        return (triggerNode.parentNode as HTMLElement) || document.body;
       }}
     />
   );
@@ -928,6 +868,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     },
   });
 
+  const [size, setSize] = useState<{ width: number; height: number }>({ width: 500, height: 500 });
   const [currentEdge, setCurrentEdge] = useState<any>(null);
   const [currentNode, setCurrentNode] = useState<any>(null);
   const [focusedNodes, setFocusedNodes] = useState<GraphNode[]>([]);
@@ -958,18 +899,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   // Save the node or edge when the context menu is clicked.
   useEffect(() => {
     loadSettings();
-
-    // @ts-ignore
-    if (ref && ref.current && ref.current.graph) {
-      // @ts-ignore
-      ref.current.graph.on('edge:contextmenu', (e) => {
-        setCurrentEdge(e.item);
-      });
-      // @ts-ignore
-      ref.current.graph.on('node:contextmenu', (e) => {
-        setCurrentNode(e.item);
-      });
-    }
   }, []);
 
   useEffect(() => {
@@ -983,6 +912,30 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       return node.x && node.x > 0 && node.y && node.y > 0;
     });
   };
+
+  useEffect(() => {
+    // @ts-ignore
+    if (ref && ref.current && ref.current.graphDOM) {
+      // @ts-ignore
+      const container = ref.current.graphDOM;
+      // @ts-ignore
+      const newSize = { width: container.offsetWidth, height: container.offsetHeight };
+      console.log('GraphinWrapper size: ', container, newSize);
+      setSize(newSize);
+    }
+
+    // @ts-ignore
+    if (ref && ref.current && ref.current.graph) {
+      // @ts-ignore
+      ref.current.graph.on('edge:contextmenu', (e) => {
+        setCurrentEdge(e.item);
+      });
+      // @ts-ignore
+      ref.current.graph.on('node:contextmenu', (e) => {
+        setCurrentNode(e.item);
+      });
+    }
+  }, [data, layout]);
 
   useEffect(() => {
     // create a map to hold the adjacency list
@@ -1148,6 +1101,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   return (
     data && (
       <Graphin
+        key={`${size.width}-${size.height}`}
+        width={size.width}
+        height={size.height}
         ref={ref}
         enabledStack={true}
         data={data as GraphinData}
@@ -1221,7 +1177,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
         {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
         {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
-        <ContextMenu style={{ width: '160px' }}>
+        <ContextMenu style={{ width: '160px' }} bindType="node">
           <NodeMenu
             chatbotVisible={props.chatbotVisible}
             item={currentNode}

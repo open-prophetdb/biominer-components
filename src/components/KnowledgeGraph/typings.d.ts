@@ -24,7 +24,7 @@ export type MenuItem = {
 
 export type CanvasMenuItem = {
   key: string;
-  name: string;
+  label: string;
   hidden?: boolean;
   danger?: boolean;
   icon: string | React.Element;
