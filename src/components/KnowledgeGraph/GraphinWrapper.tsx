@@ -62,6 +62,7 @@ import voca from 'voca';
 import { pushStack } from '../utils';
 
 import './GraphinWrapper.less';
+import { set } from 'lodash';
 
 const { MiniMap, SnapLine, Tooltip, Legend } = Components;
 
@@ -511,11 +512,14 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     link.href = URL.createObjectURL(blob);
     link.download = 'graph.json';
     link.click();
+
+    context.handleClose();
   };
 
   const handleAutoConnect = (item: CanvasMenuItem) => {
     if (props.onCanvasClick) {
       props.onCanvasClick(item, graph, apis);
+      context.handleClose();
     }
   };
 
@@ -542,6 +546,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
   const handleOpenFishEye = (item: CanvasMenuItem) => {
     if (props.handleOpenFishEye) {
       props.handleOpenFishEye();
+      context.handleClose();
     }
   };
 
@@ -712,6 +717,7 @@ const EdgeLabelVisible = (props: { visible: boolean }) => {
       );
     });
   }, [visible]);
+
   return null;
 };
 
@@ -869,7 +875,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     },
   });
 
-  const [size, setSize] = useState<{ width: number; height: number }>({ width: 500, height: 500 });
   const [currentEdge, setCurrentEdge] = useState<any>(null);
   const [currentNode, setCurrentNode] = useState<any>(null);
   const [focusedNodes, setFocusedNodes] = useState<GraphNode[]>([]);
@@ -920,11 +925,26 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   };
 
+  const changeGraphSize = () => {
+    // @ts-ignore
+    if (ref.current && ref.current.graph && ref.current.graphDOM) {
+      // @ts-ignore
+      const graphDOM = ref.current.graphDOM;
+      // @ts-ignore
+      const graph = ref.current.graph;
+      const width = graphDOM.clientWidth;
+      const height = graphDOM.clientHeight;
+
+      graph.changeSize(width, height);
+    }
+  };
+
   // All initializations
   // Save the node or edge when the context menu is clicked.
   useEffect(() => {
     loadSettings();
     allowNodeEdgeMenu();
+    changeGraphSize();
   }, []);
 
   useEffect(() => {
@@ -938,20 +958,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       return node.x && node.x > 0 && node.y && node.y > 0;
     });
   };
-
-  useEffect(() => {
-    // @ts-ignore
-    if (ref && ref.current && ref.current.graphDOM) {
-      // @ts-ignore
-      const container = ref.current.graphDOM;
-      // @ts-ignore
-      const newSize = { width: container.offsetWidth, height: container.offsetHeight };
-      console.log('GraphinWrapper size: ', container, newSize);
-      setSize(newSize);
-    }
-
-    allowNodeEdgeMenu();
-  }, [data, layout]);
 
   useEffect(() => {
     // create a map to hold the adjacency list
@@ -968,6 +974,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     if (!hasPostions(data) && !layout.type) {
       changeLayout({ type: 'random', options: { preventOverlap: true } });
     }
+
+    changeGraphSize();
   }, [data]);
 
   const handleOpenFishEye = () => {
@@ -1117,7 +1125,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   return (
     data && (
       <Graphin
-        key={`${size.width}-${size.height}`}
         ref={ref}
         enabledStack={true}
         data={data as GraphinData}

@@ -485,6 +485,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setLoading(true);
       const nodes = graph.getNodes().map((node: any) => node.getModel() as GraphNode);
       const nodeIds = nodes.map((node: GraphNode) => formatNodeIdFromGraphNode(node));
+
+      if (nodeIds.length == 0) {
+        message.warning('Please load some nodes first.');
+        setLoading(false);
+        return;
+      }
+
       props.apis
         .GetConnectedNodesFn({
           node_ids: nodeIds.join(','),
