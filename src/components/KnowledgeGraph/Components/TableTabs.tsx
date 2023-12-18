@@ -7,14 +7,27 @@ type TableTabsProps = {
   style?: React.CSSProperties;
   className?: string;
   children?: React.ReactNode;
+  nodeTabDisabled?: boolean;
+  edgeTabDisabled?: boolean;
 };
 
 const TableTabs: React.FC<TableTabsProps> = (props) => {
   const counts = React.Children.count(props.children);
   const childrenArray = React.Children.toArray(props.children);
+
   const items = [
-    { label: 'Edges', key: 'edges', children: counts >= 2 ? childrenArray[1] : 'No Content' },
-    { label: 'Nodes', key: 'nodes', children: counts >= 2 ? childrenArray[0] : 'No Content' },
+    {
+      label: 'Edges',
+      key: 'edges',
+      children: counts >= 2 ? childrenArray[1] : 'No Content',
+      disabled: props.edgeTabDisabled,
+    },
+    {
+      label: 'Nodes',
+      key: 'nodes',
+      children: counts >= 2 ? childrenArray[0] : 'No Content',
+      disabled: props.nodeTabDisabled,
+    },
   ];
 
   return (

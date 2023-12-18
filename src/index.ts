@@ -32,3 +32,4 @@ export { default as QueryForm } from './components/QueryForm';
 export { default as BatchNodesSearcher } from './components/BatchNodesSearcher';
 export { default as NodeTable } from './components/NodeTable';
 export { default as EdgeTable } from './components/EdgeTable';
+export { default as GraphTable } from './components/KnowledgeGraph/Components/GraphTable';

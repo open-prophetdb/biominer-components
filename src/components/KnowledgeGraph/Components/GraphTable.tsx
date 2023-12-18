@@ -13,6 +13,7 @@ import './GraphTable.less';
 
 export interface GraphTableProps {
   style?: React.CSSProperties;
+  emptyMessage?: string;
   className?: string;
   onClose?: () => void;
   nodeDataSources: NodeAttribute[];
@@ -25,6 +26,7 @@ export interface GraphTableProps {
 
 const GraphTable: React.FC<GraphTableProps> = (props) => {
   const { graph } = useContext(CustomGraphinContext);
+  const emptyMessage = props.emptyMessage || 'No data';
   const [annoEdgeDataSources, setAnnoEdgeDataSources] = useState<EdgeAttribute[]>([]);
 
   useEffect(() => {
@@ -103,7 +105,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           style={props.style ? props.style : { minHeight: '300px', height: '300px' }}
         />
       ) : (
-        <Empty />
+        <Empty description={emptyMessage} />
       )}
       {annoEdgeDataSources.length > 0 ? (
         <EdgeTable
@@ -179,7 +181,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           style={props.style ? props.style : { minHeight: '300px', height: '60vh' }}
         />
       ) : (
-        <Empty />
+        <Empty description={emptyMessage} />
       )}
     </TableTabs>
   );
