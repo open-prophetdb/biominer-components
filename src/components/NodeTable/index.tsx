@@ -59,7 +59,17 @@ const toTitleCase = (str: string) => {
   return v.titleCase(str.replace(/_/g, ' '));
 };
 
-const blackListedFields = ['metadata'];
+const removeComplicatedFields = (nodes: NodeAttribute[]): NodeAttribute[] => {
+  return nodes.map((node: NodeAttribute) => {
+    Object.keys(node).forEach((key) => {
+      if (typeof node[key] === 'object') {
+        delete node[key];
+      }
+    });
+
+    return node;
+  });
+};
 
 const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
   return {
@@ -76,7 +86,7 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
   const gridRef = useRef<any>();
   const containerStyle = useMemo(() => ({ width: '100%', height: '100%' }), []);
   const gridStyle = useMemo(() => ({ height: '100%', width: '100%' }), []);
-  const [rowData, setRowData] = useState<NodeAttribute[]>(props.nodes);
+  const [rowData, setRowData] = useState<NodeAttribute[]>(removeComplicatedFields(props.nodes));
   const [selectedRows, setSelectedRows] = useState<NodeAttribute[]>([]);
 
   const selectedRowsRef = useRef<NodeAttribute[]>([]);
@@ -119,10 +129,6 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     const additionalColumns = allColumns.filter((column: Column) => {
       if (!defaultColumns.includes(column.field)) {
         return true;
-      }
-
-      if (blackListedFields.includes(column.field)) {
-        return false;
       }
     });
 

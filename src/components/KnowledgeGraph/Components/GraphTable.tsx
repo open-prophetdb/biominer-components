@@ -7,8 +7,8 @@ import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 import { pushStack } from '../../utils';
-import { GraphData } from '../../typings';
-import { uniq } from 'lodash';
+import { GraphData, GraphEdge, GraphNode } from '../../typings';
+import { set, uniq } from 'lodash';
 
 import './GraphTable.less';
 
@@ -30,6 +30,23 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   const { graph } = useContext(CustomGraphinContext);
   const emptyMessage = props.emptyMessage || 'No data';
   const [annoEdgeDataSources, setAnnoEdgeDataSources] = useState<EdgeAttribute[]>([]);
+  const [selectedGraph, setSelectedGraph] = useState<GraphData>({
+    nodes: [],
+    edges: [],
+  });
+
+  const initGraph = () => {
+    const nodes = props.nodeDataSources
+      .map((node) => node.metadata)
+      .filter((node) => node !== undefined);
+    const edges = props.edgeDataSources
+      .map((edge) => edge.metadata)
+      .filter((edge) => edge !== undefined);
+    setSelectedGraph({
+      nodes: nodes as GraphNode[],
+      edges: edges as GraphEdge[],
+    });
+  };
 
   useEffect(() => {
     const tempEdgeDataSources: EdgeAttribute[] = [];
@@ -53,21 +70,16 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       });
     });
     setAnnoEdgeDataSources(tempEdgeDataSources);
+
+    initGraph();
   }, [props.nodeDataSources, props.edgeDataSources]);
 
   return (
     <TableTabs
       onClose={props.onClose}
       onLoadGraph={() => {
-        const nodes = props.nodeDataSources
-          .map((node) => node.metadata)
-          .filter((node) => node !== undefined);
-        const edges = props.edgeDataSources
-          .map((edge) => edge.metadata)
-          .filter((edge) => edge !== undefined);
-
         // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
-        props.onLoadGraph && props.onLoadGraph({ nodes, edges });
+        props.onLoadGraph && props.onLoadGraph(selectedGraph);
       }}
     >
       {props.nodeDataSources.length > 0 ? (
@@ -82,6 +94,11 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                 if (selectedNodeIds.length === 0 || !graph) {
                   return;
                 }
+
+                setSelectedGraph({
+                  nodes: selectedRows.map((row) => row.metadata) as GraphNode[],
+                  edges: [],
+                });
 
                 if (
                   selectedNodeIds === props.selectedNodeKeys ||
@@ -154,6 +171,13 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   // When we enter the table again, the selectedEdgeKeys will be the same as the selectedEdgeIds, so we need to ignore it.
                   return;
                 }
+
+                setSelectedGraph({
+                  nodes: props.nodeDataSources
+                    .filter((node) => selectedNodeIds.includes(node.id))
+                    .map((node) => node.metadata) as GraphNode[],
+                  edges: selectedRows.map((row) => row.metadata) as GraphEdge[],
+                });
 
                 console.log(
                   'onSelectedRows: ',

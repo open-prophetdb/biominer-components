@@ -1,8 +1,16 @@
 import type { TableColumnType } from 'antd';
-import { filter, uniq } from 'lodash';
+import { filter, uniq, uniqBy } from 'lodash';
 import { Graph } from '@antv/g6';
-import type { NodeBadge } from './typings';
-import { GraphNode, GraphEdge, COMPOSED_ENTITY_DELIMITER, Entity, Entity2D } from '../typings';
+import type { NodeBadge, ExpandedGraphData } from './typings';
+import {
+  GraphNode,
+  GraphEdge,
+  COMPOSED_ENTITY_DELIMITER,
+  Entity,
+  Entity2D,
+  GraphData,
+  Layout,
+} from '../typings';
 import voca from 'voca';
 
 export const getDefaultBadge = (color: string, value?: string | number): NodeBadge => {
@@ -193,4 +201,62 @@ export const getNodes = (graph?: Graph) => {
 
   const nodes = graph.getNodes();
   return nodes.map((node: any) => node.getModel() as GraphNode);
+};
+
+const defaultExpandedGraphData: ExpandedGraphData = {
+  nodes: [],
+  edges: [],
+  layout: {
+    type: 'preset',
+  },
+  isDirty: false,
+  currentUUID: 'New Graph',
+};
+
+export const loadGraphDataFromLocalStorage = (): ExpandedGraphData => {
+  let presetGraphData = localStorage.getItem('presetGraphData');
+  if (presetGraphData) {
+    try {
+      return (JSON.parse(presetGraphData) || {}) as ExpandedGraphData;
+    } catch (error) {
+      console.log('Error when parsing preset graph data: ', error);
+      // TODO: Do we need to clear the preset graph data?
+      return defaultExpandedGraphData;
+    }
+  } else {
+    return defaultExpandedGraphData;
+  }
+};
+
+export const pushGraphDataToLocalStorage = (data: GraphData) => {
+  let oldData = loadGraphDataFromLocalStorage() as ExpandedGraphData;
+  let newData = {
+    nodes: uniqBy([...oldData.nodes, ...data.nodes], 'id'),
+    edges: uniqBy([...oldData.edges, ...data.edges], 'relid'),
+  };
+
+  saveGraphDataToLocalStorage(newData, oldData.layout, true, oldData.currentUUID);
+};
+
+export const saveGraphDataToLocalStorage = (
+  data: GraphData,
+  layout: Layout,
+  isDirty: boolean,
+  currentUUID: string,
+) => {
+  if (!data || !data.nodes || data.nodes.length == 0) {
+    return;
+  }
+  let graphData = {
+    nodes: data.nodes,
+    edges: data.edges,
+    layout: layout,
+    isDirty: isDirty,
+    currentUUID: currentUUID,
+  };
+  localStorage.setItem('presetGraphData', JSON.stringify(graphData));
+};
+
+export const clearGraphDataFromLocalStorage = () => {
+  localStorage.removeItem('presetGraphData');
 };

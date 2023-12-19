@@ -34,6 +34,9 @@ import {
   formatNodeIdFromGraphNode,
   getEntityId,
   getEntityType,
+  saveGraphDataToLocalStorage,
+  loadGraphDataFromLocalStorage,
+  clearGraphDataFromLocalStorage,
 } from './utils';
 import { presetLayout, defaultLayout, pushStack } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
@@ -149,6 +152,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     });
     setParentGraphUUID('');
     setCurrentGraphUUID('');
+    setIsDirty(false);
+    clearGraphDataFromLocalStorage();
   };
 
   useEffect(() => {
@@ -169,6 +174,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       currentParentUUID: currentGraphUUID,
     });
   }, [data, edgeStat, nodeStat, currentGraphUUID]);
+
+  useEffect(() => {
+    saveGraphDataToLocalStorage(data, layout, isDirty, currentGraphUUID);
+  }, [data]);
 
   const loadGraphs = () => {
     props.apis
@@ -309,6 +318,27 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       });
   };
 
+  const loadPresetGraphData = () => {
+    let parsedGraphData = loadGraphDataFromLocalStorage();
+    if (parsedGraphData) {
+      checkAndSetData({
+        nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
+        edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
+      });
+
+      if (parsedGraphData.layout) {
+        setLayout(parsedGraphData.layout);
+      }
+
+      setIsDirty(parsedGraphData.isDirty);
+
+      if (parsedGraphData.currentUUID) {
+        // TODO: currentUUID might be not a valid UUID, so we need to check it.
+        setCurrentGraphUUID(parsedGraphData.currentUUID);
+      }
+    }
+  };
+
   useEffect(() => {
     props.apis
       .GetStatisticsFn()
@@ -323,24 +353,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
     loadGraphs();
     loadNodeColorMap();
+    loadPresetGraphData();
   }, []);
-
-  // Monitor the change of history state
-  useEffect(() => {
-    let presetGraphData = localStorage.getItem('presetGraphData');
-    if (presetGraphData) {
-      try {
-        const parsedGraphData = JSON.parse(presetGraphData);
-        checkAndSetData({
-          nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
-          edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
-        });
-      } catch (error) {
-        console.log('Error when parsing preset graph data: ', error);
-        message.warning('Failed to explain your graph, please clean the browser cache and retry.');
-      }
-    }
-  }, [history.state]);
 
   useEffect(() => {
     // You need to check if the data is empty, otherwise it will update on an unmounted component.
@@ -1104,6 +1118,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   title="Graph Table"
                 >
                   <GraphTable
+                    // For disabling the Explain button
+                    onClose={() => {}}
                     style={{ width: '100%', height: '100%' }}
                     nodeDataSources={nodeDataSources as NodeAttribute[]}
                     edgeDataSources={edgeDataSources as EdgeAttribute[]}

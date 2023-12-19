@@ -57,8 +57,6 @@ const toTitleCase = (str: string) => {
   return v.titleCase(str.replace(/_/g, ' '));
 };
 
-const blackListedFields = ['metadata'];
-
 const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
   return {
     field: fieldName,
@@ -71,11 +69,23 @@ const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
   };
 };
 
+const removeComplicatedFields = (edges: EdgeAttribute[]): EdgeAttribute[] => {
+  return edges.map((edge: EdgeAttribute) => {
+    Object.keys(edge).forEach((key) => {
+      if (typeof edge[key] === 'object') {
+        delete edge[key];
+      }
+    });
+
+    return edge;
+  });
+};
+
 const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   const gridRef = useRef<any>();
   const containerStyle = useMemo(() => ({ width: '100%', height: '100%' }), []);
   const gridStyle = useMemo(() => ({ height: '100%', width: '100%' }), []);
-  const [rowData, setRowData] = useState<EdgeAttribute[]>(props.edges);
+  const [rowData, setRowData] = useState<EdgeAttribute[]>(removeComplicatedFields(props.edges));
   const [selectedRows, setSelectedRows] = useState<EdgeAttribute[]>([]);
 
   const selectedRowsRef = useRef<EdgeAttribute[]>([]);
@@ -150,10 +160,6 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     const additionalColumns = allColumns.filter((column: Column) => {
       if (!defaultColumns.includes(column.field)) {
         return true;
-      }
-
-      if (blackListedFields.includes(column.field)) {
-        return false;
       }
     });
 

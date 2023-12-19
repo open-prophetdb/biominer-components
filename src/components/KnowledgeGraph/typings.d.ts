@@ -1,5 +1,14 @@
 import type { Graph, GraphData as AntvGraphData } from '@antv/graphin';
+import type { Layout, GraphNode, GraphEdge } from '../typings';
 import type { GraphHistoryParams, GraphHistoryResponse } from './GraphStore/typings';
+
+export type ExpandedGraphData = {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  currentUUID: string;
+  isDirty: boolean;
+  layout: Layout;
+};
 
 declare module '*.png' {
   const value: any;
