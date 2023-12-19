@@ -142,18 +142,19 @@ export const removeComplexData = (dataItem: Record<string, any>, blackList?: Arr
 };
 
 export const makeDataSource = (dataItem: Record<string, any>, blackList?: Array<string>) => {
+  let metadata = blackList?.includes('metadata') ? {} : { metadata: dataItem };
   if (dataItem.data) {
     return {
       ...removeComplexData(dataItem.data, blackList),
       ...removeComplexData(dataItem, blackList),
       // Save the original data in metadata for transfering to other components
-      metadata: dataItem,
+      ...metadata,
     };
   } else {
     return {
       ...removeComplexData(dataItem),
       // Save the original data in metadata for transfering to other components
-      metadata: dataItem,
+      ...metadata,
     };
   }
 };
