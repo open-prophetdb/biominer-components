@@ -325,6 +325,23 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     loadNodeColorMap();
   }, []);
 
+  // Monitor the change of history state
+  useEffect(() => {
+    let presetGraphData = localStorage.getItem('presetGraphData');
+    if (presetGraphData) {
+      try {
+        const parsedGraphData = JSON.parse(presetGraphData);
+        checkAndSetData({
+          nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
+          edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
+        });
+      } catch (error) {
+        console.log('Error when parsing preset graph data: ', error);
+        message.warning('Failed to explain your graph, please clean the browser cache and retry.');
+      }
+    }
+  }, [history.state]);
+
   useEffect(() => {
     // You need to check if the data is empty, otherwise it will update on an unmounted component.
     if (advancedSearchPanelActive === false && searchObject) {

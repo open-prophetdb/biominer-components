@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Button, Tabs } from 'antd';
-import { CloseCircleFilled } from '@ant-design/icons';
+import { CloseCircleFilled, CloudUploadOutlined } from '@ant-design/icons';
 
 type TableTabsProps = {
   onClose?: () => void;
@@ -54,8 +54,11 @@ const TableTabs: React.FC<TableTabsProps> = (props) => {
                   e.stopPropagation();
                   props.onLoadGraph && props.onLoadGraph();
                 }}
+                icon={<CloudUploadOutlined />}
+                type="primary"
+                style={{ margin: '5px' }}
               >
-                Load Graph
+                Explain
               </Button>
             ),
           }
