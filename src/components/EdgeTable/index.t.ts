@@ -1,3 +1,5 @@
+import { GraphEdge } from '../typings';
+
 export type EdgeAttribute = {
   relid: string; // e.g. MONDO:0021040-Hetionet::DuG::Disease:Gene-ENTREZ:5468
   reltype: string; // e.g. Hetionet::DuG::Disease:Gene
@@ -12,5 +14,6 @@ export type EdgeAttribute = {
   key_sentence?: string; // e.g. "The gene ABCA4 is associated with the disease Stargardt disease 1."
   pmids?: string[]; // e.g. "12345678|23456789"
   score?: number; // e.g. 0.9
+  metadata?: GraphEdge;
   [key: string]: any;
 };

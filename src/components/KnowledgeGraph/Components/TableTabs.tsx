@@ -4,6 +4,7 @@ import { CloseCircleFilled } from '@ant-design/icons';
 
 type TableTabsProps = {
   onClose?: () => void;
+  onLoadGraph?: () => void;
   style?: React.CSSProperties;
   className?: string;
   children?: React.ReactNode;
@@ -45,6 +46,19 @@ const TableTabs: React.FC<TableTabsProps> = (props) => {
               props.onClose && props.onClose();
             }}
           />
+        ) : props.onLoadGraph ? (
+          {
+            left: (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onLoadGraph && props.onLoadGraph();
+                }}
+              >
+                Load Graph
+              </Button>
+            ),
+          }
         ) : null
       }
     />

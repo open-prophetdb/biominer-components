@@ -138,9 +138,15 @@ export const makeDataSource = (dataItem: Record<string, any>, blackList?: Array<
     return {
       ...removeComplexData(dataItem.data, blackList),
       ...removeComplexData(dataItem, blackList),
+      // Save the original data in metadata for transfering to other components
+      metadata: dataItem,
     };
   } else {
-    return removeComplexData(dataItem);
+    return {
+      ...removeComplexData(dataItem),
+      // Save the original data in metadata for transfering to other components
+      metadata: dataItem,
+    };
   }
 };
 

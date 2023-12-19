@@ -57,6 +57,8 @@ const toTitleCase = (str: string) => {
   return v.titleCase(str.replace(/_/g, ' '));
 };
 
+const blackListedFields = ['metadata'];
+
 const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
   return {
     field: fieldName,
@@ -148,6 +150,10 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     const additionalColumns = allColumns.filter((column: Column) => {
       if (!defaultColumns.includes(column.field)) {
         return true;
+      }
+
+      if (blackListedFields.includes(column.field)) {
+        return false;
       }
     });
 

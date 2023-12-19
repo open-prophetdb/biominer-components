@@ -7,6 +7,7 @@ import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 import { pushStack } from '../../utils';
+import { GraphData } from '../../typings';
 import { uniq } from 'lodash';
 
 import './GraphTable.less';
@@ -16,6 +17,7 @@ export interface GraphTableProps {
   emptyMessage?: string;
   className?: string;
   onClose?: () => void;
+  onLoadGraph?: (graph: GraphData) => void;
   nodeDataSources: NodeAttribute[];
   edgeDataSources: EdgeAttribute[];
   selectedNodeKeys?: string[];
@@ -54,7 +56,20 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   }, [props.nodeDataSources, props.edgeDataSources]);
 
   return (
-    <TableTabs onClose={props.onClose}>
+    <TableTabs
+      onClose={props.onClose}
+      onLoadGraph={() => {
+        const nodes = props.nodeDataSources
+          .map((node) => node.metadata)
+          .filter((node) => node !== undefined);
+        const edges = props.edgeDataSources
+          .map((edge) => edge.metadata)
+          .filter((edge) => edge !== undefined);
+
+        // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
+        props.onLoadGraph && props.onLoadGraph({ nodes, edges });
+      }}
+    >
       {props.nodeDataSources.length > 0 ? (
         <NodeTable
           nodes={props.nodeDataSources as NodeAttribute[]}
