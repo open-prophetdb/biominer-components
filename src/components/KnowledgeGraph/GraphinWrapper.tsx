@@ -926,6 +926,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   };
 
   const changeGraphSize = () => {
+    // TODO: We would like to use this function to resize the graph when the window size is changed. But it seems to cause some problems. When we hover the mouse on the graph, all nodes will disappear.
     // @ts-ignore
     if (ref.current && ref.current.graph && ref.current.graphDOM) {
       // @ts-ignore
@@ -935,6 +936,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       const width = graphDOM.clientWidth;
       const height = graphDOM.clientHeight;
 
+      console.log('changeGraphSize: ', width, height, graph, graphDOM);
       graph.changeSize(width, height);
     }
   };
@@ -944,7 +946,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   useEffect(() => {
     loadSettings();
     allowNodeEdgeMenu();
-    changeGraphSize();
+    // changeGraphSize();
   }, []);
 
   useEffect(() => {
