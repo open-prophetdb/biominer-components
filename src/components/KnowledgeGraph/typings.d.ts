@@ -21,7 +21,7 @@ export type OptionType = {
   value: string;
 };
 
-export type MenuItem = {
+export type NodeMenuItem = {
   key: string;
   label: string;
   hidden?: boolean;
@@ -29,6 +29,16 @@ export type MenuItem = {
   children?: MenuItem[];
   icon: string | React.ReactNode;
   handler?: (node: GraphNode, graph?: Graph, apis?: ApisType) => void;
+};
+
+export type EdgeMenuItem = {
+  key: string;
+  label: string;
+  hidden?: boolean;
+  danger?: boolean;
+  children?: MenuItem[];
+  icon: string | React.ReactNode;
+  handler?: (node: GraphEdge, graph?: Graph, apis?: ApisType) => void;
 };
 
 export type CanvasMenuItem = {

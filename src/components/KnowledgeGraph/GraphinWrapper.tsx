@@ -49,7 +49,8 @@ import type {
   OnClickNodeFn,
   OnCanvasMenuClickFn,
   AdjacencyList,
-  MenuItem,
+  NodeMenuItem,
+  EdgeMenuItem,
   CanvasMenuItem,
   EdgeInfo,
 } from './typings';
@@ -123,7 +124,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     }
   }, []);
 
-  const options: MenuItem[] = [
+  const options: EdgeMenuItem[] = [
     {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
@@ -245,11 +246,10 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     console.log('EdgeMenu: ', menuKey, menuItem);
 
     if (menuItem) {
-      if (menuItem.handler) {
+      if (menuItem.handler && edge) {
         menuItem.handler(edge);
       } else if (props.onChange && sourceNode && targetNode && edge && graph && apis) {
         props.onChange(menuItem, sourceNode, targetNode, edge, graph, apis);
-        setVisible(false);
       }
     } else {
       message.warning('Cannot catch the changes.');
@@ -263,6 +263,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       })}
       onClick={(menuInfo) => {
         onChange(menuInfo.key);
+        setVisible(false);
       }}
       getPopupContainer={(triggerNode) => {
         return (triggerNode.parentNode as HTMLElement) || document.body;
@@ -302,7 +303,7 @@ const NodeMenu = (props: NodeMenuProps) => {
     }
   }, []);
 
-  const options: MenuItem[] = [
+  const options: NodeMenuItem[] = [
     {
       key: 'show-node-details',
       icon: <InfoCircleFilled />,
@@ -438,12 +439,11 @@ const NodeMenu = (props: NodeMenuProps) => {
 
     if (menuItem) {
       // Only need to change the status of the nodes, so no need to call the onChange function.
-      if (menuItem.handler) {
+      if (menuItem.handler && node) {
         menuItem.handler(node);
       } else {
         if (props.onChange && node && graph && apis) {
           props.onChange(menuItem, node, graph, apis);
-          setVisible(false);
         } else {
           message.warning('Cannot catch the changes.');
         }
@@ -462,6 +462,7 @@ const NodeMenu = (props: NodeMenuProps) => {
       })}
       onClick={(menuInfo) => {
         onChange(menuInfo.key);
+        setVisible(false);
       }}
       getPopupContainer={(triggerNode) => {
         return (triggerNode.parentNode as HTMLElement) || document.body;
@@ -489,7 +490,6 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       backgroundColor: '#fff',
       padding: 10,
     });
-    context.handleClose();
   };
 
   const handleDownloadData = (item: CanvasMenuItem) => {
@@ -512,14 +512,11 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     link.href = URL.createObjectURL(blob);
     link.download = 'graph.json';
     link.click();
-
-    context.handleClose();
   };
 
   const handleAutoConnect = (item: CanvasMenuItem) => {
     if (props.onCanvasClick) {
       props.onCanvasClick(item, graph, apis);
-      context.handleClose();
     }
   };
 
@@ -534,19 +531,16 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     } else {
       message.warning(`Cannot clear canvas`);
     }
-    context.handleClose();
   };
 
   // const handleStopLayout = (item: CanvasMenuItem) => {
   //     message.info(`Stop layout successfully`);
   //     graph.stopAnimate();
-  //     context.handleClose();
   // };
 
   const handleOpenFishEye = (item: CanvasMenuItem) => {
     if (props.handleOpenFishEye) {
       props.handleOpenFishEye();
-      context.handleClose();
     }
   };
 
@@ -588,7 +582,8 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       icon: <ReloadOutlined />,
       label: 'Refresh Graph',
       handler: () => {
-        graph.refresh();
+        // TODO: which function is better?
+        graph.render();
         message.success(`Refresh graph successfully`);
       },
     },
@@ -652,6 +647,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       })}
       onClick={(menuInfo) => {
         onChange(menuInfo.key);
+        context.handleClose();
       }}
       getPopupContainer={(triggerNode) => {
         return (triggerNode.parentNode as HTMLElement) || document.body;
@@ -1177,12 +1173,15 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           }
 
           console.log('handleAfterLayout: ', graph.getStackData());
+          // Always move the graph to the center of the canvas after the layout is changed.
+          console.log('Fit the graph to the center of the canvas after the layout is changed.');
+          graph.fitCenter();
         }}
         style={style}
         // You can increase the maxStep if you want to save more history steps.
         maxStep={50}
       >
-        <FitView></FitView>
+        <FitView />
         {/* You can drag node to stop layout */}
         <DragNodeWithForce autoPin={true} />
         {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
