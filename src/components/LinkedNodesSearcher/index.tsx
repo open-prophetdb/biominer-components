@@ -1,4 +1,4 @@
-import { Form, Select, Empty, InputNumber, message, Button, Spin } from 'antd';
+import { Form, Select, Empty, InputNumber, message, Button, Spin, Popover } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { LinkedNodesSearcherProps } from './index.t';
 import { LinkedNodesSearchObjectClass } from './index.t';
@@ -12,6 +12,7 @@ import {
 import { stat_total_relation_count } from '../StatisticsChart/utils';
 import { fetchNodes } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
+import EntityCard from '../EntityCard';
 
 import './index.less';
 
@@ -343,7 +344,6 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           }}
           placeholder={placeholder}
           onSearch={(value) => handleSearchNode(entityType, value)}
-          options={entityOptions}
           filterOption={false}
           notFoundContent={
             <Empty
@@ -358,7 +358,31 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
               }
             />
           }
-        ></Select>
+        >
+          {entityOptions &&
+            entityOptions.map((option: any) => (
+              <Select.Option key={option.label} value={option.value} disabled={option.disabled}>
+                {option.metadata ? (
+                  <Popover
+                    placement="rightBottom"
+                    title={option.label}
+                    content={EntityCard(option.metadata)}
+                    trigger="hover"
+                    getPopupContainer={(triggeredNode: any) => document.body}
+                    overlayClassName="entity-id-popover"
+                    autoAdjustOverflow={false}
+                    showArrow={true}
+                    destroyTooltipOnHide={true}
+                    zIndex={1500}
+                  >
+                    {option.label}
+                  </Popover>
+                ) : (
+                  option.label
+                )}
+              </Select.Option>
+            ))}
+        </Select>
       </Form.Item>
       <Form.Item label="Total Linked Nodes" name="total_linked_nodes">
         <Spin size="small" spinning={relationTypeOptionsLoading}>

@@ -256,15 +256,14 @@ export const fetchNodes = async (
     })
       .then((response) => {
         const { records } = response;
-        const formatedData = records.map((item: any) => ({
+        const options: OptionType[] = records.map((item: Entity, index: number) => ({
+          order: index,
           value: item['id'],
-          text: `${item['id']} | ${item['name']}`,
+          label: `${item['id']} | ${item['name']}`,
+          description: item['description'],
+          metadata: item,
         }));
-        console.log('getLabels results: ', formatedData);
-        // const options = formatedData.map(d => <Option key={d.value}>{d.text}</Option>);
-        const options = formatedData.map((d) => {
-          return { label: d.text, value: d.value };
-        });
+        console.log('getLabels results: ', options);
         callback(options);
       })
       .catch((error) => {

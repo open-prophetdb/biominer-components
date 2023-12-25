@@ -32,6 +32,7 @@ export type OptionType = {
   label: string;
   value: string;
   description?: string;
+  metadata?: any;
 };
 
 export type QueryItem = {

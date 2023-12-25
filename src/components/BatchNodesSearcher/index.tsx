@@ -1,10 +1,11 @@
-import { Form, Select, Empty, InputNumber, Button } from 'antd';
+import { Form, Select, Empty, Popover, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { BatchNodesSearcherProps } from './index.t';
 import { BatchNodesSearchObjectClass } from './index.t';
 import { type OptionType, MergeModeOptions } from '../typings';
 import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
+import EntityCard from '../EntityCard';
 
 import './index.less';
 
@@ -27,7 +28,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
   const handleSearchNode = function (entityType: string, value: string) {
     if (value) {
       setLoading(true);
-      fetchNodes(props.getEntities, entityType, value, (options) => {
+      fetchNodes(props.getEntities, entityType, value, (options: OptionType[]) => {
         setEntityOptions(options);
         setLoading(false);
       });
@@ -36,12 +37,21 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
     }
   };
 
-  const addToNodeIdsOptions = function (value: string) {
+  const addToNodeIdsOptions = function (
+    value: string,
+    option: { key: string; value: any; children: any },
+  ) {
+    console.log('addToNodeIdsOptions', value, option);
     if (value) {
       setNodeIdsOptions((nodeIdsOptions) => {
         let newOptions = nodeIdsOptions ? [...nodeIdsOptions] : [];
         let nodeId = formatNodeId(value, entityType);
-        newOptions.push({ label: nodeId, value: nodeId, order: 0 });
+        const label = option.key;
+        newOptions.push({
+          label: label || nodeId,
+          value: nodeId,
+          order: 0,
+        });
         return uniqBy(newOptions, 'label');
       });
     }
@@ -141,7 +151,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}
-          options={entityOptions}
           filterOption={false}
           onSelect={addToNodeIdsOptions}
           notFoundContent={
@@ -157,7 +166,31 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
               }
             />
           }
-        ></Select>
+        >
+          {entityOptions &&
+            entityOptions.map((option: any) => (
+              <Select.Option key={option.label} value={option.value} disabled={option.disabled}>
+                {option.metadata ? (
+                  <Popover
+                    placement="rightBottom"
+                    title={option.label}
+                    content={EntityCard(option.metadata)}
+                    trigger="hover"
+                    getPopupContainer={(triggeredNode: any) => document.body}
+                    overlayClassName="entity-id-popover"
+                    autoAdjustOverflow={false}
+                    showArrow={true}
+                    destroyTooltipOnHide={true}
+                    zIndex={1500}
+                  >
+                    {option.label}
+                  </Popover>
+                ) : (
+                  option.label
+                )}
+              </Select.Option>
+            ))}
+        </Select>
       </Form.Item>
       <Form.Item
         label="Node Ids"
@@ -180,9 +213,32 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}
-          options={nodeIdsOptions}
           filterOption={true}
-        />
+        >
+          {nodeIdsOptions &&
+            nodeIdsOptions.map((option: any) => (
+              <Select.Option key={option.label} value={option.value} disabled={option.disabled}>
+                {option.metadata ? (
+                  <Popover
+                    placement="rightBottom"
+                    title={option.label}
+                    content={EntityCard(option.metadata)}
+                    trigger="hover"
+                    getPopupContainer={(triggeredNode: any) => document.body}
+                    overlayClassName="entity-id-popover"
+                    autoAdjustOverflow={false}
+                    showArrow={true}
+                    destroyTooltipOnHide={true}
+                    zIndex={1500}
+                  >
+                    {option.label}
+                  </Popover>
+                ) : (
+                  option.label
+                )}
+              </Select.Option>
+            ))}
+        </Select>
       </Form.Item>
       <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select
