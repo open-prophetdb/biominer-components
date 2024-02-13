@@ -1,6 +1,7 @@
 import { Col, Empty, Row } from 'antd';
 import PlotlyViewer from '../PlotlyViewer';
-import type { EntityStat, RelationStat, StatisticsChartProps } from './index.t';
+import type { StatisticsChartProps } from './index.t';
+import type { EntityStat, RelationStat } from '../typings';
 import { stat_total_node_count, stat_total_relation_count } from './utils';
 import type { PlotlyChart } from '../PlotlyViewer/data';
 import React, { useEffect, useState } from 'react';

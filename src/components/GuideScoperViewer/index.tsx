@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './index.less';
 
-const defaultUrl = 'https://biosolver.cn/index.html#/guider-query-details?entrezId=';
+const defaultUrl = 'https://biosolver.cn/#/guider-query-details?entrezId=';
 
 type GuideScoperViewerProps = {
   /**
@@ -20,7 +20,7 @@ type GuideScoperViewerProps = {
   taxid?: 9606 | 10090;
   /**
    * @description The url of the GuideScoper
-   * @default https://biosolver.cn/index.html#/guider-query-details?entrezId=
+   * @default https://biosolver.cn/#/guider-query-details?entrezId=
    */
   url?: string;
   width?: string | number;
