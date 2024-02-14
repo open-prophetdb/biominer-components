@@ -324,6 +324,7 @@ export type APIs = {
   GetNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
   GetSimilarityNodesFn: (params: {
     node_id: string;
+    relation_type: string;
     query_str: string;
     topk: number;
   }) => Promise<GraphData>;

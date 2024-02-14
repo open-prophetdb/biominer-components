@@ -17,6 +17,10 @@ export type SimilarityNodesSearcherProps = {
    */
   entityTypes: string[];
   /**
+   * @description All the statistics of the relations.
+   */
+  relationStat: RelationStat[];
+  /**
    * @description A listener to listen the submit event.
    * @default undefined
    */
@@ -37,7 +41,7 @@ export type SimilarityNodesSearcherProps = {
 type SimilarityNodesSearchObject = {
   entity_id: string;
   entity_type: string;
-  target_entity_types?: string[];
+  relation_type: string;
   topk?: number;
 };
 
@@ -59,19 +63,12 @@ export class SimilarityNodesSearchObjectClass implements SearchObjectInterface {
   }
 
   process(apis: APIs): Promise<GraphData> {
+    // TODO: Do we need a query for narrowing down the search?
     let query = undefined;
-    if (!this.data.target_entity_types || this.data.target_entity_types.length === 0) {
-      query = undefined;
-    } else {
-      query = {
-        operator: 'in',
-        value: this.data.target_entity_types,
-        field: 'entity_type',
-      };
-    }
 
     let params: any = {
       node_id: `${this.data.entity_type}${COMPOSED_ENTITY_DELIMITER}${this.data.entity_id}`,
+      relation_type: `${this.data.relation_type}`,
       topk: this.data.topk || 10,
     };
 

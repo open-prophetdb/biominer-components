@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import type { SimilarityNodesSearcherProps } from './index.t';
 import { SimilarityNodesSearchObjectClass } from './index.t';
 import { type OptionType, MergeModeOptions } from '../typings';
-import { fetchNodes } from '../utils';
+import { fetchNodes, makeRelationTypes } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 import EntityCard from '../EntityCard';
 
@@ -13,6 +13,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
   const [form] = Form.useForm();
   const entityType = Form.useWatch('entity_type', form);
 
+  const relationTypeOptions = makeRelationTypes(props.relationStat);
   const [entityTypeOptions, setEntityTypeOptions] = useState<OptionType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -54,7 +55,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       form.setFieldsValue({
         entity_type: props.searchObject.data.entity_type,
         entity_id: props.searchObject.data.entity_id,
-        target_entity_types: props.searchObject.data.target_entity_types,
+        relation_type: props.searchObject.data.relation_type,
         topk: props.searchObject.data.topk,
         merge_mode: props.searchObject.merge_mode,
       });
@@ -69,7 +70,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
           let payload = {
             entity_type: values.entity_type,
             entity_id: values.entity_id,
-            target_entity_types: values.target_entity_types ? values.target_entity_types : [],
+            relation_type: values.relation_type,
             topk: values.topk ? values.topk : 50,
           };
 
@@ -169,23 +170,33 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         </Select>
       </Form.Item>
       <Form.Item
-        label="Target Node Type"
-        name="target_entity_types"
-        rules={[{ required: false, message: 'Please select node type(s).' }]}
+        label="Relation Type"
+        name="relation_type"
+        rules={[{ required: true, message: 'Please select a relation type' }]}
       >
         <Select
-          mode="multiple"
-          allowClear
+          filterOption={(input, option) => {
+            // @ts-ignore
+            return option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+          }}
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}
-          defaultActiveFirstOption={false}
-          showArrow={true}
-          placeholder={'Please select node type(s)'}
-          options={entityTypeOptions}
-          filterOption={true}
-          onSelect={handleSelectNodeType}
-        />
+          allowClear
+          autoClearSearchValue={false}
+          placeholder="Please select relation types"
+        >
+          {relationTypeOptions.map((item: OptionType) => {
+            return (
+              <Select.Option key={item.value} value={item.value}>
+                <div className="option-container">
+                  <div className="option-label">{item.label}</div>
+                  <div className="option-description">{item.description}</div>
+                </div>
+              </Select.Option>
+            );
+          })}
+        </Select>
       </Form.Item>
       <Form.Item
         name="topk"

@@ -56,7 +56,7 @@ import type {
   MergeMode,
   Layout,
 } from '../typings';
-import { EdgeInfo, MenuItem, CanvasMenuItem } from './typings';
+import { EdgeInfo, NodeMenuItem, CanvasMenuItem, EdgeMenuItem } from './typings';
 import Movable from '../Moveable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
@@ -467,6 +467,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const searchSimilarNodes = (
     entityType: string,
     entityId: string | undefined,
+    relationType?: string,
     mergeMode?: MergeMode,
     topk?: number,
   ) => {
@@ -475,6 +476,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         {
           entity_type: entityType,
           entity_id: entityId,
+          relation_type: relationType || '',
           topk: topk || 10,
         },
         mergeMode || 'append',
@@ -557,7 +559,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   const onEdgeMenuClick = (
-    menuItem: MenuItem,
+    menuItem: EdgeMenuItem,
     source: GraphNode,
     target: GraphNode,
     edge: GraphEdge,
@@ -649,7 +651,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
-  const onNodeMenuClick = (menuItem: MenuItem, node: GraphNode, graph: Graph, graphin: any) => {
+  const onNodeMenuClick = (menuItem: NodeMenuItem, node: GraphNode, graph: Graph, graphin: any) => {
     console.log(`onNodeMenuClick [${menuItem.key}]: `, menuItem, node);
     if (menuItem.key == 'delete-nodes') {
       const nodes = getSelectedNodes(graph);
@@ -674,7 +676,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       searchLinkedNodes(node.data.label, node.data.id, 'append', 1, 10);
     } else if (menuItem.key == 'find-similar-nodes') {
       enableAdvancedSearch();
-      searchSimilarNodes(node.data.label, node.data.id, 'append', 10);
+      searchSimilarNodes(node.data.label, node.data.id, undefined, 'append', 10);
     } else if (
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
