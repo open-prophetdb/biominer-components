@@ -9,6 +9,7 @@ import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { EdgeAttribute } from './index.t';
 import { SelectionChangedEvent } from 'ag-grid-community';
 import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
+import { uniqBy } from 'lodash';
 
 export interface Column {
   field: string;
@@ -95,20 +96,21 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
   // More details on columnDefs: https://www.ag-grid.com/react-data-grid/column-definitions/
   const defaultColumns = [
-    'relid',
     'reltype',
-    'source',
-    'target',
-    // 'source_id',
-    // 'target_id',
     'source_name',
     'target_name',
-    'source_resource',
-    'target_resource',
+    'score',
     'source_type',
     'target_type',
-    'dataset',
-    'resource',
+    // 'relid',
+    // 'source',
+    // 'target',
+    // 'source_resource',
+    // 'target_resource',
+    // 'dataset',
+    // 'resource',
+    // 'source_id',
+    // 'target_id',
     // 'key_sentence',
     // 'pmids',
     // 'score',
@@ -121,22 +123,6 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
       showDisabledCheckboxes: true,
       filter: 'agTextColumnFilter',
     },
-    makeField('reltype', 'string'),
-    makeField('source', 'string'),
-    makeField('target', 'string'),
-    // makeField('source_id', 'string'),
-    // makeField('target_id', 'string'),
-    makeField('source_name', 'string'),
-    makeField('target_name', 'string'),
-    makeField('source_resource', 'string'),
-    makeField('target_resource', 'string'),
-    makeField('source_type', 'string'),
-    makeField('target_type', 'string'),
-    makeField('dataset', 'string'),
-    makeField('resource', 'string'),
-    // makeField('key_sentence', 'string'),
-    // makeField('pmids', 'string'),
-    // makeField('score', 'number'),
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
@@ -157,20 +143,22 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
     console.log('EdgeTable - useEffect - allColumns: ', allColumns);
 
-    const additionalColumns = allColumns.filter((column: Column) => {
+    const otherColumnDefs = allColumns.map((column: Column) => {
       if (!defaultColumns.includes(column.field)) {
-        return true;
+        return makeField(column.field, column.type, true);
+      } else {
+        return makeField(column.field, column.type, false);
       }
     });
 
-    console.log('EdgeTable - useEffect - additionalColumns: ', additionalColumns);
-
-    const additionalColumnDefs = additionalColumns.map((column: Column) => {
-      return makeField(column.field, column.type, true);
+    console.log('EdgeTable - useEffect - columnDefs: ', otherColumnDefs);
+    const uniqueColumnDefs = uniqBy(columnDefs.concat(otherColumnDefs), 'field');
+    // Keep the order of uniqueColumnDefs as the same as the defaultColumns.
+    const sortedColumnDefs = uniqueColumnDefs.sort((a, b) => {
+      return defaultColumns.indexOf(a.field) - defaultColumns.indexOf(b.field);
     });
 
-    console.log('EdgeTable - useEffect - additionalColumnDefs: ', additionalColumnDefs);
-    setColumnDefs(columnDefs.concat(additionalColumnDefs));
+    setColumnDefs(sortedColumnDefs);
   }, [props.edges]);
 
   const defaultColDef = useMemo(() => {
