@@ -335,3 +335,50 @@ export const pushStack = (action: String, data: any, stack: Stack) => {
 
   console.log('pushStack - stack: ', stack);
 };
+
+export const guessLink = (value: string | number | boolean | undefined) => {
+  let v = `${value}`;
+  if (v.startsWith('ENTREZ')) {
+    // return `https://www.ncbi.nlm.nih.gov/gene/${v.split(':')[1]}`;
+    return `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${v.split(':')[1]}`;
+  } else if (v.startsWith('DrugBank')) {
+    return `https://go.drugbank.com/drugs/${v.split(':')[1]}`;
+  } else if (v.startsWith('KEGG')) {
+    // https://www.genome.jp/entry/pathway+hsa00010
+    return `https://www.genome.jp/entry/pathway+${v.split(':')[1]}`;
+  } else if (v.startsWith('WikiPathways')) {
+    // https://www.wikipathways.org/pathways/WP3673.html
+    return `https://www.wikipathways.org/pathways/${v.split(':')[1]}.html`;
+  } else if (v.startsWith('MESH')) {
+    // e.g. https://bioportal.bioontology.org/ontologies/MESH/?p=classes&conceptid=D000602
+    return `https://bioportal.bioontology.org/ontologies/MESH?p=classes&conceptid=${
+      v.split(':')[1]
+    }`;
+  } else if (v.startsWith('Reactome')) {
+    // https://reactome.org/content/detail/R-HSA-70326
+    return `https://reactome.org/content/detail/${v.split(':')[1]}`;
+  } else if (v.startsWith('MONDO')) {
+    // https://bioportal.bioontology.org/ontologies/MONDO/?p=classes&conceptid=MONDO:0000001
+    return `https://bioportal.bioontology.org/ontologies/MONDO?p=classes&conceptid=${v}`;
+  } else if (v.startsWith('DOID')) {
+    // https://bioportal.bioontology.org/ontologies/DOID/?p=classes&conceptid=DOID:9351
+    return `https://bioportal.bioontology.org/ontologies/DOID?p=classes&conceptid=${v}`;
+  } else if (v.startsWith('HP')) {
+    // https://bioportal.bioontology.org/ontologies/HP/?p=classes&conceptid=HP:0000001
+    return `https://bioportal.bioontology.org/ontologies/HP?p=classes&conceptid=${v}`;
+  } else if (v.startsWith('GO')) {
+    // https://bioportal.bioontology.org/ontologies/GO/?p=classes&conceptid=GO:0008150
+    return `https://bioportal.bioontology.org/ontologies/GO?p=classes&conceptid=${v}`;
+  } else if (v.startsWith('SYMP')) {
+    // https://bioportal.bioontology.org/ontologies/SYMP/?p=classes&conceptid=SYMP:0000462
+    return `https://bioportal.bioontology.org/ontologies/SYMP?p=classes&conceptid=${v}`;
+  } else if (v.startsWith('HMDB')) {
+    // https://hmdb.ca/metabolites/HMDB00001
+    return `https://hmdb.ca/metabolites/${v.split(':')[1]}`;
+  } else if (v.startsWith('UBERON')) {
+    // https://bioportal.bioontology.org/ontologies/UBERON/?p=classes&conceptid=http://purl.obolibrary.org/obo/UBERON_0002113
+    return `https://bioportal.bioontology.org/ontologies/UBERON?p=classes&conceptid=http://purl.obolibrary.org/obo/UBERON_${
+      v.split(':')[1]
+    }`;
+  }
+};

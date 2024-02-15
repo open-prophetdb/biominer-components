@@ -5,6 +5,7 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { NodeAttribute } from './index.t';
+import { guessLink } from '../utils';
 import { SelectionChangedEvent } from 'ag-grid-community';
 import { SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 
@@ -71,8 +72,13 @@ const removeComplicatedFields = (nodes: NodeAttribute[]): NodeAttribute[] => {
   });
 };
 
-const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
-  return {
+const makeField = (
+  fieldName: string,
+  fieldType: string,
+  hidden?: boolean,
+  cellRenderer?: (params: any) => any,
+) => {
+  let fieldConfig: any = {
     field: fieldName,
     filter: detectFilter(fieldType),
     minWidth: 100,
@@ -80,6 +86,12 @@ const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
   };
+
+  if (cellRenderer) {
+    fieldConfig['cellRenderer'] = cellRenderer;
+  }
+
+  return fieldConfig;
 };
 
 const NodeTable: React.FC<NodeTableProps> = (props) => {
@@ -105,7 +117,14 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
       filter: 'agTextColumnFilter',
     },
     makeField('label', 'string'),
-    makeField('name', 'string'),
+    makeField('name', 'string', false, (params: NodeAttribute) => {
+      console.log('NodeTable - makeField - name - params: ', params, guessLink(params.data.label));
+      return (
+        <a href={guessLink(params.data.label)} target="_blank">
+          {params.value}
+        </a>
+      );
+    }),
     makeField('resource', 'string'),
     makeField('description', 'string'),
     makeField('degree', 'number'),
@@ -216,7 +235,7 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
           enableAdvancedFilter={true}
           groupSelectsChildren={true}
           rowGroupPanelShow={'always'}
-          suppressRowClickSelection={false}
+          suppressRowClickSelection={true}
           sideBar={false}
           statusBar={statusBar}
           enableCellTextSelection={true}

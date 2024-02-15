@@ -10,6 +10,7 @@ import { EdgeAttribute } from './index.t';
 import { SelectionChangedEvent } from 'ag-grid-community';
 import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 import { uniqBy } from 'lodash';
+import { guessLink } from '../utils';
 
 export interface Column {
   field: string;
@@ -58,8 +59,13 @@ const toTitleCase = (str: string) => {
   return v.titleCase(str.replace(/_/g, ' '));
 };
 
-const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
-  return {
+const makeField = (
+  fieldName: string,
+  fieldType: string,
+  hidden?: boolean,
+  cellRenderer?: (params: any) => any,
+) => {
+  let fieldConfig: any = {
     field: fieldName,
     filter: detectFilter(fieldType),
     minWidth: 150,
@@ -68,6 +74,12 @@ const makeField = (fieldName: string, fieldType: string, hidden?: boolean) => {
     hide: hidden || false,
     tooltipField: fieldName,
   };
+
+  if (cellRenderer) {
+    fieldConfig['cellRenderer'] = cellRenderer;
+  }
+
+  return fieldConfig;
 };
 
 const removeComplicatedFields = (edges: EdgeAttribute[]): EdgeAttribute[] => {
@@ -144,11 +156,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     console.log('EdgeTable - useEffect - allColumns: ', allColumns);
 
     const otherColumnDefs = allColumns.map((column: Column) => {
-      if (!defaultColumns.includes(column.field)) {
-        return makeField(column.field, column.type, true);
-      } else {
-        return makeField(column.field, column.type, false);
-      }
+      return makeField4Link(column);
     });
 
     console.log('EdgeTable - useEffect - columnDefs: ', otherColumnDefs);
@@ -225,6 +233,34 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     };
   }, []);
 
+  const makeField4Link = (column: Column): any => {
+    if (column.field === 'source_name') {
+      return makeField(column.field, column.type, false, (params: EdgeAttribute) => {
+        return (
+          <a href={guessLink(params.data.source_id)} target="_blank">
+            {params.value}
+          </a>
+        );
+      });
+    }
+
+    if (column.field === 'target_name') {
+      return makeField(column.field, column.type, false, (params: EdgeAttribute) => {
+        return (
+          <a href={guessLink(params.data.target_id)} target="_blank">
+            {params.value}
+          </a>
+        );
+      });
+    }
+
+    if (!defaultColumns.includes(column.field)) {
+      return makeField(column.field, column.type, true);
+    } else {
+      return makeField(column.field, column.type, false);
+    }
+  };
+
   return (
     <div style={containerStyle}>
       <div style={{ ...gridStyle, ...props.style }} className={'ag-theme-quartz'}>
@@ -237,7 +273,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           enableAdvancedFilter={true}
           groupSelectsChildren={true}
           rowGroupPanelShow={'always'}
-          suppressRowClickSelection={false}
+          suppressRowClickSelection={true}
           sideBar={false}
           enableCellTextSelection={true}
           enableBrowserTooltips={true}

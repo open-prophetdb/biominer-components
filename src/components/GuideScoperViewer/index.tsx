@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './index.less';
 
-const defaultUrl = 'https://biosolver.cn/#/guider-query-details?entrezId=';
+const defaultUrl = 'https://biosolver.cn/#/grna-query-details?entrezId=';
 
 type GuideScoperViewerProps = {
   /**
@@ -20,22 +20,30 @@ type GuideScoperViewerProps = {
   taxid?: 9606 | 10090;
   /**
    * @description The url of the GuideScoper
-   * @default https://biosolver.cn/#/guider-query-details?entrezId=
+   * @default https://biosolver.cn/#/grna-query-details?entrezId=
    */
   url?: string;
   width?: string | number;
   height?: string | number;
 };
 
+const genLink = (url: string, geneId: string, taxid?: number) => {
+  if (taxid == 9606 || taxid == 10090) {
+    return `${url}${geneId}&taxid=${taxid}&isEmbeded=true`;
+  } else {
+    return `${url}${geneId}&isEmbeded=true`;
+  }
+};
+
 const GuideScoperViewer: React.FC<GuideScoperViewerProps> = (props) => {
   const ref = useRef(null);
   const { geneId, taxid, url, id } = props;
-  const [src, setSrc] = useState<string>(`${defaultUrl}${geneId}&taxid=${taxid}&isEmbeded=true`);
+  const [src, setSrc] = useState<string>(genLink(defaultUrl, geneId, taxid));
   const [rootId, setRootId] = useState<string>(id || 'guide-scoper-viewer');
 
   useEffect(() => {
     if (url && url !== defaultUrl) {
-      const newSrc = `${url}${geneId}&taxid=${taxid}&isEmbeded=true`;
+      const newSrc = genLink(url, geneId, taxid);
       setSrc(newSrc);
 
       window.addEventListener('message', (event) => {

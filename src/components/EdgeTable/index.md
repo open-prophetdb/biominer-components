@@ -15,7 +15,7 @@ import { EdgeTable } from 'biominer-components';
 import edges from './edges';
 
 const formattedEdges = edges.map((edge: any) => {
-  const data = edge.data;
+  const data = JSON.parse(JSON.stringify(edge.data));
 
   // Remove all other properties which its value is an object
   Object.keys(edge).forEach((key) => {
