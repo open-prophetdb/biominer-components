@@ -322,7 +322,7 @@ export type APIs = {
   DeleteGraphHistoryFn: (params: { id: string }) => Promise<void>;
   // Prediction
   GetNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
-  GetSimilarityNodesFn: (params: {
+  GetPredictedNodesFn: (params: {
     node_id: string;
     relation_type: string;
     query_str: string;

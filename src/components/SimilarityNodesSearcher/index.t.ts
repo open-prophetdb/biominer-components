@@ -76,6 +76,6 @@ export class SimilarityNodesSearchObjectClass implements SearchObjectInterface {
       params['query_str'] = JSON.stringify(query);
     }
 
-    return apis.GetSimilarityNodesFn(params);
+    return apis.GetPredictedNodesFn(params);
   }
 }

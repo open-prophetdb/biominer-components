@@ -209,7 +209,7 @@ export default () => {
           PostGraphHistoryFn: postGraphHistory,
           DeleteGraphHistoryFn: deleteGraphHistoryById,
           GetNodesFn: getNodes,
-          GetSimilarityNodesFn: getSimilarityNodes,
+          GetPredictedNodesFn: getSimilarityNodes,
           GetOneStepLinkedNodesFn: getOneStepLinkedNodes,
           GetConnectedNodesFn: getConnectedNodes,
           GetEntity2DFn: getEntity2D,
