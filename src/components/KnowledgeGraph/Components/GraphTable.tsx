@@ -77,10 +77,14 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
   return (
     <TableTabs
       onClose={props.onClose}
-      onLoadGraph={() => {
-        // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
-        props.onLoadGraph && props.onLoadGraph(selectedGraph);
-      }}
+      onLoadGraph={
+        props.onLoadGraph
+          ? () => {
+              // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
+              props.onLoadGraph(selectedGraph);
+            }
+          : undefined
+      }
     >
       {props.nodeDataSources.length > 0 ? (
         <NodeTable
