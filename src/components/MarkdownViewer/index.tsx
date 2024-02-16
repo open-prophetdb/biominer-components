@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Empty } from 'antd';
+import { uniq } from 'lodash';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { MarkdownProps } from './index.t';
@@ -69,40 +70,45 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
   console.log('MarkdownViewer: updated');
 
   useEffect(() => {
+    const newRehypePlugins: any[] = [];
+    const newRemarkPlugins: any[] = [];
+
     if (props.enableToc) {
       // How to load library dynamically
       import('rehype-toc').then((module) => {
-        setRehypePlugins([...rehypePlugins, module.default]);
+        newRehypePlugins.push(module.default);
       });
 
       import('rehype-autolink-headings').then((module) => {
-        setRehypePlugins([...rehypePlugins, module.default]);
+        newRehypePlugins.push(module.default);
       });
 
       import('remark-toc').then((module) => {
-        setRemarkPlugins([...remarkPlugins, module.default]);
+        newRemarkPlugins.push(module.default);
       });
     }
 
     if (props.enableVideo) {
       import('rehype-video').then((module) => {
-        setRehypePlugins([...rehypePlugins, module.default]);
+        newRehypePlugins.push(module.default);
       });
     }
 
     if (props.enableRaw) {
       import('rehype-raw').then((module) => {
-        setRehypePlugins([...rehypePlugins, module.default]);
+        newRehypePlugins.push(module.default);
         console.log('MarkdownViewer: enableRaw', rehypePlugins);
       });
     }
 
     if (props.enableSlug) {
       import('rehype-slug').then((module) => {
-        setRehypePlugins([...rehypePlugins, module.default]);
+        newRehypePlugins.push(module.default);
       });
     }
 
+    setRemarkPlugins(uniq([...remarkPlugins, ...newRemarkPlugins]));
+    setRehypePlugins(uniq([...rehypePlugins, ...newRehypePlugins]));
     // Force to update the markdown, otherwise the plugins will not be loaded
     setKey(Math.random().toString(36).substring(7));
   }, [props.enableToc, props.enableVideo, props.enableRaw, props.enableSlug]);
