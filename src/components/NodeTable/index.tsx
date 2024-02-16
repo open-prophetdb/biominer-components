@@ -110,12 +110,17 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
   const defaultColumns = ['id', 'label', 'name', 'resource', 'description', 'degree', 'cluster'];
   const [columnDefs, setColumnDefs] = useState<any[]>([
     {
-      field: 'id',
+      headerName: '#',
+      cellRenderer: function (params: any) {
+        // Return the row index for the first column
+        return params.node.rowIndex + 1;
+      },
       headerCheckboxSelection: true,
       checkboxSelection: true,
       showDisabledCheckboxes: true,
       filter: 'agTextColumnFilter',
     },
+    makeField('id', 'string', true),
     makeField('label', 'string'),
     makeField('name', 'string', false, (params: NodeAttribute) => {
       console.log('NodeTable - makeField - name - params: ', params, guessLink(params.data.label));
@@ -126,9 +131,9 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
       );
     }),
     makeField('resource', 'string'),
+    makeField('cluster', 'string'),
     makeField('description', 'string'),
     makeField('degree', 'number'),
-    makeField('cluster', 'string'),
   ]);
 
   useEffect(() => {

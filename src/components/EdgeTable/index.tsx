@@ -129,7 +129,11 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ];
   const [columnDefs, setColumnDefs] = useState<any[]>([
     {
-      field: 'relid',
+      headerName: '#',
+      cellRenderer: function (params: any) {
+        // Return the row index for the first column
+        return params.node.rowIndex + 1;
+      },
       headerCheckboxSelection: true,
       checkboxSelection: true,
       showDisabledCheckboxes: true,
@@ -138,7 +142,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
-    type: 'fitGridWidth', // fitCellContents
+    type: 'fitCellContents', // fitGridWidth
   };
 
   useEffect(() => {
