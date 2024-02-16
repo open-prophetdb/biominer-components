@@ -1120,8 +1120,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   title="Graph Table"
                 >
                   <GraphTable
-                    // For disabling the Explain button
-                    onClose={() => {}}
                     style={{ width: '100%', height: '100%' }}
                     nodeDataSources={nodeDataSources as NodeAttribute[]}
                     edgeDataSources={edgeDataSources as EdgeAttribute[]}
