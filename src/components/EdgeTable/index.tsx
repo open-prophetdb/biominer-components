@@ -176,7 +176,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
-      minWidth: 180,
+      // minWidth: 180,
       filter: true,
     };
   }, []);
