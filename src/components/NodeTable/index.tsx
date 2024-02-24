@@ -77,15 +77,19 @@ const makeField = (
   fieldType: string,
   hidden?: boolean,
   cellRenderer?: (params: any) => any,
+  minWidth?: number,
 ) => {
   let fieldConfig: any = {
     field: fieldName,
     filter: detectFilter(fieldType),
-    minWidth: 100,
     headerName: toTitleCase(fieldName),
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
   };
+
+  if (minWidth) {
+    fieldConfig['minWidth'] = minWidth;
+  }
 
   if (cellRenderer) {
     fieldConfig['cellRenderer'] = cellRenderer;
@@ -169,7 +173,6 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
-      // minWidth: 180,
       filter: true,
     };
   }, []);

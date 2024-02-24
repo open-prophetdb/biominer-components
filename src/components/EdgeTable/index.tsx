@@ -64,16 +64,20 @@ const makeField = (
   fieldType: string,
   hidden?: boolean,
   cellRenderer?: (params: any) => any,
+  minWidth?: number,
 ) => {
   let fieldConfig: any = {
     field: fieldName,
     filter: detectFilter(fieldType),
-    minWidth: 150,
     headerName: toTitleCase(fieldName),
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
     tooltipField: fieldName,
   };
+
+  if (minWidth) {
+    fieldConfig['minWidth'] = minWidth;
+  }
 
   if (cellRenderer) {
     fieldConfig['cellRenderer'] = cellRenderer;
@@ -142,7 +146,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
-    type: 'fitCellContents', // fitGridWidth
+    type: 'fitGridWidth', // fitCellContents
   };
 
   useEffect(() => {
@@ -176,7 +180,6 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
-      // minWidth: 180,
       filter: true,
     };
   }, []);
@@ -239,23 +242,35 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
   const makeField4Link = (column: Column): any => {
     if (column.field === 'source_name') {
-      return makeField(column.field, column.type, false, (params: EdgeAttribute) => {
-        return (
-          <a href={guessLink(params.data.source_id)} target="_blank">
-            {params.value}
-          </a>
-        );
-      });
+      return makeField(
+        column.field,
+        column.type,
+        false,
+        (params: EdgeAttribute) => {
+          return (
+            <a href={guessLink(params.data.source_id)} target="_blank">
+              {params.value}
+            </a>
+          );
+        },
+        150,
+      );
     }
 
     if (column.field === 'target_name') {
-      return makeField(column.field, column.type, false, (params: EdgeAttribute) => {
-        return (
-          <a href={guessLink(params.data.target_id)} target="_blank">
-            {params.value}
-          </a>
-        );
-      });
+      return makeField(
+        column.field,
+        column.type,
+        false,
+        (params: EdgeAttribute) => {
+          return (
+            <a href={guessLink(params.data.target_id)} target="_blank">
+              {params.value}
+            </a>
+          );
+        },
+        180,
+      );
     }
 
     if (!defaultColumns.includes(column.field)) {
