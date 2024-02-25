@@ -26,23 +26,13 @@ export type MarkdownProps = {
    */
   getFile?: (params: MarkdownParams) => Promise<any>;
   /**
-   * @description Whether show table of contents? true | false, If you cannot see the content, you may need to install rehype-toc, rehype-autolink-headings, remark-toc
-   * @default false
+   * @description Remark plugins
+   * @default []
    */
-  enableToc?: boolean;
+  remarkPlugins?: any[];
   /**
-   * @description Whether show video? true | false; If you cannot see the content, you may need to install rehype-video
-   * @default false
+   * @description Rehype plugins
+   * @default []
    */
-  enableVideo?: boolean;
-  /**
-   * @description Whether show raw? true | false, If you cannot see the content, you may need to install rehype-raw
-   * @default false
-   */
-  enableRaw?: boolean;
-  /**
-   * @description Whether show slug? true | false, If you cannot see the content, you may need to install rehype-slug
-   * @default false
-   */
-  enableSlug?: boolean;
+  rehypePlugins?: any[];
 };

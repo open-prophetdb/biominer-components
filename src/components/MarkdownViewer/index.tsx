@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Empty } from 'antd';
-import { uniq } from 'lodash';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { MarkdownProps } from './index.t';
@@ -10,8 +9,11 @@ import './index.less';
 const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
   const [markdown, setMarkdown] = useState<string | null>(null);
   const [key, setKey] = useState<string>('');
-  const [rehypePlugins, setRehypePlugins] = useState<any>([]);
-  const [remarkPlugins, setRemarkPlugins] = useState<any>([remarkGfm]);
+  const [rehypePlugins, setRehypePlugins] = useState<any>([...(props.rehypePlugins || [])]);
+  const [remarkPlugins, setRemarkPlugins] = useState<any>([
+    remarkGfm,
+    ...(props.remarkPlugins || []),
+  ]);
 
   const fetchMarkdown = function (url: string): Promise<string> {
     if (url.match(/^(minio|file):\/\//)) {
@@ -66,59 +68,6 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
       setKey(props.markdown);
     }
   }, [props.url, props.markdown]);
-
-  console.log('MarkdownViewer: updated');
-
-  useEffect(() => {
-    const newRehypePlugins: any[] = [];
-    const newRemarkPlugins: any[] = [];
-
-    if (props.enableToc) {
-      // How to load library dynamically
-      import('rehype-toc').then((module) => {
-        newRehypePlugins.push(module.default);
-      });
-
-      import('rehype-autolink-headings').then((module) => {
-        newRehypePlugins.push(module.default);
-      });
-
-      import('remark-toc').then((module) => {
-        newRemarkPlugins.push(module.default);
-      });
-    }
-
-    if (props.enableVideo) {
-      import('rehype-video').then((module) => {
-        newRehypePlugins.push(module.default);
-      });
-    }
-
-    if (props.enableRaw) {
-      import('rehype-raw').then((module) => {
-        newRehypePlugins.push(module.default);
-        console.log('MarkdownViewer: enableRaw', rehypePlugins);
-      });
-    }
-
-    if (props.enableSlug) {
-      import('rehype-slug').then((module) => {
-        newRehypePlugins.push(module.default);
-      });
-    }
-
-    setRemarkPlugins(uniq([...remarkPlugins, ...newRemarkPlugins]));
-    setRehypePlugins(uniq([...rehypePlugins, ...newRehypePlugins]));
-    // Force to update the markdown, otherwise the plugins will not be loaded
-    setKey(Math.random().toString(36).substring(7));
-  }, [
-    props.enableToc,
-    props.enableVideo,
-    props.enableRaw,
-    props.enableSlug,
-    props.url,
-    props.markdown,
-  ]);
 
   return markdown ? (
     <ReactMarkdown

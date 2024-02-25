@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.41",
+  "version": "0.2.42",
   "scripts": {
     "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",

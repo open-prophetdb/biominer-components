@@ -10,6 +10,8 @@ group:
 ```tsx
 import React from 'react';
 import { MarkdownViewer } from 'biominer-components';
+import RehypeToc from 'rehype-toc';
+import RehypeRaw from 'rehype-raw';
 
 const markdown = `
 # Header 1
@@ -46,7 +48,7 @@ const foo = 'bar';
 \`\`\`
 `;
 
-export default () => <MarkdownViewer markdown={markdown} enableRaw />;
+export default () => <MarkdownViewer markdown={markdown} rehypePlugins={[RehypeRaw, RehypeToc]} />;
 ```
 
 <API></API>
