@@ -111,7 +111,14 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
     setRehypePlugins(uniq([...rehypePlugins, ...newRehypePlugins]));
     // Force to update the markdown, otherwise the plugins will not be loaded
     setKey(Math.random().toString(36).substring(7));
-  }, [props.enableToc, props.enableVideo, props.enableRaw, props.enableSlug]);
+  }, [
+    props.enableToc,
+    props.enableVideo,
+    props.enableRaw,
+    props.enableSlug,
+    props.url,
+    props.markdown,
+  ]);
 
   return markdown ? (
     <ReactMarkdown
