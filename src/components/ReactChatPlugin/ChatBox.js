@@ -51,6 +51,7 @@ class ChatBox extends React.Component {
       title,
       dislikeHandler,
       likeHandler,
+      deleteHandler,
     } = this.props;
 
     const messageList = messages.map((message, idx) => {
@@ -59,6 +60,7 @@ class ChatBox extends React.Component {
           key={idx}
           dislikeHandler={dislikeHandler}
           likeHandler={likeHandler}
+          deleteHandler={deleteHandler}
           left={message.author && message.author.id !== userId}
           timestampFormat={timestampFormat}
           {...message}

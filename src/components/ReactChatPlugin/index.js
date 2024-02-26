@@ -1,3 +1,4 @@
+// More details: https://github.com/leon0707/react-chat-plugin
 import ChatBox from './ChatBox';
 import ChatFrame from './ChatFrame';
 import AiIcon from './ai.svg';

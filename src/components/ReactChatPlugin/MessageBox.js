@@ -4,6 +4,7 @@ import ErrorIcon from './error-icon.svg';
 import avatar from './placeholder.png';
 import DislikeOutlined from './dislike.svg';
 import LikeOutlined from './like.svg';
+import DeleteOutlined from './delete.svg';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 
@@ -34,6 +35,7 @@ function MessageBox(props) {
     text,
     likeHandler,
     dislikeHandler,
+    deleteHandler,
   } = props;
 
   const locale = getLocale();
@@ -137,34 +139,27 @@ function MessageBox(props) {
           <div className="react-chat-additional">
             {time !== null && time}
             <span className="react-chat-message-like">
-              <Tooltip
-                title="Like"
-                getTooltipContainer={(triggerNode) => {
-                  return triggerNode;
+              <img
+                src={LikeOutlined}
+                className={'chatbox-icon'}
+                onClick={(props) => {
+                  if (likeHandler) likeHandler(props);
                 }}
-              >
-                <img
-                  src={LikeOutlined}
-                  className={'chatbox-icon'}
-                  onClick={(props) => {
-                    if (likeHandler) likeHandler(props);
-                  }}
-                />
-              </Tooltip>
-              <Tooltip
-                title="Dislike"
-                getTooltipContainer={(triggerNode) => {
-                  return triggerNode;
+              />
+              <img
+                src={DislikeOutlined}
+                className={'chatbox-icon'}
+                onClick={(props) => {
+                  if (dislikeHandler) dislikeHandler(props);
                 }}
-              >
-                <img
-                  src={DislikeOutlined}
-                  className={'chatbox-icon'}
-                  onClick={(props) => {
-                    if (dislikeHandler) dislikeHandler(props);
-                  }}
-                />
-              </Tooltip>
+              />
+              <img
+                src={DeleteOutlined}
+                className={'chatbox-icon'}
+                onClick={(props) => {
+                  if (deleteHandler) deleteHandler(props);
+                }}
+              />
             </span>
           </div>
         </div>
