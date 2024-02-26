@@ -177,7 +177,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         <Select
           filterOption={(input, option) => {
             // @ts-ignore
-            return option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            return option?.key.toLowerCase().indexOf(input.toLowerCase()) >= 0;
           }}
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
