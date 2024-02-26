@@ -139,7 +139,40 @@ export const makeRelationTypes = (edgeStat: RelationStat[]): OptionType[] => {
   let o: OptionType[] = [];
   const maxDigits = getMaxDigits(edgeStat.map((element: RelationStat) => element.relation_count));
 
-  edgeStat.forEach((element: RelationStat) => {
+  // TODO: It might have several resources for the same relation type. So we need to group them. But whether we have fixed this issue completely?
+  const grouped: { [key: string]: RelationStat & { resources: string[] } } = {};
+  edgeStat.forEach((element) => {
+    const key = `${element.relation_type}-${element.start_entity_type}-${element.end_entity_type}`;
+
+    if (!grouped[key]) {
+      grouped[key] = {
+        id: element.id,
+        description: element.description,
+        relation_count: element.relation_count,
+        // Only for compatibility with the data type, it is not used.
+        resource: element.resource,
+        resources: [element.resource],
+        relation_type: element.relation_type,
+        start_entity_type: element.start_entity_type,
+        end_entity_type: element.end_entity_type,
+      };
+    } else {
+      grouped[key].relation_count += element.relation_count;
+      grouped[key].resources.push(element.resource);
+    }
+  });
+
+  const groupedEdgeStat: RelationStat[] = Object.values(grouped).map((group) => ({
+    id: group.id,
+    description: group.description,
+    relation_count: group.relation_count,
+    resource: group.resources.join('|'),
+    relation_type: group.relation_type,
+    start_entity_type: group.start_entity_type,
+    end_entity_type: group.end_entity_type,
+  }));
+
+  groupedEdgeStat.forEach((element: RelationStat) => {
     const relation_count = element.relation_count.toString().padStart(maxDigits, '0');
     const relationshipType = getRelationOption(
       element.relation_type,
