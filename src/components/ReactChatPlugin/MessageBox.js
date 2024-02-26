@@ -142,21 +142,21 @@ function MessageBox(props) {
               <img
                 src={LikeOutlined}
                 className={'chatbox-icon'}
-                onClick={(props) => {
+                onClick={(e) => {
                   if (likeHandler) likeHandler(props);
                 }}
               />
               <img
                 src={DislikeOutlined}
                 className={'chatbox-icon'}
-                onClick={(props) => {
+                onClick={(e) => {
                   if (dislikeHandler) dislikeHandler(props);
                 }}
               />
               <img
                 src={DeleteOutlined}
                 className={'chatbox-icon'}
-                onClick={(props) => {
+                onClick={(e) => {
                   if (deleteHandler) deleteHandler(props);
                 }}
               />
