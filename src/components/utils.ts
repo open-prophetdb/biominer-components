@@ -189,7 +189,7 @@ export const makeRelationTypes = (edgeStat: RelationStat[]): OptionType[] => {
     });
   });
 
-  console.log('makeRelationTypes', o, edgeStat);
+  console.log('makeRelationTypes', o, edgeStat, groupedEdgeStat);
   return uniqBy(o, 'value').sort((a: any, b: any) => b.order - a.order);
 };
 

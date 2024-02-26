@@ -67,7 +67,8 @@ function MessageBox(props) {
         })
       : [];
 
-    const rehypePlugins = [];
+    // Allow for custom rehype plugins, such as rehype-autolink-headings, rehype-slug, rehype-raw, etc.
+    const rehypePlugins = props.rehypePlugins || [];
 
     return (
       <div
