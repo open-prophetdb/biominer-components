@@ -127,9 +127,9 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     makeField('id', 'string', true),
     makeField('label', 'string'),
     makeField('name', 'string', false, (params: NodeAttribute) => {
-      console.log('NodeTable - makeField - name - params: ', params, guessLink(params.data.label));
+      console.log('NodeTable - makeField - name - params: ', params, guessLink(params.label));
       return (
-        <a href={guessLink(params.data.label)} target="_blank">
+        <a href={guessLink(params.label)} target="_blank">
           {params.value}
         </a>
       );
@@ -232,24 +232,32 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     };
   }, []);
 
-  function numberParser(params: any) {
-    return parseInt(params.newValue);
-  }
+  const onColumnRowGroupChanged = (event: any) => {
+    console.log('onColumnRowGroupChanged: ', event);
 
-  const columnTypes = useMemo(() => {
-    return {
-      numberValue: {
-        enableValue: true,
-        aggFunc: 'median',
-        editable: false,
-        valueParser: numberParser,
-      },
-      dimension: {
-        enableRowGroup: true,
-        enablePivot: true,
-      },
-    };
-  }, []);
+    // Hide the # column when the row group is opened.
+    if (event.column.rowGroupActive) {
+      const newColumnDefs = columnDefs.map((columnDef) => {
+        if (columnDef.headerName === '#') {
+          return { ...columnDef, hide: true };
+        } else {
+          return columnDef;
+        }
+      });
+
+      setColumnDefs(newColumnDefs);
+    } else {
+      const newColumnDefs = columnDefs.map((columnDef) => {
+        if (columnDef.headerName === '#') {
+          return { ...columnDef, hide: false };
+        } else {
+          return columnDef;
+        }
+      });
+
+      setColumnDefs(newColumnDefs);
+    }
+  };
 
   return (
     <div style={containerStyle}>
@@ -263,8 +271,6 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
           enableAdvancedFilter={true}
           groupSelectsChildren={true}
           rowGroupPanelShow={'always'}
-          groupAllowUnbalanced
-          columnTypes={columnTypes}
           suppressRowClickSelection={true}
           sideBar={false}
           statusBar={statusBar}
@@ -272,6 +278,7 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
           enableBrowserTooltips={true}
           rowMultiSelectWithClick={true}
           onGridReady={onGridReady}
+          onColumnRowGroupChanged={onColumnRowGroupChanged}
           autoSizeStrategy={autoSizeStrategy}
           onSelectionChanged={onSelectedChanged}
         />

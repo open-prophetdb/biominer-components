@@ -9,7 +9,7 @@ import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { EdgeAttribute } from './index.t';
 import { SelectionChangedEvent } from 'ag-grid-community';
 import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
-import { uniqBy } from 'lodash';
+import { uniq, uniqBy } from 'lodash';
 import { guessLink } from '../utils';
 
 export interface Column {
@@ -59,6 +59,21 @@ const toTitleCase = (str: string) => {
   return v.titleCase(str.replace(/_/g, ' '));
 };
 
+const detectAggFunc = (fieldType: string) => {
+  switch (fieldType) {
+    case 'number':
+      return 'avg';
+    default:
+      return (params: any) => {
+        if (params.values.length === 0) {
+          return null;
+        } else {
+          return uniq(params.values).join(',');
+        }
+      };
+  }
+};
+
 const makeField = (
   fieldName: string,
   fieldType: string,
@@ -73,6 +88,7 @@ const makeField = (
     enableRowGroup: detectRowGroupEnabled(fieldType),
     hide: hidden || false,
     tooltipField: fieldName,
+    aggFunc: detectAggFunc(fieldType),
   };
 
   if (minWidth) {
@@ -120,10 +136,10 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     'target_type',
     'source_id',
     'target_id',
-    'source_resource',
-    'target_resource',
-    'dataset',
-    'resource',
+    // 'source_resource',
+    // 'target_resource',
+    // 'dataset',
+    // 'resource',
     // 'relid',
     // 'source',
     // 'target',
@@ -145,7 +161,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
-    type: 'fitCellContents', // fitGridWidth
+    type: 'fitGridWidth', // fitCellContents
   };
 
   useEffect(() => {
@@ -162,10 +178,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
     console.log('EdgeTable - useEffect - allColumns: ', allColumns);
 
-    const filteredColumns = allColumns.filter((column: Column) => {
-      return defaultColumns.includes(column.field);
-    });
-    const otherColumnDefs = filteredColumns.map((column: Column) => {
+    const otherColumnDefs = allColumns.map((column: Column) => {
       return makeField4Link(column);
     });
 
@@ -250,7 +263,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
         false,
         (params: EdgeAttribute) => {
           return (
-            <a href={guessLink(params.data.source_id)} target="_blank">
+            <a href={guessLink(params.source_id)} target="_blank">
               {params.value}
             </a>
           );
@@ -266,7 +279,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
         false,
         (params: EdgeAttribute) => {
           return (
-            <a href={guessLink(params.data.target_id)} target="_blank">
+            <a href={guessLink(params.target_id)} target="_blank">
               {params.value}
             </a>
           );
@@ -282,24 +295,32 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     }
   };
 
-  function numberParser(params: any) {
-    return parseInt(params.newValue);
-  }
+  const onColumnRowGroupChanged = (event: any) => {
+    console.log('onColumnRowGroupChanged: ', event);
 
-  const columnTypes = useMemo(() => {
-    return {
-      numberValue: {
-        enableValue: true,
-        aggFunc: 'median',
-        editable: false,
-        valueParser: numberParser,
-      },
-      dimension: {
-        enableRowGroup: true,
-        enablePivot: true,
-      },
-    };
-  }, []);
+    // Hide the # column when the row group is opened.
+    if (event.column.rowGroupActive) {
+      const newColumnDefs = columnDefs.map((columnDef) => {
+        if (columnDef.headerName === '#') {
+          return { ...columnDef, hide: true };
+        } else {
+          return columnDef;
+        }
+      });
+
+      setColumnDefs(newColumnDefs);
+    } else {
+      const newColumnDefs = columnDefs.map((columnDef) => {
+        if (columnDef.headerName === '#') {
+          return { ...columnDef, hide: false };
+        } else {
+          return columnDef;
+        }
+      });
+
+      setColumnDefs(newColumnDefs);
+    }
+  };
 
   return (
     <div style={containerStyle}>
@@ -316,12 +337,14 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           suppressRowClickSelection={true}
           sideBar={false}
           groupAllowUnbalanced
-          columnTypes={columnTypes}
           enableCellTextSelection={true}
           enableBrowserTooltips={true}
           rowMultiSelectWithClick={true}
+          groupIncludeFooter={true}
+          groupIncludeTotalFooter={true}
           statusBar={statusBar}
           onGridReady={onGridReady}
+          onColumnRowGroupChanged={onColumnRowGroupChanged}
           onSelectionChanged={onSelectedChanged}
           autoSizeStrategy={autoSizeStrategy}
         />
