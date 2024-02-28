@@ -145,7 +145,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
-    type: 'fitGridWidth', // fitCellContents
+    type: 'fitCellContents', // fitGridWidth
   };
 
   useEffect(() => {

@@ -7,15 +7,15 @@ import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { NodeAttribute } from './index.t';
 import { guessLink } from '../utils';
 import { SelectionChangedEvent } from 'ag-grid-community';
-import { SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
+import { SizeColumnsToFitGridStrategy, SizeColumnsToContentStrategy } from 'ag-grid-enterprise';
 
 export interface Column {
   field: string;
   type: string;
 }
 
-const autoSizeStrategy: SizeColumnsToFitGridStrategy = {
-  type: 'fitGridWidth',
+const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
+  type: 'fitCellContents', // fitGridWidth
 };
 
 export interface NodeTableProps {
