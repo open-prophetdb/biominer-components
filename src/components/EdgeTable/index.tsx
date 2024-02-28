@@ -118,18 +118,17 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     'score',
     'source_type',
     'target_type',
+    'source_id',
+    'target_id',
+    'source_resource',
+    'target_resource',
+    'dataset',
+    'resource',
     // 'relid',
     // 'source',
     // 'target',
-    // 'source_resource',
-    // 'target_resource',
-    // 'dataset',
-    // 'resource',
-    // 'source_id',
-    // 'target_id',
     // 'key_sentence',
     // 'pmids',
-    // 'score',
   ];
   const [columnDefs, setColumnDefs] = useState<any[]>([
     {
@@ -163,7 +162,10 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
     console.log('EdgeTable - useEffect - allColumns: ', allColumns);
 
-    const otherColumnDefs = allColumns.map((column: Column) => {
+    const filteredColumns = allColumns.filter((column: Column) => {
+      return defaultColumns.includes(column.field);
+    });
+    const otherColumnDefs = filteredColumns.map((column: Column) => {
       return makeField4Link(column);
     });
 
@@ -280,6 +282,25 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     }
   };
 
+  function numberParser(params: any) {
+    return parseInt(params.newValue);
+  }
+
+  const columnTypes = useMemo(() => {
+    return {
+      numberValue: {
+        enableValue: true,
+        aggFunc: 'median',
+        editable: false,
+        valueParser: numberParser,
+      },
+      dimension: {
+        enableRowGroup: true,
+        enablePivot: true,
+      },
+    };
+  }, []);
+
   return (
     <div style={containerStyle}>
       <div style={{ ...gridStyle, ...props.style }} className={'ag-theme-quartz'}>
@@ -294,6 +315,8 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           rowGroupPanelShow={'always'}
           suppressRowClickSelection={true}
           sideBar={false}
+          groupAllowUnbalanced
+          columnTypes={columnTypes}
           enableCellTextSelection={true}
           enableBrowserTooltips={true}
           rowMultiSelectWithClick={true}

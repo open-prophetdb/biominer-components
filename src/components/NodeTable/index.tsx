@@ -154,20 +154,21 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
 
     console.log('NodeTable - useEffect - allColumns: ', allColumns);
 
-    const additionalColumns = allColumns.filter((column: Column) => {
-      if (!defaultColumns.includes(column.field)) {
-        return true;
-      }
-    });
+    // const additionalColumns = allColumns.filter((column: Column) => {
+    //   if (!defaultColumns.includes(column.field)) {
+    //     return true;
+    //   }
+    // });
 
-    console.log('NodeTable - useEffect - additionalColumns: ', additionalColumns);
+    // console.log('NodeTable - useEffect - additionalColumns: ', additionalColumns);
 
-    const additionalColumnDefs = additionalColumns.map((column: Column) => {
-      return makeField(column.field, column.type, true);
-    });
+    // const additionalColumnDefs = additionalColumns.map((column: Column) => {
+    //   return makeField(column.field, column.type, true);
+    // });
 
-    console.log('NodeTable - useEffect - additionalColumnDefs: ', additionalColumnDefs);
-    setColumnDefs(columnDefs.concat(additionalColumnDefs));
+    // console.log('NodeTable - useEffect - additionalColumnDefs: ', additionalColumnDefs);
+    // setColumnDefs(columnDefs.concat(additionalColumnDefs));
+    setColumnDefs(columnDefs);
   }, [props.nodes]);
 
   const defaultColDef = useMemo(() => {
@@ -231,6 +232,25 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
     };
   }, []);
 
+  function numberParser(params: any) {
+    return parseInt(params.newValue);
+  }
+
+  const columnTypes = useMemo(() => {
+    return {
+      numberValue: {
+        enableValue: true,
+        aggFunc: 'median',
+        editable: false,
+        valueParser: numberParser,
+      },
+      dimension: {
+        enableRowGroup: true,
+        enablePivot: true,
+      },
+    };
+  }, []);
+
   return (
     <div style={containerStyle}>
       <div style={{ ...gridStyle, ...props.style }} className={'ag-theme-quartz'}>
@@ -243,6 +263,8 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
           enableAdvancedFilter={true}
           groupSelectsChildren={true}
           rowGroupPanelShow={'always'}
+          groupAllowUnbalanced
+          columnTypes={columnTypes}
           suppressRowClickSelection={true}
           sideBar={false}
           statusBar={statusBar}
