@@ -161,14 +161,19 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
   ]);
 
   const autoSizeStrategy: SizeColumnsToContentStrategy | SizeColumnsToFitGridStrategy = {
-    type: 'fitGridWidth', // fitCellContents
+    type: 'fitCellContents', // fitGridWidth
   };
 
   useEffect(() => {
     const allColumns = props.edges
       .map((edge: EdgeAttribute) => {
         return Object.keys(edge).map((key) => {
-          return { field: key, type: typeof edge[key] };
+          try {
+            parseFloat(edge[key]);
+            return { field: key, type: 'number' };
+          } catch (e) {
+            return { field: key, type: typeof edge[key] };
+          }
         });
       })
       .reduce((acc: Column[], val: Column[]) => acc.concat(val), [])
@@ -340,8 +345,6 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           enableCellTextSelection={true}
           enableBrowserTooltips={true}
           rowMultiSelectWithClick={true}
-          groupIncludeFooter={true}
-          groupIncludeTotalFooter={true}
           statusBar={statusBar}
           onGridReady={onGridReady}
           onColumnRowGroupChanged={onColumnRowGroupChanged}

@@ -154,21 +154,20 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
 
     console.log('NodeTable - useEffect - allColumns: ', allColumns);
 
-    // const additionalColumns = allColumns.filter((column: Column) => {
-    //   if (!defaultColumns.includes(column.field)) {
-    //     return true;
-    //   }
-    // });
+    const additionalColumns = allColumns.filter((column: Column) => {
+      if (!defaultColumns.includes(column.field)) {
+        return true;
+      }
+    });
 
-    // console.log('NodeTable - useEffect - additionalColumns: ', additionalColumns);
+    console.log('NodeTable - useEffect - additionalColumns: ', additionalColumns);
 
-    // const additionalColumnDefs = additionalColumns.map((column: Column) => {
-    //   return makeField(column.field, column.type, true);
-    // });
+    const additionalColumnDefs = additionalColumns.map((column: Column) => {
+      return makeField(column.field, column.type, true);
+    });
 
-    // console.log('NodeTable - useEffect - additionalColumnDefs: ', additionalColumnDefs);
-    // setColumnDefs(columnDefs.concat(additionalColumnDefs));
-    setColumnDefs(columnDefs);
+    console.log('NodeTable - useEffect - additionalColumnDefs: ', additionalColumnDefs);
+    setColumnDefs(columnDefs.concat(additionalColumnDefs));
   }, [props.nodes]);
 
   const defaultColDef = useMemo(() => {
