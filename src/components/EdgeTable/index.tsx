@@ -168,12 +168,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
     const allColumns = props.edges
       .map((edge: EdgeAttribute) => {
         return Object.keys(edge).map((key) => {
-          try {
-            parseFloat(edge[key]);
-            return { field: key, type: 'number' };
-          } catch (e) {
-            return { field: key, type: typeof edge[key] };
-          }
+          return { field: key, type: typeof edge[key] };
         });
       })
       .reduce((acc: Column[], val: Column[]) => acc.concat(val), [])
