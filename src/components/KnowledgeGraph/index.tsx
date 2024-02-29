@@ -739,7 +739,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           setLoading(true);
           props.apis
             .AskLlmFn(
-              { prompt_template_id: 'explain_subgraph' },
+              { prompt_template_id: 'subgraph_symptoms_with_disease_ctx' },
               {
                 symptoms_with_disease_ctx: {
                   disease_name: diseaseName,
