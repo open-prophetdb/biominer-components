@@ -353,12 +353,10 @@ export type APIs = {
   GetEntityColorMapFn: () => Promise<Record<string, string>>;
   AskLlmFn?: (
     params: { prompt_template_id: string },
-    payload: {
-      context: {
-        entity?: NodeData;
-        expanded_relation?: ExpandedRelation;
-        symptoms_with_disease_ctx?: SymptomsWithDiseaseCtx;
-      };
+    body: {
+      entity?: NodeData;
+      expanded_relation?: ExpandedRelation;
+      symptoms_with_disease_ctx?: SymptomsWithDiseaseCtx;
     },
   ) => Promise<LlmResponse>;
 };

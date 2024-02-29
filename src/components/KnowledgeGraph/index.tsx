@@ -741,12 +741,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             .AskLlmFn(
               { prompt_template_id: 'explain_subgraph' },
               {
-                context: {
-                  symptoms_with_disease_ctx: {
-                    disease_name: diseaseName,
-                    symptoms: symptoms,
-                    subgraph: subgraph,
-                  },
+                symptoms_with_disease_ctx: {
+                  disease_name: diseaseName,
+                  symptoms: symptoms,
+                  subgraph: subgraph,
                 },
               },
             )
