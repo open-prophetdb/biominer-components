@@ -722,6 +722,23 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         props.postMessage(`what is the ${node.data.name}?`);
       }
     } else if (menuItem.key == 'explain-subgraph') {
+      const cleanData = (data: GraphData) => {
+        return {
+          nodes: data.nodes.map((node) => {
+            return {
+              id: node.id,
+              name: node.data.name,
+            };
+          }),
+          edges: data.edges.map((edge) => {
+            return {
+              source: edge.source,
+              target: edge.target,
+              reltype: edge.reltype,
+            };
+          }),
+        };
+      };
       const nodeLabel = node.data.label;
       if (nodeLabel === 'Disease') {
         const diseaseName = node.data.name;
@@ -729,7 +746,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         const symptoms = data.nodes
           .filter((node) => node.data.label === 'Symptom')
           .map((node) => node.data.name);
-        const subgraph = JSON.stringify(data);
+        const subgraph = JSON.stringify(cleanData(data));
 
         if (props.apis.AskLlmFn) {
           message.info(
