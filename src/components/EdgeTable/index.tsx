@@ -93,6 +93,8 @@ const makeField = (
 
   if (minWidth) {
     fieldConfig['minWidth'] = minWidth;
+  } else {
+    fieldConfig['minWidth'] = 50;
   }
 
   if (cellRenderer) {

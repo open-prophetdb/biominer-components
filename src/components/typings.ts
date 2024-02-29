@@ -307,6 +307,20 @@ export type GetGeneInfoFn = (geneId: string) => Promise<GeneInfo>;
 
 export const COMPOSED_ENTITY_DELIMITER = '::';
 
+export type ExpandedRelation = {
+  relation: Relation;
+  source: Entity;
+  target: Entity;
+};
+
+export type SymptomsWithDiseaseCtx = {
+  disease_name: string;
+  symptoms: string[];
+  subgraph: string;
+};
+
+export type LlmResponse = { prompt: string; response: string; created_at: number };
+
 // ------------------ APIs ------------------
 export type APIs = {
   GetStatisticsFn: () => Promise<{
@@ -337,6 +351,16 @@ export type APIs = {
   GetConnectedNodesFn: (params: { node_ids: string }) => Promise<GraphData>;
   GetEntity2DFn: (params: EntityQueryParams) => Promise<Entity2DRecordsResponse>;
   GetEntityColorMapFn: () => Promise<Record<string, string>>;
+  AskLlmFn?: (
+    params: { prompt_template_id: string },
+    payload: {
+      context: {
+        entity?: NodeData;
+        expanded_relation?: ExpandedRelation;
+        symptoms_with_disease_ctx?: SymptomsWithDiseaseCtx;
+      };
+    },
+  ) => Promise<LlmResponse>;
 };
 
 // ------------------ Search Object ------------------

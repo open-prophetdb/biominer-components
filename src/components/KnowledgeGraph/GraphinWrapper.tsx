@@ -375,7 +375,7 @@ const NodeMenu = (props: NodeMenuProps) => {
         {
           key: 'expand-all-paths-2',
           icon: <ShareAltOutlined />,
-          label: 'Within 2 Step',
+          label: 'Within 2 Steps',
         },
         // {
         //   key: 'expand-all-paths-3',
@@ -384,6 +384,11 @@ const NodeMenu = (props: NodeMenuProps) => {
         //   label: 'Within 3 Step',
         // },
       ],
+    },
+    {
+      key: 'explain-subgraph',
+      icon: <RedditOutlined />,
+      label: 'Explain Subgraph in Context (Experimental)',
     },
     {
       key: 'delete-nodes',

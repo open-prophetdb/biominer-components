@@ -14,12 +14,14 @@ import {
   BuildOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
-import { set, uniq, uniqBy } from 'lodash';
+import { uniq, uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
+import ExplanationPanel from './Components/ExplanationPanel';
 import CanvasStatisticsChart from '../CanvasStatisticsChart';
 import StatisticsChart from '../StatisticsChart';
 import SimilarityChart from '../SimilarityChart';
@@ -55,6 +57,7 @@ import type {
   Entity2D,
   MergeMode,
   Layout,
+  LlmResponse,
 } from '../typings';
 import { EdgeInfo, NodeMenuItem, CanvasMenuItem, EdgeMenuItem } from './typings';
 import Movable from '../Moveable';
@@ -133,6 +136,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [graphFormVisible, setGraphFormVisible] = useState<boolean>(false);
   const [graphFormPayload, setGraphFormPayload] = useState<Record<string, any>>({});
   const [graphTableVisible, setGraphTableVisible] = useState<boolean>(false);
+  const [llmResponse, setLlmResponse] = useState<Record<string, LlmResponse> | undefined>(
+    undefined,
+  );
+  const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
 
   const checkAndSetData = (data: GraphData) => {
     const nodeIds = new Set(data.nodes.map((node) => node.id));
@@ -154,6 +161,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setCurrentGraphUUID('');
     setIsDirty(false);
     clearGraphDataFromLocalStorage();
+    setLlmResponse(undefined);
   };
 
   useEffect(() => {
@@ -713,6 +721,56 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       if (props.postMessage) {
         props.postMessage(`what is the ${node.data.name}?`);
       }
+    } else if (menuItem.key == 'explain-subgraph') {
+      const nodeLabel = node.data.label;
+      if (nodeLabel === 'Disease') {
+        const diseaseName = node.data.name;
+        // Filter all symptoms in the graph
+        const symptoms = data.nodes
+          .filter((node) => node.data.label === 'Symptom')
+          .map((node) => node.data.name);
+        const subgraph = JSON.stringify(data);
+
+        if (props.apis.AskLlmFn) {
+          message.info(
+            "Explaining the subgraph, please wait a moment...(Don't leave this page)",
+            5,
+          );
+          setLoading(true);
+          props.apis
+            .AskLlmFn(
+              { prompt_template_id: 'explain_subgraph' },
+              {
+                context: {
+                  symptoms_with_disease_ctx: {
+                    disease_name: diseaseName,
+                    symptoms: symptoms,
+                    subgraph: subgraph,
+                  },
+                },
+              },
+            )
+            .then((response) => {
+              console.log('AskLlmFn Response: ', response);
+              setLlmResponse({
+                [diseaseName]: response,
+              });
+              setExplanationPanelVisible(true);
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.log('AskLlmFn Error: ', error);
+              message.warning('The AskLlm function encounter an error, please try again later.', 5);
+              setLoading(false);
+            });
+        } else {
+          message.warning('The admin has not enabled the AskLlm function.', 5);
+        }
+      } else {
+        message.warning(
+          'Only the disease are supported to choose as a context node for explaining the subgraph now.',
+        );
+      }
     } else if (menuItem.key == 'predict-relationships') {
       // TODO: How to predict relationship between two nodes?
       // const sourceId = `${node.data.label}::${node.data.id}`;
@@ -1004,6 +1062,24 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 icon={<CloudDownloadOutlined />}
               />
             </Tooltip>
+            <Tooltip>
+              <Button
+                className="explain-button"
+                onClick={() => {
+                  if (llmResponse && Object.keys(llmResponse).length > 0) {
+                    setExplanationPanelVisible(true);
+                  } else {
+                    message.warning(
+                      'No explanation data available. If you want to generate an explanation, please right click on a disease node and select "Explain Subgraph" first, then click this button again.',
+                      5,
+                    );
+                    setExplanationPanelVisible(false);
+                  }
+                }}
+                shape="circle"
+                icon={<InfoCircleOutlined />}
+              />
+            </Tooltip>
           </Row>
           <Row className="top-toolbar">
             <QueryBuilder
@@ -1163,6 +1239,17 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                       setSelectedNodeKeys([formatNodeIdFromEntity2D(entity2D)]);
                     }}
                   ></SimilarityChart>
+                </Movable>
+              ) : null}
+              {explanationPanelVisible && llmResponse ? (
+                <Movable
+                  onClose={() => {
+                    setExplanationPanelVisible(false);
+                  }}
+                  width="600px"
+                  title="Explanation Panel"
+                >
+                  <ExplanationPanel data={llmResponse}></ExplanationPanel>
                 </Movable>
               ) : null}
               <GraphStoreTable
