@@ -39,6 +39,9 @@ import {
   saveGraphDataToLocalStorage,
   loadGraphDataFromLocalStorage,
   clearGraphDataFromLocalStorage,
+  saveLlmResponsesToLocalStorage,
+  loadLlmResponsesFromLocalStorage,
+  clearLlmResponsesFromLocalStorage,
 } from './utils';
 import { presetLayout, defaultLayout, pushStack } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
@@ -161,6 +164,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setCurrentGraphUUID('');
     setIsDirty(false);
     clearGraphDataFromLocalStorage();
+    clearLlmResponsesFromLocalStorage();
     setLlmResponse(undefined);
   };
 
@@ -186,6 +190,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   useEffect(() => {
     saveGraphDataToLocalStorage(data, layout, isDirty, currentGraphUUID);
   }, [data]);
+
+  useEffect(() => {
+    saveLlmResponsesToLocalStorage(llmResponse);
+  }, [llmResponse]);
 
   const loadGraphs = () => {
     props.apis
@@ -362,6 +370,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     loadGraphs();
     loadNodeColorMap();
     loadPresetGraphData();
+    const d = loadLlmResponsesFromLocalStorage();
+    if (d) {
+      setLlmResponse(d);
+    }
   }, []);
 
   useEffect(() => {
@@ -768,6 +780,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             .then((response) => {
               console.log('AskLlmFn Response: ', response);
               setLlmResponse({
+                ...llmResponse,
                 [diseaseName]: response,
               });
               setExplanationPanelVisible(true);

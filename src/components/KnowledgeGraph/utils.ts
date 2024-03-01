@@ -239,6 +239,28 @@ export const pushGraphDataToLocalStorage = (data: GraphData) => {
   saveGraphDataToLocalStorage(newData, oldData.layout, true, oldData.currentUUID);
 };
 
+export const saveLlmResponsesToLocalStorage = (responses: any) => {
+  localStorage.setItem('llmResponses', JSON.stringify(responses));
+};
+
+export const loadLlmResponsesFromLocalStorage = (): any => {
+  let llmResponses = localStorage.getItem('llmResponses');
+  if (llmResponses) {
+    try {
+      return JSON.parse(llmResponses) || {};
+    } catch (error) {
+      console.log('Error when parsing llm responses: ', error);
+      return {};
+    }
+  } else {
+    return {};
+  }
+};
+
+export const clearLlmResponsesFromLocalStorage = () => {
+  localStorage.removeItem('llmResponses');
+};
+
 export const saveGraphDataToLocalStorage = (
   data: GraphData,
   layout: Layout,
