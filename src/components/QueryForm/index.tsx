@@ -5,6 +5,7 @@ import type { QueryFormProps } from './index.t';
 import LinkedNodesSearcher from '../LinkedNodesSearcher';
 import SimilarityNodesSearcher from '../SimilarityNodesSearcher';
 import BatchNodesSearcher from '../BatchNodesSearcher';
+import SharedNodesSearcher from '../SharedNodesSearcher';
 
 import './index.less';
 
@@ -32,6 +33,12 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
       label: `Batch Nodes`,
       children: <BatchNodesSearcher {...props} />,
     },
+    {
+      key: 'shared-nodes-search-object',
+      label: `Shared Nodes`,
+      children: <SharedNodesSearcher {...props} />,
+      disabled: props.searchObject?.data.nodes.length > 0 ? false : true,
+    },
   ];
 
   useEffect(() => {
@@ -40,7 +47,15 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
     }
   }, [props.searchObject]);
 
-  return <Tabs className="query-form" activeKey={tabKey} items={items} onChange={onChange} />;
+  return (
+    <Tabs
+      className="query-form"
+      activeKey={tabKey}
+      items={items}
+      onChange={onChange}
+      defaultActiveKey="linked-nodes-search-object"
+    />
+  );
 };
 
 export default QueryForm;

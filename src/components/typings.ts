@@ -323,6 +323,14 @@ export type SymptomsWithDiseaseCtx = {
 
 export type LlmResponse = { prompt: string; response: string; created_at: number };
 
+export type SharedNodesParams = {
+  node_ids: string;
+  nhops?: number;
+  topk?: number;
+  target_node_types?: string; // Separated by comma, such as "Gene,Disease"
+  nums_shared_by?: number;
+};
+
 // ------------------ APIs ------------------
 export type APIs = {
   GetStatisticsFn: () => Promise<{
@@ -361,6 +369,7 @@ export type APIs = {
       symptoms_with_disease_ctx?: SymptomsWithDiseaseCtx;
     },
   ) => Promise<LlmResponse>;
+  GetSharedNodesFn: (params: SharedNodesParams) => Promise<GraphData>;
 };
 
 // ------------------ Search Object ------------------

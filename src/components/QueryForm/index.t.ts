@@ -8,4 +8,5 @@ export type QueryFormProps = {
   relationStat: RelationStat[];
   getEntities: APIs['GetEntitiesFn'];
   getRelationCounts: APIs['GetRelationCountsFn'];
+  getSharedNodes: APIs['GetSharedNodesFn'];
 };

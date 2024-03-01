@@ -68,6 +68,20 @@ export default () => {
               });
           });
         }}
+        getSharedNodes={(params) => {
+          return new Promise((resolve, reject) => {
+            request
+              .get('/api/v1/shared-nodes', {
+                params: params,
+              })
+              .then((response) => {
+                resolve(response.data);
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          });
+        }}
         entityTypes={entityTypes}
         relationStat={relationStat}
         tabKey="linked-nodes-searcher"

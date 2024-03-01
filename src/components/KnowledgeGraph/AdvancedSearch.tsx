@@ -39,6 +39,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = (props) => {
           searchObject={props.searchObject}
           getEntities={props.apis.GetEntitiesFn}
           getRelationCounts={props.apis.GetRelationCountsFn}
+          getSharedNodes={props.apis.GetSharedNodesFn}
         />
       ),
     },

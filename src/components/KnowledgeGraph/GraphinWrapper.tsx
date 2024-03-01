@@ -351,6 +351,11 @@ const NodeMenu = (props: NodeMenuProps) => {
       },
     },
     {
+      key: 'find-shared-nodes',
+      icon: <BranchesOutlined />,
+      label: 'Find Shared Nodes',
+    },
+    {
       key: 'predict-relationships',
       hidden: true,
       icon: <CloudServerOutlined />,

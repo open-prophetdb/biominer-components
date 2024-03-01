@@ -71,6 +71,7 @@ import type { StatisticsData } from '../StatisticsDataArea/index.t';
 import { stat_total_node_count, stat_total_relation_count } from '../StatisticsChart/utils';
 import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
+import { SharedNodesSearchObjectClass } from '../SharedNodesSearcher/index.t';
 import { PathSearchObjectClass } from '../typings';
 
 import './index.less';
@@ -506,6 +507,30 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     }
   };
 
+  const searchSharedNodes = (
+    nodes: GraphNode[],
+    nodeTypes: string[] | undefined,
+    mergeMode?: MergeMode,
+    topk?: number,
+    nhops?: number,
+  ) => {
+    if (nodes.length > 1) {
+      let sharedNodesSearchObject = new SharedNodesSearchObjectClass(
+        {
+          nodes: nodes,
+          node_types: nodeTypes || [],
+          topk: topk || 10,
+          nhops: nhops || 1,
+        },
+        mergeMode || 'append',
+      );
+
+      setSearchObject(sharedNodesSearchObject);
+    } else {
+      message.warning('Please select more than one nodes to find shared nodes.');
+    }
+  };
+
   const fetchNStepsNodes = (
     sourceId: string,
     sourceType: string,
@@ -697,6 +722,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     } else if (menuItem.key == 'find-similar-nodes') {
       enableAdvancedSearch();
       searchSimilarNodes(node.data.label, node.data.id, undefined, 'append', 10);
+    } else if (menuItem.key == 'find-shared-nodes') {
+      enableAdvancedSearch();
+      const nodes = getSelectedNodes(graph);
+      searchSharedNodes(nodes, undefined, 'append', 10, 1);
     } else if (
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
