@@ -91,19 +91,19 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           nodes={props.nodeDataSources as NodeAttribute[]}
           selectedKeys={props.selectedNodeKeys}
           onSelectedRows={(selectedRows: NodeAttribute[], oldSelectedRows: NodeAttribute[]) => {
+            const selectedNodeIds = uniq(selectedRows.map((row) => row.id));
+            const oldSelectedNodeIds = uniq(oldSelectedRows.map((row) => row.id));
+            if (selectedNodeIds.length === 0 || !graph) {
+              return;
+            }
+
+            setSelectedGraph({
+              nodes: selectedRows.map((row) => row.metadata) as GraphNode[],
+              edges: [],
+            });
+
             props.onSelectedNodes &&
               props.onSelectedNodes(selectedRows).then((rows) => {
-                const selectedNodeIds = uniq(selectedRows.map((row) => row.id));
-                const oldSelectedNodeIds = uniq(oldSelectedRows.map((row) => row.id));
-                if (selectedNodeIds.length === 0 || !graph) {
-                  return;
-                }
-
-                setSelectedGraph({
-                  nodes: selectedRows.map((row) => row.metadata) as GraphNode[],
-                  edges: [],
-                });
-
                 if (
                   selectedNodeIds === props.selectedNodeKeys ||
                   selectedNodeIds === oldSelectedNodeIds
@@ -148,15 +148,19 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           edges={annoEdgeDataSources as EdgeAttribute[]}
           selectedKeys={props.selectedEdgeKeys}
           onSelectedRows={(selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => {
+            const selectedEdgeIds = uniq(selectedRows.map((row) => row.relid));
+            const selectedNodeIds = uniq(
+              selectedRows.map((row) => row.source).concat(selectedRows.map((row) => row.target)),
+            );
+            setSelectedGraph({
+              nodes: props.nodeDataSources
+                .filter((node) => selectedNodeIds.includes(node.id))
+                .map((node) => node.metadata) as GraphNode[],
+              edges: selectedRows.map((row) => row.metadata) as GraphEdge[],
+            });
+
             props.onSelectedEdges &&
               props.onSelectedEdges(selectedRows).then((rows) => {
-                const selectedEdgeIds = uniq(selectedRows.map((row) => row.relid));
-                const selectedNodeIds = uniq(
-                  selectedRows
-                    .map((row) => row.source)
-                    .concat(selectedRows.map((row) => row.target)),
-                );
-
                 const oldSelectedNodeIds = uniq(
                   oldSelectedRows
                     .map((row) => row.source)
@@ -175,13 +179,6 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   // When we enter the table again, the selectedEdgeKeys will be the same as the selectedEdgeIds, so we need to ignore it.
                   return;
                 }
-
-                setSelectedGraph({
-                  nodes: props.nodeDataSources
-                    .filter((node) => selectedNodeIds.includes(node.id))
-                    .map((node) => node.metadata) as GraphNode[],
-                  edges: selectedRows.map((row) => row.metadata) as GraphEdge[],
-                });
 
                 console.log(
                   'onSelectedRows: ',

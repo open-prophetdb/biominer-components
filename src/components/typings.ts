@@ -49,6 +49,8 @@ export type ComposeQueryItem = {
 export type EntityQueryParams = {
   /** Query string with json specification. */
   query_str: string;
+  /** A prefix for the model table, such as biomedgps */
+  model_table_prefix?: string;
   /** Page, From 1. */
   page?: number;
   /** Num of items per page. */
