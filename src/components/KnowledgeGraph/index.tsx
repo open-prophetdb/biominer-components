@@ -1275,6 +1275,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     setExplanationPanelVisible(false);
                   }}
                   width="600px"
+                  minWidth="600px"
+                  minHeight="500px"
+                  height="600px"
+                  maxWidth="80vw"
+                  maxHeight="60vh"
                   title="Explanation Panel"
                 >
                   <ExplanationPanel data={llmResponse}></ExplanationPanel>
