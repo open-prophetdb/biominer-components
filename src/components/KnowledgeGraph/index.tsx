@@ -17,7 +17,7 @@ import {
   InfoCircleOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
-import { uniq, uniqBy } from 'lodash';
+import { set, uniq, uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
@@ -161,6 +161,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       nodes: [],
       edges: [],
     });
+    setSearchObject(undefined);
     setParentGraphUUID('');
     setCurrentGraphUUID('');
     setIsDirty(false);
@@ -434,11 +435,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             `Find ${response.nodes.length} entities and ${response.edges.length} relationships.`,
           );
           setLoading(false);
+          setSearchObject(undefined);
         })
         .catch((error) => {
           console.log('getNodes Error: ', error);
           message.warning('Unknown errors or Cannot find any entities & relationships.');
           setLoading(false);
+          // We need to reset the search object to undefined, otherwise the search object will be kept in the state and be filled in the next search.
+          setSearchObject(undefined);
         });
     } else {
       console.log(
