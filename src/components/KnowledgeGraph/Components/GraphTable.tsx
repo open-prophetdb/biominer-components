@@ -35,6 +35,20 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
     edges: [],
   });
 
+  const filterGraph = (selectedNodeIds: string[], selectedEdgeIds: string[]) => {
+    const nodes = props.nodeDataSources
+      .filter((node) => selectedNodeIds.includes(node.id))
+      .map((node) => node.metadata);
+    const edges = props.edgeDataSources
+      .filter((edge) => selectedEdgeIds.includes(edge.relid))
+      .map((edge) => edge.metadata);
+
+    return {
+      nodes: nodes as GraphNode[],
+      edges: edges as GraphEdge[],
+    };
+  };
+
   const initGraph = () => {
     const nodes = props.nodeDataSources
       .map((node) => node.metadata)
@@ -97,10 +111,9 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
               return;
             }
 
-            setSelectedGraph({
-              nodes: selectedRows.map((row) => row.metadata) as GraphNode[],
-              edges: [],
-            });
+            const g = filterGraph(selectedNodeIds, []);
+            console.log('selectedRows: ', selectedRows, oldSelectedRows, g);
+            setSelectedGraph(g);
 
             props.onSelectedNodes &&
               props.onSelectedNodes(selectedRows).then((rows) => {
@@ -152,12 +165,10 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
             const selectedNodeIds = uniq(
               selectedRows.map((row) => row.source).concat(selectedRows.map((row) => row.target)),
             );
-            setSelectedGraph({
-              nodes: props.nodeDataSources
-                .filter((node) => selectedNodeIds.includes(node.id))
-                .map((node) => node.metadata) as GraphNode[],
-              edges: selectedRows.map((row) => row.metadata) as GraphEdge[],
-            });
+
+            const g = filterGraph(selectedNodeIds, selectedEdgeIds);
+            console.log('selectedRows: ', selectedRows, oldSelectedRows, g);
+            setSelectedGraph(g);
 
             props.onSelectedEdges &&
               props.onSelectedEdges(selectedRows).then((rows) => {
