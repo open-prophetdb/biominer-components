@@ -39,6 +39,7 @@ type SharedNodesSearchObject = {
   node_types?: string[];
   topk?: number;
   nhops?: number;
+  nums_shared_by?: number;
 };
 
 export class SharedNodesSearchObjectClass implements SearchObjectInterface {
@@ -71,6 +72,7 @@ export class SharedNodesSearchObjectClass implements SearchObjectInterface {
       target_node_types: this.data.node_types?.join(','),
       topk: this.data.topk || 10,
       nhops: this.data.nhops || 1,
+      nums_shared_by: this.data.nums_shared_by || this.data.nodes.length,
     };
 
     if (query) {

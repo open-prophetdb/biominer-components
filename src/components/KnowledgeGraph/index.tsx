@@ -525,6 +525,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           node_types: nodeTypes || [],
           topk: topk || 10,
           nhops: nhops || 1,
+          nums_shared_by: nodes.length,
         },
         mergeMode || 'append',
       );

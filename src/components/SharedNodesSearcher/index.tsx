@@ -30,6 +30,7 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
         node_types: props.searchObject.data.node_types,
         nhops: props.searchObject.data.nhops,
         topk: props.searchObject.data.topk,
+        nums_shared_by: props.searchObject.data.nums_shared_by,
         merge_mode: props.searchObject.merge_mode,
       });
     }
@@ -45,6 +46,7 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
             node_types: values.node_types,
             topk: values.topk,
             nhops: values.nhops,
+            nums_shared_by: values.nums_shared_by,
           };
 
           props.onOk(new SharedNodesSearchObjectClass(payload, values.merge_mode));
@@ -66,6 +68,7 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
       <Form.Item
         label="Node Type(s)"
         name="node_types"
+        tooltip="The type of nodes to be searched. If not specified, all types of nodes will be searched."
         rules={[{ required: false, message: 'Please select node type(s).' }]}
       >
         <Select
@@ -84,6 +87,7 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
       <Form.Item
         name="nhops"
         label="Number of Hops"
+        tooltip="The depth of the search. The maximum number of hops to be searched. For performance reasons, we limit the maximum number of hops to 2."
         initialValue={1}
         rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
       >
@@ -92,10 +96,20 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
       <Form.Item
         name="topk"
         label="Top K"
+        tooltip="The count of nodes to be returned."
         initialValue={10}
         rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
       >
         <InputNumber min={1} max={50} />
+      </Form.Item>
+      <Form.Item
+        name="nums_shared_by"
+        label="Number of Shared By"
+        tooltip="The count of specified nodes connected to each found node, highlighting shared relationships."
+        initialValue={props.searchObject?.data.nodes.length}
+        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+      >
+        <InputNumber min={1} max={props.searchObject?.data.nodes.length || 2} />
       </Form.Item>
       <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select
