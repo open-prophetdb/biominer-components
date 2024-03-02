@@ -145,9 +145,23 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   );
   const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
 
+  // Annotate the relation type with the description
+  const annotateEdge = (edge: GraphEdge, stat: RelationStat[]) => {
+    let edgeStat = stat.find((item) => item.relation_type === edge.reltype);
+    if (edgeStat) {
+      edge.description = edgeStat.description || '';
+    }
+
+    return edge;
+  };
+
   const checkAndSetData = (data: GraphData) => {
     const nodeIds = new Set(data.nodes.map((node) => node.id));
-    const edges = data.edges.filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+    const edges = data.edges
+      .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target))
+      .map((edge) => {
+        return annotateEdge(edge, edgeStat);
+      });
 
     setIsDirty(true);
     setData({

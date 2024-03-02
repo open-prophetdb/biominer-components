@@ -219,6 +219,8 @@ export type GraphEdge = {
   reltype: string;
   style: EdgeStyle;
   data: EdgeData;
+  // Only for explaining the relation type.
+  description?: string;
 };
 
 type EdgeData = {

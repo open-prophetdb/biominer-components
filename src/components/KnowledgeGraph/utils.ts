@@ -10,6 +10,7 @@ import {
   Entity2D,
   GraphData,
   Layout,
+  RelationStat,
 } from '../typings';
 import voca from 'voca';
 
@@ -44,7 +45,7 @@ export const getEntityId = (node: GraphNode) => {
   return node.data.id;
 };
 
-export const processEdges = (edges: GraphEdge[], options: any): GraphEdge[] => {
+export const processEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
   const edgeMap: Map<string, GraphEdge[]> = new Map();
   edges.forEach((edge) => {
     const { source, target } = edge;

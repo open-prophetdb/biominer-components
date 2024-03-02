@@ -419,3 +419,23 @@ export const guessLink = (value: string | number | boolean | undefined) => {
     }`;
   }
 };
+
+export const guessSpecies = (value: string | number | undefined) => {
+  if (!value) {
+    return '';
+  }
+
+  let v: string = `${value}`;
+  if (typeof value === 'number') {
+    v = value.toFixed(0).toString();
+  }
+
+  const speciesMap: Record<string, string> = {
+    '9606': 'Human',
+    '10090': 'Mouse',
+    '10116': 'Rat',
+    // TODO: Add more species.
+  };
+
+  return speciesMap[v] || '';
+};

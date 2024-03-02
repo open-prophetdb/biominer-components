@@ -35,13 +35,15 @@ import {
   CloudServerOutlined,
   EyeInvisibleOutlined,
   ReloadOutlined,
+  CheckCircleOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Moveable';
 import { message, Descriptions, Switch, Button, Select, Menu as AntdMenu } from 'antd';
 import { makeDataSource } from './utils';
-import { prepareGraphData, guessLink } from '../utils';
+import { prepareGraphData, guessLink, guessSpecies } from '../utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
@@ -309,57 +311,104 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Show Node Details',
     },
     {
-      key: 'hide-selected-nodes',
-      icon: <EyeInvisibleOutlined />,
-      label: 'Hide Selected Node(s)',
-    },
-    {
-      key: 'expand-one-step',
-      icon: <ExpandAltOutlined />,
-      label: 'Expand One Step',
-    },
-    {
-      key: 'find-similar-nodes',
-      icon: <AimOutlined />,
-      label: 'Find Similar Nodes',
-    },
-    {
-      key: 'expand-selected-nodes',
-      hidden: true,
-      icon: <FullscreenOutlined />,
-      label: 'Expand Selected Nodes',
-    },
-    {
-      key: 'reverse-selected-nodes',
-      icon: <CloseCircleOutlined />,
-      label: 'Reverse Selected Nodes',
-      handler: (node: GraphNode) => {
-        graph.getNodes().forEach((node) => {
-          if (node.hasState('selected')) {
-            graph.setItemState(node, 'selected', false);
-          } else {
-            graph.setItemState(node, 'selected', true);
-          }
-        });
+      key: 'select-nodes',
+      icon: <PlusCircleOutlined />,
+      label: '(Un)Select / Delete Node(s)',
+      children: [
+        {
+          key: 'hide-selected-nodes',
+          icon: <EyeInvisibleOutlined />,
+          label: 'Hide Selected Node(s)',
+        },
+        {
+          key: 'reverse-selected-nodes',
+          icon: <CloseCircleOutlined />,
+          label: 'Reverse Selected Nodes',
+          handler: (node: GraphNode) => {
+            graph.getNodes().forEach((node) => {
+              if (node.hasState('selected')) {
+                graph.setItemState(node, 'selected', false);
+              } else {
+                graph.setItemState(node, 'selected', true);
+              }
+            });
 
-        if (node) {
-          // Reset the status of the current node to unselected, even if it is not selected.
-          graph.setItemState(node.id, 'selected', false);
-        }
+            if (node) {
+              // Reset the status of the current node to unselected, even if it is not selected.
+              graph.setItemState(node.id, 'selected', false);
+            }
 
-        setVisible(false);
-      },
+            setVisible(false);
+          },
+        },
+        {
+          key: 'delete-nodes',
+          icon: <DeleteFilled />,
+          label: 'Delete Selected Node(s)',
+          danger: true,
+        },
+      ],
     },
     {
-      key: 'find-shared-nodes',
-      icon: <BranchesOutlined />,
-      label: 'Find Shared Nodes',
-    },
-    {
-      key: 'predict-relationships',
-      hidden: true,
-      icon: <CloudServerOutlined />,
-      label: 'Predict Relationships',
+      key: 'find-related-nodes',
+      icon: <CheckCircleOutlined />,
+      label: 'Find Key Nodes',
+      children: [
+        {
+          // Users can use the prediction modules instead of.
+          key: 'find-similar-nodes',
+          icon: <AimOutlined />,
+          hidden: true,
+          label: 'Find Similar Nodes',
+        },
+        {
+          key: 'expand-selected-nodes',
+          hidden: true,
+          icon: <FullscreenOutlined />,
+          label: 'Expand Selected Nodes',
+        },
+        {
+          // Users can use the prediction modules instead of.
+          key: 'predict-relationships',
+          hidden: true,
+          icon: <CloudServerOutlined />,
+          label: 'Predict Relationships',
+        },
+        {
+          key: 'expand-one-step',
+          icon: <ExpandAltOutlined />,
+          label: 'Expand One Step',
+        },
+        {
+          key: 'find-shared-nodes',
+          icon: <BranchesOutlined />,
+          label: 'Find Shared Nodes',
+        },
+        {
+          key: 'expand-all-paths',
+          hidden: false,
+          icon: <ShareAltOutlined />,
+          label: 'Find Paths (Within 2 Steps)',
+          children: [
+            {
+              key: 'expand-all-paths-1',
+              icon: <ShareAltOutlined />,
+              label: 'Within 1 Step',
+            },
+            {
+              key: 'expand-all-paths-2',
+              icon: <ShareAltOutlined />,
+              label: 'Within 2 Steps',
+            },
+            // {
+            //   key: 'expand-all-paths-3',
+            //   hidden: true,
+            //   icon: <ShareAltOutlined />,
+            //   label: 'Within 3 Step',
+            // },
+          ],
+        },
+      ],
     },
     {
       key: 'visulize-similarities',
@@ -367,39 +416,9 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Visualize Similarities',
     },
     {
-      key: 'expand-all-paths',
-      hidden: false,
-      icon: <ShareAltOutlined />,
-      label: 'Expand Paths (Within 2 Steps)',
-      children: [
-        {
-          key: 'expand-all-paths-1',
-          icon: <ShareAltOutlined />,
-          label: 'Within 1 Step',
-        },
-        {
-          key: 'expand-all-paths-2',
-          icon: <ShareAltOutlined />,
-          label: 'Within 2 Steps',
-        },
-        // {
-        //   key: 'expand-all-paths-3',
-        //   hidden: true,
-        //   icon: <ShareAltOutlined />,
-        //   label: 'Within 3 Step',
-        // },
-      ],
-    },
-    {
       key: 'explain-subgraph',
       icon: <RedditOutlined />,
       label: 'Explain Subgraph in Context (Experimental)',
-    },
-    {
-      key: 'delete-nodes',
-      icon: <DeleteFilled />,
-      label: 'Delete Selected Node(s)',
-      danger: true,
     },
   ];
 
@@ -464,9 +483,29 @@ const NodeMenu = (props: NodeMenuProps) => {
     }
   };
 
+  // Filter the children of the menu item and remove the hidden children.
+  const filteredOptions = options.map((item) => {
+    if (item.children) {
+      let i = {
+        ...item,
+        children: item.children.filter((child) => {
+          return !child.hidden;
+        }),
+      };
+
+      if (i.children.length == 0) {
+        return { ...i, hidden: true };
+      } else {
+        return i;
+      }
+    } else {
+      return item.hidden ? { ...item, hidden: true } : item;
+    }
+  });
+
   return visible ? (
     <AntdMenu
-      items={options.filter((item) => {
+      items={filteredOptions.filter((item) => {
         return !item.hidden;
       })}
       onClick={(menuInfo) => {
@@ -1005,7 +1044,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       return ['source_id', 'target_id', 'id', 'label'].includes(key);
     };
 
-    const formatLink = (key: string, value: string) => {
+    const formatItem = (key: string, value: string | number) => {
       const externalLink = guessLink(value);
       if (isLink(key) && externalLink) {
         return (
@@ -1013,6 +1052,27 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             {value}
           </a>
         );
+      } else if (key == 'pmids') {
+        if (value) {
+          const pmids = `${value}`.split('|');
+          return pmids.map((pmid: string) => {
+            return (
+              <a href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}`} target="_blank">
+                {pmid}
+              </a>
+            );
+          });
+        }
+      } else if (key == 'taxid') {
+        if (value) {
+          return guessSpecies(value);
+        }
+      } else if (key == 'score') {
+        if (typeof value == 'number') {
+          return value.toFixed(2);
+        } else {
+          return value;
+        }
       } else {
         return value;
       }
@@ -1020,6 +1080,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
     console.log('HoverText: ', data);
     const dataSource = makeDataSource(data, [
+      // For node
       'comboId',
       'degree',
       'depth',
@@ -1032,6 +1093,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       'identity',
       // It will cause the graph dispearing if we don't remove any complex objects in this component.
       'metadata',
+
+      // For edge
+      'relid',
+      'reltype',
+      'source',
+      'target',
+      'id',
     ]);
     const items = Object.keys(dataSource).map((key) => {
       if (dataSource[key]) {
@@ -1041,7 +1109,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             label={voca.titleCase(key.replace(/_/g, ' '))}
             style={{ height: '50px', overflowY: 'scroll' }}
           >
-            {formatLink(key, dataSource[key])}
+            {formatItem(key, dataSource[key])}
           </Descriptions.Item>
         );
       } else {
@@ -1088,6 +1156,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       <Graphin
         ref={ref}
         enabledStack={true}
+        animate={true}
         data={data as GraphinData}
         // We will set the layout manually for more flexibility.
         // layout={layout} may not work well when the layout is changed.
