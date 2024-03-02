@@ -1132,14 +1132,18 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               <Button
                 className="explain-button"
                 onClick={() => {
-                  if (llmResponse && Object.keys(llmResponse).length > 0) {
-                    setExplanationPanelVisible(true);
+                  if (explanationPanelVisible === false) {
+                    if (llmResponse && Object.keys(llmResponse).length > 0) {
+                      setExplanationPanelVisible(true);
+                    } else {
+                      message.warning(
+                        'No explanation data available. If you want to generate an explanation, please right click on a disease node and select "Explain Subgraph" first, then click this button again.',
+                        5,
+                      );
+                      setExplanationPanelVisible(false);
+                    }
                   } else {
-                    message.warning(
-                      'No explanation data available. If you want to generate an explanation, please right click on a disease node and select "Explain Subgraph" first, then click this button again.',
-                      5,
-                    );
-                    setExplanationPanelVisible(false);
+                    setEdgeInfoPanelVisible(false);
                   }
                 }}
                 shape="circle"

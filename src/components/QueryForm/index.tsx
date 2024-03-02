@@ -17,6 +17,10 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
     setTabKey(key);
   };
 
+  const disableSharedNodesSearcher = (searchObject: any) => {
+    return !(searchObject?.data?.nodes?.length > 0);
+  };
+
   const items: TabsProps['items'] = [
     {
       key: 'linked-nodes-search-object',
@@ -37,7 +41,7 @@ const QueryForm: React.FC<QueryFormProps> = (props) => {
       key: 'shared-nodes-search-object',
       label: `Shared Nodes`,
       children: <SharedNodesSearcher {...props} />,
-      disabled: props.searchObject?.data.nodes.length > 0 ? false : true,
+      disabled: disableSharedNodesSearcher(props.searchObject),
     },
   ];
 

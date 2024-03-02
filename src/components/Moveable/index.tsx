@@ -84,7 +84,7 @@ const Movable: React.FC<MovableProps> = (props) => {
         dragTarget={dragHandlerRef}
         draggable={true}
         throttleDrag={1}
-        edgeDraggable={false}
+        edgeDraggable={true}
         startDragRotate={0}
         throttleDragRotate={0}
         onDrag={(e) => {
