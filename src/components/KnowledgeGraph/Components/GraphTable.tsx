@@ -7,8 +7,8 @@ import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 import { pushStack } from '../../utils';
-import { GraphData, GraphEdge, GraphNode } from '../../typings';
-import { set, uniq } from 'lodash';
+import type { GraphData, GraphEdge, GraphNode, RelationStat } from '../../typings';
+import { uniq } from 'lodash';
 
 import './GraphTable.less';
 
@@ -24,6 +24,7 @@ export interface GraphTableProps {
   selectedEdgeKeys?: string[];
   onSelectedNodes?: (selectedRows: NodeAttribute[]) => Promise<void>;
   onSelectedEdges?: (selectedRows: EdgeAttribute[]) => Promise<void>;
+  edgeStat?: RelationStat[];
 }
 
 const GraphTable: React.FC<GraphTableProps> = (props) => {
@@ -158,6 +159,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       )}
       {annoEdgeDataSources.length > 0 ? (
         <EdgeTable
+          edgeStat={props.edgeStat}
           edges={annoEdgeDataSources as EdgeAttribute[]}
           selectedKeys={props.selectedEdgeKeys}
           onSelectedRows={(selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => {

@@ -370,6 +370,10 @@ export const pushStack = (action: String, data: any, stack: Stack) => {
 };
 
 export const guessLink = (value: string | number | boolean | undefined) => {
+  if (!value) {
+    return '';
+  }
+
   let v = `${value}`;
   if (v.startsWith('ENTREZ')) {
     // return `https://www.ncbi.nlm.nih.gov/gene/${v.split(':')[1]}`;

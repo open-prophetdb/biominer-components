@@ -6,7 +6,8 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-enterprise';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import { EdgeAttribute } from './index.t';
+import type { EdgeAttribute } from './index.t';
+import type { RelationStat } from '../typings';
 import { SelectionChangedEvent } from 'ag-grid-community';
 import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-grid-enterprise';
 import { uniq, uniqBy } from 'lodash';
@@ -23,6 +24,7 @@ export interface EdgeTableProps {
   selectedKeys?: string[];
   onSelectedRows?: (selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => void;
   edges: EdgeAttribute[];
+  edgeStat?: RelationStat[];
 }
 
 const detectFilter = (fieldType: string) => {
@@ -264,11 +266,39 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
         column.type,
         false,
         (params: EdgeAttribute) => {
+          console.log('EdgeTable - makeField4Link - source_name: ', params.value);
+          // More details on params: https://www.ag-grid.com/react-data-grid/component-cell-renderer/#reference-CustomCellRendererProps
           return (
-            <a href={guessLink(params.source_id)} target="_blank">
+            <a href={guessLink(params.data && params.data.source_id)} target="_blank">
               {params.value}
             </a>
           );
+        },
+        150,
+      );
+    }
+
+    if (column.field === 'reltype') {
+      return makeField(
+        column.field,
+        column.type,
+        false,
+        (params: EdgeAttribute) => {
+          console.log('EdgeTable - makeField4Link - reltype: ', params, props.edgeStat);
+          if (props.edgeStat) {
+            // TODO: We may need to use formatted_relation_type instead of relation_type.
+            const item = props.edgeStat.find(
+              (item: RelationStat) => item.relation_type === params.value,
+            );
+            const description = item ? (item.description ? item.description : '') : '';
+            return (
+              <span title={description} style={{ cursor: 'help' }}>
+                {params.value}
+              </span>
+            );
+          } else {
+            return params.value;
+          }
         },
         150,
       );
@@ -280,8 +310,10 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
         column.type,
         false,
         (params: EdgeAttribute) => {
+          console.log('EdgeTable - makeField4Link - target_name: ', params.value);
+          // More details on params: https://www.ag-grid.com/react-data-grid/component-cell-renderer/#reference-CustomCellRendererProps
           return (
-            <a href={guessLink(params.target_id)} target="_blank">
+            <a href={guessLink(params.data && params.data.target_id)} target="_blank">
               {params.value}
             </a>
           );

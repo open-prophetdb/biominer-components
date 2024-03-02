@@ -518,21 +518,21 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     topk?: number,
     nhops?: number,
   ) => {
-    if (nodes.length > 1) {
+    if (nodes && nodes.length > 1) {
       let sharedNodesSearchObject = new SharedNodesSearchObjectClass(
         {
           nodes: nodes,
           node_types: nodeTypes || [],
           topk: topk || 10,
           nhops: nhops || 1,
-          nums_shared_by: nodes.length,
+          nums_shared_by: nodes && nodes.length,
         },
         mergeMode || 'append',
       );
 
       setSearchObject(sharedNodesSearchObject);
     } else {
-      message.warning('Please select more than one nodes to find shared nodes.');
+      message.warning('Please select at least two nodes to find shared nodes.');
     }
   };
 
@@ -728,9 +728,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       enableAdvancedSearch();
       searchSimilarNodes(node.data.label, node.data.id, undefined, 'append', 10);
     } else if (menuItem.key == 'find-shared-nodes') {
-      enableAdvancedSearch();
       const nodes = getSelectedNodes(graph);
-      searchSharedNodes(nodes, undefined, 'append', 10, 1);
+      if (nodes && nodes.length >= 1) {
+        enableAdvancedSearch();
+        searchSharedNodes(nodes, undefined, 'append', 10, 1);
+      } else {
+        message.warning('Please select at least one node to find shared nodes.');
+      }
     } else if (
       ['expand-all-paths-1', 'expand-all-paths-2', 'expand-all-paths-3'].includes(menuItem.key)
     ) {
@@ -1282,6 +1286,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                         resolve();
                       });
                     }}
+                    edgeStat={edgeStat}
                   />
                 </Movable>
               ) : null}
