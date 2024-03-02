@@ -1101,21 +1101,24 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       'target',
       'id',
     ]);
-    const items = Object.keys(dataSource).map((key) => {
-      if (dataSource[key]) {
-        return (
-          <Descriptions.Item
-            key={key}
-            label={voca.titleCase(key.replace(/_/g, ' '))}
-            style={{ height: '50px', overflowY: 'scroll' }}
-          >
-            {formatItem(key, dataSource[key])}
-          </Descriptions.Item>
-        );
-      } else {
-        return null;
-      }
-    });
+
+    const items = Object.keys(dataSource)
+      .sort()
+      .map((key) => {
+        if (dataSource[key]) {
+          return (
+            <Descriptions.Item
+              key={key}
+              label={voca.titleCase(key.replace(/_/g, ' '))}
+              style={{ height: '50px', overflowY: 'scroll' }}
+            >
+              {formatItem(key, dataSource[key])}
+            </Descriptions.Item>
+          );
+        } else {
+          return null;
+        }
+      });
     return items.length > 0 ? (
       <Descriptions size={'small'} column={1} title={null} bordered style={style}>
         {items}
@@ -1155,12 +1158,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     data && (
       <Graphin
         ref={ref}
+        layoutCache={true}
         enabledStack={true}
         animate={true}
         data={data as GraphinData}
         // We will set the layout manually for more flexibility.
         // layout={layout} may not work well when the layout is changed.
-        layout={{ type: layout.type || 'preset', ...layout.options }}
+        layout={{ type: layout.type || 'preset', ...layout.options, center: [0, 0] }}
         handleAfterLayout={(graph) => {
           console.log(
             'handleAfterLayout -> layoutChanged: ',
@@ -1206,7 +1210,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           console.log('handleAfterLayout: ', graph.getStackData());
           // Always move the graph to the center of the canvas after the layout is changed.
           console.log('Fit the graph to the center of the canvas after the layout is changed.');
-          graph.fitCenter();
+          graph.fitCenter(true);
         }}
         style={style}
         // You can increase the maxStep if you want to save more history steps.
