@@ -314,7 +314,7 @@ export const presetLayout: Layout = {
 };
 
 export const defaultLayout: Layout = {
-  type: 'random',
+  type: 'force2',
   options: undefined,
 };
 
@@ -322,8 +322,6 @@ export const prepareGraphData = (
   graph: Graph,
 ): {
   data: GraphData;
-  layout: Layout;
-  defaultLayout: Layout;
 } => {
   const data = {
     nodes: graph.getNodes().map((node: any) => {
@@ -344,13 +342,8 @@ export const prepareGraphData = (
     }),
   };
 
-  const layout = graph.get('layout');
-
   return {
     data: data,
-    // We need to set the layout to preset to avoid the graph layout change when the data is loaded.
-    layout: presetLayout,
-    defaultLayout: layout,
   };
 };
 

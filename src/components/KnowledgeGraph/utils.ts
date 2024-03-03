@@ -208,9 +208,6 @@ export const getNodes = (graph?: Graph) => {
 const defaultExpandedGraphData: ExpandedGraphData = {
   nodes: [],
   edges: [],
-  layout: {
-    type: 'preset',
-  },
   isDirty: false,
   currentUUID: 'New Graph',
 };
@@ -237,7 +234,7 @@ export const pushGraphDataToLocalStorage = (data: GraphData) => {
     edges: uniqBy([...oldData.edges, ...data.edges], 'relid'),
   };
 
-  saveGraphDataToLocalStorage(newData, oldData.layout, true, oldData.currentUUID);
+  saveGraphDataToLocalStorage(newData, true, oldData.currentUUID);
 };
 
 export const saveLlmResponsesToLocalStorage = (responses: any) => {
@@ -264,7 +261,6 @@ export const clearLlmResponsesFromLocalStorage = () => {
 
 export const saveGraphDataToLocalStorage = (
   data: GraphData,
-  layout: Layout,
   isDirty: boolean,
   currentUUID: string,
 ) => {
@@ -274,7 +270,6 @@ export const saveGraphDataToLocalStorage = (
   let graphData = {
     nodes: data.nodes,
     edges: data.edges,
-    layout: layout,
     isDirty: isDirty,
     currentUUID: currentUUID,
   };

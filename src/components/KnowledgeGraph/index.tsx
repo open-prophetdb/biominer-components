@@ -125,10 +125,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [advancedSearchPanelActive, setAdvancedSearchPanelActive] = useState<boolean>(false);
   const [searchObject, setSearchObject] = useState<SearchObjectInterface>();
 
-  // You must have a oldLayout to make the layout work before user select a layout from the menu
-  // We need to keep the layout as the same with the saved graph, otherwise it will cause the graph to be re-layouted.
-  const [layout, setLayout] = React.useState<Layout>({} as Layout);
-
   // Graph store
   // Why we need a parentGraphUUID and a currentGraphUUID? Because the platform don't support multiple branches for each history chain. So we always use the latest graph as the parent graph, and the current graph is the graph that user is editing.
   const [parentGraphUUID, setParentGraphUUID] = useState<string>('New Graph');
@@ -204,10 +200,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   }, [data, edgeStat, nodeStat, currentGraphUUID]);
 
   useEffect(() => {
-    saveGraphDataToLocalStorage(data, layout, isDirty, currentGraphUUID);
-  }, [data]);
-
-  useEffect(() => {
     saveLlmResponsesToLocalStorage(llmResponse);
   }, [llmResponse]);
 
@@ -279,8 +271,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setParentGraphUUID(latestChild.id);
       setCurrentGraphUUID(graphHistoryItem.id);
       checkAndSetData(payload.data);
-      // We need to use the position of the latest child graph, otherwise it will cause the graph to be re-layouted.
-      setLayout(presetLayout);
       setToolbarVisible(payload.toolbarVisible);
       setLayoutSettingPanelVisible(false);
       setGraphStoreTableVisible(false);
@@ -352,15 +342,12 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
   const loadPresetGraphData = () => {
     let parsedGraphData = loadGraphDataFromLocalStorage();
+    console.log('Load Preset Graph Data: ', parsedGraphData, data, presetLayout);
     if (parsedGraphData) {
       checkAndSetData({
         nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
         edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
       });
-
-      if (parsedGraphData.layout) {
-        setLayout(parsedGraphData.layout);
-      }
 
       setIsDirty(parsedGraphData.isDirty);
 
@@ -659,20 +646,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
       const uniqNodeKeys = uniq(allNodeKeys);
-      pushStack(
-        'select-edges',
-        {
-          after: {
-            edges: uniqEdgeKeys,
-            nodes: uniqNodeKeys,
-          },
-          before: {
-            edges: selectedEdgeKeys,
-            nodes: selectedNodeKeys,
-          },
-        },
-        graph.getUndoStack(),
-      );
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
     } else if (menuItem.key == 'hide-edges-with-same-type') {
@@ -696,20 +669,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
       const uniqNodeKeys = uniq(allNodeKeys);
-      pushStack(
-        'select-edges',
-        {
-          after: {
-            edges: uniqEdgeKeys,
-            nodes: uniqNodeKeys,
-          },
-          before: {
-            edges: selectedEdgeKeys,
-            nodes: selectedNodeKeys,
-          },
-        },
-        graph.getUndoStack(),
-      );
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
     }
@@ -933,21 +892,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqNodeKeys = uniq(newSelectedNodeKeys);
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
-      // We must push these data into the undo stack, because the GraphTable only do this job when the GraphTable opened.
-      pushStack(
-        'select-edges',
-        {
-          after: {
-            edges: uniqEdgeKeys,
-            nodes: uniqNodeKeys,
-          },
-          before: {
-            edges: selectedEdgeKeys,
-            nodes: selectedNodeKeys,
-          },
-        },
-        graph.getUndoStack(),
-      );
+
       setSelectedNodeKeys(uniqNodeKeys);
       setSelectedEdgeKeys(uniqEdgeKeys);
     }
@@ -958,7 +903,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     // TODO: Can we save the position of all nodes and edges and more configurations?
     setGraphFormPayload({
       data: data,
-      layout: layout,
       toolbarVisible: toolbarVisible,
     });
   };
@@ -1186,6 +1130,27 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           </Row>
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
             <GraphinWrapper
+              onDataChanged={(graph: Graph) => {
+                let newData = graph.save();
+                console.log('Graph Data Changed: ', newData, graph);
+                const edges = newData.edges as GraphEdge[];
+                const nodes = newData.nodes as GraphNode[];
+                saveGraphDataToLocalStorage(
+                  {
+                    nodes: nodes,
+                    edges: edges.map((edge: any) => {
+                      return {
+                        ...edge,
+                        // They will cause the JSON.stringify to throw an error, so we need to remove them.
+                        targetNode: undefined,
+                        sourceNode: undefined,
+                      };
+                    }),
+                  },
+                  isDirty,
+                  currentGraphUUID,
+                );
+              }}
               selectedNodes={selectedNodeKeys}
               selectedEdges={selectedEdgeKeys}
               changeSelectedEdges={(edges) => {
@@ -1195,7 +1160,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 setSelectedNodeKeys(uniq(nodes));
               }}
               data={data}
-              layout={layout}
               style={style}
               hideWhichPanel={(panelKey) => {
                 if (panelKey == 'toolbar') {

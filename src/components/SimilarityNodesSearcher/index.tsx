@@ -90,9 +90,16 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       labelCol={{ span: 7 }}
       wrapperCol={{ span: 17 }}
     >
+      <p style={{ marginTop: '0' }}>
+        NOTE: This is a similarity search for nodes according to our model, such as finding similar
+        drugs with a specific drug. If you are interested in finding similar nodes to a specific
+        node, please select the node type and node id, and then select the relation type and top k
+        similar nodes.
+      </p>
       <Form.Item
         label="Node Type"
         name="entity_type"
+        tooltip="The type of the node you are interested in. Such as Disease, Gene, Compound, etc. You need to select a node type first, then you can search the node by its name or id."
         rules={[{ required: true, message: 'Please select a node type.' }]}
       >
         <Select
@@ -111,6 +118,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       <Form.Item
         label="Which Node"
         name="entity_id"
+        tooltip="The node you are interested in. You can search the node by its name or id. You need to select a node type first."
         rules={[
           {
             required: true,
@@ -172,6 +180,7 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       <Form.Item
         label="Relation Type"
         name="relation_type"
+        tooltip="The relation types between the selected node and other nodes. We will rank the relations according to our model's score. so the top relations are more likely to be the most similar ones."
         rules={[{ required: true, message: 'Please select a relation type' }]}
       >
         <Select
@@ -201,12 +210,18 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
       <Form.Item
         name="topk"
         label="Top K"
+        tooltip="The number of similar nodes you want to get. The default value is 50."
         initialValue={50}
         rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
       >
         <InputNumber min={1} max={50} />
       </Form.Item>
-      <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
+      <Form.Item
+        label="Merging Mode"
+        name="merge_mode"
+        initialValue={'append'}
+        tooltip="The mode for merging nodes and relationships. If append, we will append the new nodes and relationships to the existing graph. If replace, we will replace the existing graph with the new nodes and relationships..."
+      >
         <Select
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;

@@ -305,9 +305,15 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       labelCol={{ span: 7 }}
       wrapperCol={{ span: 17 }}
     >
+      <p style={{ marginTop: '0' }}>
+        NOTE: You can use it to query linked nodes which existing in our database. If you would like
+        to predict new relations between nodes, please use the `Predict Drug/Target` module, pick up
+        the predicted results and then explain the predicted results.
+      </p>
       <Form.Item
         label="Node Type"
         name="entity_type"
+        tooltip="The type of the node you are interested in. Such as Disease, Gene, Compound, etc. You need to select a node type first, then you can search the node by its name or id."
         rules={[{ required: true, message: 'Please select a node type.' }]}
       >
         <Select
@@ -325,6 +331,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       </Form.Item>
       <Form.Item
         label="Which Node"
+        tooltip="The node you are interested in. You can search the node by its name or id. You need to select a node type first."
         name="entity_id"
         rules={[
           {
@@ -384,7 +391,11 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             ))}
         </Select>
       </Form.Item>
-      <Form.Item label="Total Linked Nodes" name="total_linked_nodes">
+      <Form.Item
+        label="Total Linked Nodes"
+        name="total_linked_nodes"
+        tooltip="This means the total number of nodes that are linked to the selected node. If you didn't select any relation types, we will return all the linked nodes."
+      >
         <Spin size="small" spinning={relationTypeOptionsLoading}>
           <span>{totalLinkedNodes.toLocaleString()}</span>
         </Spin>
@@ -392,6 +403,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       <Form.Item
         name="relation_types"
         label="Relation Types"
+        tooltip="The relation types between the selected node and other nodes. The number in the prefix of the relation type is the number of the existing relations in our database. you can follow the number to decide the maximum number of edges. In addition, We will rank the relations according to our model's score. So the top relations are more likely to be the most important ones."
         validateStatus={helpWarning ? 'warning' : ''}
         help={helpWarning}
         rules={[
@@ -448,13 +460,19 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       </Form.Item>
       <Form.Item
         name="limit"
-        label="Max Num of Nodes"
+        label="Max Num of Edges"
+        tooltip="The maximum number of edges to return. You might get several edges between two nodes. So you will find less than the expected number of nodes."
         initialValue={50}
         rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
       >
         <InputNumber min={1} max={50} />
       </Form.Item>
-      <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
+      <Form.Item
+        label="Merging Mode"
+        name="merge_mode"
+        initialValue={'append'}
+        tooltip="The mode for merging nodes and relationships. If append, we will append the new nodes and relationships to the existing graph. If replace, we will replace the existing graph with the new nodes and relationships..."
+      >
         <Select
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}

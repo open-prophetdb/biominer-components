@@ -112,9 +112,14 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
       labelCol={{ span: 7 }}
       wrapperCol={{ span: 17 }}
     >
+      <p style={{ marginTop: '0' }}>
+        NOTE: If you want to select several nodes, you need to query and select them one by one.
+        After you select a node, then you can see it at `Node Ids` field and select it.
+      </p>
       <Form.Item
         label="Node Type"
         name="entity_type"
+        tooltip="The type of the node you are interested in. Such as Disease, Gene, Compound, etc. You need to select a node type first, then you can search the node by its name or id."
         rules={[{ required: false, message: 'Please select a node type.' }]}
       >
         <Select
@@ -133,6 +138,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
       <Form.Item
         label="Which Node"
         name="entity_id"
+        tooltip="The name or id of the node you are interested in. You need to select a node type first, then you can search the node by its name or id."
         rules={[
           {
             required: false,
@@ -195,7 +201,7 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
       <Form.Item
         label="Node Ids"
         name="nodeIds"
-        tooltip="Please select node id and node type from the above form first, and then select the composed node id. If you want to load a lot of nodes, please use the batch query form."
+        tooltip="Please select node id and node type from the above form first, and then select the composed node id. If you want to load a lot of nodes, please use the `Batch Query` form."
         rules={[
           {
             required: true,
@@ -240,7 +246,12 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
             ))}
         </Select>
       </Form.Item>
-      <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
+      <Form.Item
+        label="Merging Mode"
+        name="merge_mode"
+        initialValue={'append'}
+        tooltip="The mode for merging nodes and relationships. If append, we will append the new nodes and relationships to the existing graph. If replace, we will replace the existing graph with the new nodes and relationships..."
+      >
         <Select
           placeholder="Please select mode for merging nodes & relationships"
           options={MergeModeOptions}

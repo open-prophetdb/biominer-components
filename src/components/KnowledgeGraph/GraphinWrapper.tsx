@@ -43,7 +43,7 @@ import StatisticsDataArea from '../StatisticsDataArea';
 import Moveable from '../Moveable';
 import { message, Descriptions, Switch, Button, Select, Menu as AntdMenu } from 'antd';
 import { makeDataSource } from './utils';
-import { prepareGraphData, guessLink, guessSpecies } from '../utils';
+import { prepareGraphData, guessLink, guessSpecies, defaultLayout, presetLayout } from '../utils';
 import type {
   OnNodeMenuClickFn,
   OnEdgeMenuClickFn,
@@ -129,6 +129,9 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
+      disabled: true,
+      title:
+        'Show the details of the edge in different data sources. such as clinical data, omics data, and literatures. It will help us to understand the relationship between the two nodes.',
       label: 'Show Edge Details',
     },
     {
@@ -139,11 +142,14 @@ const EdgeMenu = (props: EdgeMenuProps) => {
         {
           key: 'hide-current-edge',
           icon: <EyeInvisibleOutlined />,
+          title: 'Hide the edge you selected.',
           label: 'Hide Current Edge',
         },
         {
           key: 'hide-edges-with-same-type',
           icon: <EyeInvisibleOutlined />,
+          title:
+            'Hide the edges which have the same type with the edge you selected. It will help us to focus on the specific type of the edges.',
           label: 'Hide Edges with the Same Type',
         },
       ],
@@ -151,54 +157,25 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     {
       key: 'explain-relationship',
       icon: <RedditOutlined />,
-      hidden: true,
+      title: 'Using ChatGPT & Literatures to explain the relationship between the two nodes.',
+      disabled: true,
       label: 'Explain Relationship (Experimental)',
     },
     {
       key: 'analyze-with-clinical-data',
       icon: <BarChartOutlined />,
-      hidden: true,
+      disabled: true,
       label: 'Analyze with Clinical Data',
-      children: [
-        {
-          key: 'barchart',
-          icon: <BarChartOutlined />,
-          label: 'Bar Chart',
-        },
-        {
-          key: 'boxchart',
-          icon: <BoxPlotOutlined />,
-          label: 'Box Plot',
-        },
-        {
-          key: 'heatmap',
-          icon: <HeatMapOutlined />,
-          label: 'Heatmap',
-        },
-        {
-          key: 'scatterchart',
-          icon: <DotChartOutlined />,
-          label: 'Scatter Chart',
-        },
-      ],
+      title:
+        'Analyze the relationship between the two nodes with clinical data. It will help us to understand the relationship between the two nodes in the context of clinical data.',
     },
     {
       key: 'analyze-with-omics-data',
       icon: <AimOutlined />,
-      hidden: true,
+      disabled: true,
       label: 'Analyze with Omics Data',
-      children: [
-        {
-          key: 'heatmap-omics',
-          icon: <HeatMapOutlined />,
-          label: 'Heatmap',
-        },
-        {
-          key: 'scatterchart-omics',
-          icon: <DotChartOutlined />,
-          label: 'Scatter Chart',
-        },
-      ],
+      title:
+        'Analyze the relationship between the two nodes with omics data. It will help us to understand the relationship between the two nodes in the context of omics data.',
     },
   ];
 
@@ -258,18 +235,20 @@ const EdgeMenu = (props: EdgeMenuProps) => {
   };
 
   return visible ? (
-    <AntdMenu
-      items={options.filter((item) => {
-        return !item.hidden;
-      })}
-      onClick={(menuInfo) => {
-        onChange(menuInfo.key);
-        setVisible(false);
-      }}
-      getPopupContainer={(triggerNode) => {
-        return (triggerNode.parentNode as HTMLElement) || document.body;
-      }}
-    />
+    <div>
+      <AntdMenu
+        items={options.filter((item) => {
+          return !item.hidden;
+        })}
+        onClick={(menuInfo) => {
+          onChange(menuInfo.key);
+          setVisible(false);
+        }}
+        getPopupContainer={(triggerNode) => {
+          return (triggerNode.parentNode as HTMLElement) || document.body;
+        }}
+      />
+    </div>
   ) : null;
 };
 
@@ -309,11 +288,15 @@ const NodeMenu = (props: NodeMenuProps) => {
       key: 'show-node-details',
       icon: <InfoCircleFilled />,
       label: 'Show Node Details',
+      title:
+        'Show the node in different data sources. such as clinical data, omics data, and literature.',
+      disabled: true,
     },
     {
       key: 'select-nodes',
       icon: <PlusCircleOutlined />,
       label: '(Un)Select / Delete Node(s)',
+      title: 'Select, Reverse Select, or delete the node(s) in the graph.',
       children: [
         {
           key: 'hide-selected-nodes',
@@ -413,11 +396,15 @@ const NodeMenu = (props: NodeMenuProps) => {
     {
       key: 'visulize-similarities',
       icon: <DotChartOutlined />,
+      title:
+        'Visualize the similarities between the nodes. It will help us to understand the importance of the nodes for a given node.',
+      disabled: true,
       label: 'Visualize Similarities',
     },
     {
       key: 'explain-subgraph',
       icon: <RedditOutlined />,
+      title: 'Using ChatGPT to explain the subgraph in the context of the selected node.',
       label: 'Explain Subgraph in Context (Experimental)',
     },
   ];
@@ -588,12 +575,9 @@ const CanvasMenu = (props: CanvasMenuProps) => {
   };
 
   const handleClear = (item: CanvasMenuItem) => {
-    // TODO: It doesn't work well. why?
-    // graph.clear();
+    graph.clear();
     if (props.onClearGraph) {
       props.onClearGraph();
-      // We must clear the stack manually, otherwise the stack will be not consistent with the graph.
-      graph.clearStack();
       message.info(`Clear canvas successfully`);
     } else {
       message.warning(`Cannot clear canvas`);
@@ -642,6 +626,8 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       key: 'auto-connect',
       icon: <ForkOutlined />,
       label: 'Auto Connect Graph',
+      title:
+        'Auto connect the graph based on the current graph data. It will help us to find the potential relationships between the nodes. [NOTE] It may mess up the current graph layout.',
       handler: handleAutoConnect,
     },
     {
@@ -664,6 +650,8 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       key: 'download-data',
       icon: <DownloadOutlined />,
       label: 'Download Graph Data',
+      title:
+        'Download the graph data as a JSON file. It will help us to share the graph data with others.',
       handler: handleDownloadData,
     },
     {
@@ -676,13 +664,15 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       key: 'clear-node-edge-status',
       icon: <DeleteOutlined />,
       danger: true,
+      title:
+        'Clear the status of the nodes and edges. It will help us to reset the status of the nodes and edges. If you found some nodes or edges are not shown, you can try this function.',
       label: 'Clear Node/Edge Status',
       handler: handleClearNodeEdgeStatus,
     },
     {
       key: 'clear-canvas',
       icon: <DeleteOutlined />,
-      label: 'Clear Canvas',
+      label: 'Clear Graph',
       danger: true,
       handler: handleClear,
     },
@@ -746,14 +736,19 @@ const NodeLabelVisible = (props: { visible: boolean }) => {
 
   useEffect(() => {
     graph.getNodes().forEach((node) => {
-      graph.updateItem(node, {
-        style: {
-          // @ts-ignore
-          label: {
-            visible: visible,
+      graph.updateItem(
+        node,
+        {
+          style: {
+            // @ts-ignore
+            label: {
+              ...node.getModel()?.style?.label,
+              visible: visible,
+            },
           },
         },
-      });
+        false,
+      );
     });
   }, [visible]);
   return null;
@@ -772,7 +767,9 @@ const EdgeLabelVisible = (props: { visible: boolean }) => {
           style: {
             // @ts-ignore
             label: {
+              ...edge.getModel()?.style?.label,
               opacity: visible ? 1 : 0,
+              visible: visible,
             },
           },
         },
@@ -869,7 +866,6 @@ export type GraphinProps = {
   selectedEdges?: string[];
   changeSelectedEdges?: (selectedEdges: string[]) => void;
   data: GraphData;
-  layout: Layout;
   style: React.CSSProperties;
   containerId?: string;
   onNodeMenuClick?: OnNodeMenuClickFn;
@@ -886,6 +882,7 @@ export type GraphinProps = {
   onClearGraph?: () => void;
   className?: string;
   children?: React.ReactNode;
+  onDataChanged?: (graph: any) => void;
 };
 
 type GraphinSettings = {
@@ -928,15 +925,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
 
   const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
-  const [dataLayoutChangedBefore, setDataLayoutChangedBefore] = useState<GraphData | null>(null);
-  // Don't use setLayout to change the layout, we must use changeLayout function for making the undo/redo work.
-  const [layout, setLayout] = React.useState<Layout>({
-    // The random layout will be used if the layout is not specified.
-    type: props.layout.type,
-    options: {
-      ...(props.layout.options || {}),
-    },
-  });
+  const [layout, setLayout] = React.useState<Layout>(presetLayout);
 
   const [currentEdge, setCurrentEdge] = useState<any>(null);
   const [currentNode, setCurrentNode] = useState<any>(null);
@@ -944,11 +933,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [adjacencyList, setAdjacencyList] = useState<AdjacencyList>({} as AdjacencyList); // Adjacency list for the current graph
 
   const ref = React.useRef(null);
-  const dataLayoutChangedBeforeRef = React.useRef(dataLayoutChangedBefore);
-
-  useEffect(() => {
-    dataLayoutChangedBeforeRef.current = dataLayoutChangedBefore;
-  }, [dataLayoutChangedBefore]);
 
   const toolbarHelpDoc = (
     <p style={{ width: '400px' }}>
@@ -963,6 +947,58 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       layout. After that, you can change the layout settings.
     </p>
   );
+
+  const isObject = (object: any) => {
+    return object != null && typeof object === 'object';
+  };
+
+  const deepEqual = (object1: any, object2: any) => {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+
+    if (keys1.length !== keys2.length) {
+      console.log('The data are different: ', keys1, keys2);
+      return false;
+    }
+
+    for (const key of keys1) {
+      let val1 = object1[key];
+      let val2 = object2[key];
+      if (key === 'x' || key === 'y') {
+        if (Math.abs(val1 - val2) > 2) {
+          console.log('The data are different: ', keys1, keys2, val1, val2);
+          return false;
+        }
+      } else {
+        const areObjects = isObject(val1) && isObject(val2);
+        if ((areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2)) {
+          console.log('The data are different: ', keys1, keys2, key, val1, val2);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const findUpdatedData = (oldData: GraphData, newData: GraphData) => {
+    const oldNodeIds = new Set(oldData.nodes.map((item) => item.id));
+    const addedNodes = newData.nodes.filter((item) => !oldNodeIds.has(item.id));
+
+    const oldEdgeIds = new Set(oldData.edges.map((item) => item.relid));
+    const addedEdges = newData.edges.filter((item) => !oldEdgeIds.has(item.relid));
+
+    return {
+      nodes: addedNodes,
+      edges: addedEdges,
+    };
+  };
+
+  const refreshDragedNodePosition = (e: any) => {
+    const model = e.item.get('model');
+    model.fx = e.x;
+    model.fy = e.y;
+  };
 
   const allowNodeEdgeMenu = () => {
     // @ts-ignore
@@ -979,6 +1015,23 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
       graph.on('edge:contextmenu', setEdge);
       graph.on('node:contextmenu', setNode);
+      graph.on('afterlayout', () => {
+        // We must save the graph data after the layout is changed, elsewise the graph data will not contains the position of the nodes and edges.
+        if (props.onDataChanged) {
+          // @ts-ignore
+          props.onDataChanged(ref.current?.graph);
+        }
+      });
+      graph.on('afterrender', () => {
+        if (props.onDataChanged) {
+          // @ts-ignore
+          props.onDataChanged(ref.current?.graph);
+        }
+      });
+      // More details: https://g6.antv.vision/api/graph-func/layout#graphlayout
+      graph.on('node:drag', (e: any) => {
+        refreshDragedNodePosition(e);
+      });
 
       return () => {
         // 清除事件监听
@@ -1017,21 +1070,44 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     setFocusedNodes([]);
   }, [settings.interactiveMode]);
 
-  useEffect(() => {
-    // @ts-ignore
-    ref.current?.graph?.updateLayout({
-      type: layout.type,
-      ...layout.options,
-    });
-    // @ts-ignore
-    console.log('Change the layout: ', ref.current, layout);
-  }, [layout]);
-
-  const hasPostions = (data: GraphData) => {
-    return data.nodes.every((node) => {
+  const hasPositions = (data: GraphData) => {
+    const n = data.nodes.filter((node) => {
       return node.x && node.x > 0 && node.y && node.y > 0;
     });
+
+    return n.length / data.nodes.length > 0.8;
   };
+
+  function refreshNodePosition(updatedData: GraphData, newData: GraphData) {
+    const edges = newData.edges;
+    if (edges.length > 0) {
+      const first = edges[0];
+      const source = newData.nodes.find((node) => {
+        return node.id === first.source;
+      });
+
+      const x = source?.x;
+      const y = source?.y;
+
+      if (x && y) {
+        // Generate random positions for the new nodes according to the position of the source node.
+        updatedData.nodes.forEach((node) => {
+          if (!node.x || !node.y) {
+            const position = {
+              x: x + Math.random() * 100,
+              y: y + Math.random() * 100,
+            };
+
+            // @ts-ignore
+            ref.current?.graph?.updateItem(node.id, {
+              x: position.x,
+              y: position.y,
+            });
+          }
+        });
+      }
+    }
+  }
 
   useEffect(() => {
     // create a map to hold the adjacency list
@@ -1045,11 +1121,29 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
     setAdjacencyList(adjacencyList);
 
-    if (!hasPostions(data) && !layout.type) {
-      changeLayout({ type: 'random', options: { preventOverlap: true } });
-    }
-
     changeGraphSize();
+
+    if (ref.current) {
+      // @ts-ignore
+      const graph = ref.current.graph;
+      const oldData = graph.save();
+      const newData = {
+        nodes: [...data.nodes, ...oldData.nodes],
+        edges: [...data.edges, ...oldData.edges],
+      };
+
+      graph.data(newData);
+      graph.render();
+
+      if (!hasPositions(oldData)) {
+        changeLayout(defaultLayout);
+      } else {
+        changeLayout(presetLayout);
+      }
+
+      const updatedData = findUpdatedData(oldData, newData);
+      refreshNodePosition(updatedData, newData);
+    }
   }, [data]);
 
   const handleOpenFishEye = () => {
@@ -1171,234 +1265,182 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   };
 
-  const changeLayout = (value: Layout) => {
-    // @ts-ignore
-    if (ref.current && ref.current.graph) {
-      // Save the current graph data before layout for undo/redo
+  const changeLayout = (layout: Layout) => {
+    // For updating the layout settings
+    setLayout(layout);
+
+    if (ref.current) {
       // @ts-ignore
-      let data = ref.current.graph.save() as GraphData;
-      setDataLayoutChangedBefore(JSON.parse(JSON.stringify(data)));
+      const graph = ref.current.graph;
+      graph.updateLayout({ type: layout.type, ...layout.options, center: [0, 0] });
+      console.log('changeLayout: ', layout);
+      graph.layout();
     }
-    console.log('Layout Settings: ', value);
-    setLayout(value);
   };
 
   return (
-    data && (
-      <Graphin
-        ref={ref}
-        layoutCache={true}
-        enabledStack={true}
-        animate={true}
-        data={data as GraphinData}
-        // We will set the layout manually for more flexibility.
-        // layout={layout} may not work well when the layout is changed.
-        // layout={{ type: layout.type || 'preset', ...layout.options, center: [500, 500] }}
-        handleAfterLayout={(graph) => {
-          console.log(
-            'handleAfterLayout -> layoutChanged: ',
-            dataLayoutChangedBefore,
-            dataLayoutChangedBeforeRef.current,
-            graph.get('layout'),
-          );
-          // Graphin don't save the related data when the layout is changed, so we need to save the related data manually.
-          if (dataLayoutChangedBeforeRef.current) {
-            const undoStackData = graph.getUndoStack();
-            const afterData = graph.save() as GraphinData;
-            console.log(
-              'handleAfterLayout -> undoStackData -> old + new: ',
-              dataLayoutChangedBeforeRef.current,
-              afterData,
-            );
-            const currentDataInStack = popCurrectData(undoStackData);
-
-            const currentData = currentDataInStack.data;
-            let data = {
-              before: {
-                ...currentData.before,
-                data: dataLayoutChangedBeforeRef.current,
-              },
-              after: {
-                ...currentData.after,
-                data: afterData,
-              },
-            };
-
-            console.log(
-              'handleAfterLayout -> undoStackData -> newUndo: ',
-              data,
-              afterData,
-              dataLayoutChangedBeforeRef.current,
-            );
-            // graph.pushStack(currentDataInStack.action, data, 'undo');
-            pushStack(currentDataInStack.action, data, graph.getUndoStack());
-
-            setDataLayoutChangedBefore(null);
-          }
-
-          console.log('handleAfterLayout: ', graph.getStackData());
-          // Always move the graph to the center of the canvas after the layout is changed.
-          // console.log('Fit the graph to the center of the canvas after the layout is changed.');
-          // graph.fitCenter(true);
-        }}
-        style={style}
-        // You can increase the maxStep if you want to save more history steps.
-        maxStep={50}
-      >
-        <FitView />
-        {/* You can drag node to stop layout */}
-        <DragNodeWithForce autoPin={true} />
-        {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
-        {/* <DragNode /> */}
-        <ZoomCanvas />
-        {settings.selectionMode == 'lasso-select' ? <LassoSelect /> : null}
-        {settings.selectionMode == 'brush-select' ? <BrushSelect /> : null}
-        <NodeLabelVisible visible={settings.nodeLabelVisible} />
-        {/* BUG: Cannot restore the label of edges */}
-        <EdgeLabelVisible visible={settings.edgeLabelVisible} />
-        <FishEye options={{}} visible={fishEyeVisible} handleEscListener={onCloseFishEye} />
-        <HighlightNodeEdge
-          selectedNodes={selectedNodes || []}
-          selectedEdges={selectedEdges || []}
-        />
-        {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
-        {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
-        {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
-        <ContextMenu style={{ width: '160px' }} bindType="node">
-          <NodeMenu
-            chatbotVisible={props.chatbotVisible}
-            item={currentNode}
-            onChange={(menuItem, data, graph, graphin) => {
-              // Clear the current node when the context menu is closed, elsewise the node menu cannot be opened again.
-              setCurrentNode(null);
-              onNodeMenuClick && onNodeMenuClick(menuItem, data, graph, graphin);
-            }}
-          />
-        </ContextMenu>
-        <ContextMenu style={{ width: '160px' }} bindType="canvas">
-          <CanvasMenu
-            handleOpenFishEye={handleOpenFishEye}
-            onCanvasClick={(menuItem, graph, graphin) => {
-              // Clear the current node & edge when the context menu is closed
-              setCurrentNode(null);
-              setCurrentEdge(null);
-              onCanvasMenuClick && onCanvasMenuClick(menuItem, graph, graphin);
-            }}
-            onClearGraph={props.onClearGraph}
-          />
-        </ContextMenu>
-        <ContextMenu style={{ width: '160px' }} bindType="edge">
-          <EdgeMenu
-            item={currentEdge}
-            chatbotVisible={props.chatbotVisible}
-            onChange={(menuItem, source, target, edge, graph, apis) => {
-              // Clear the current edge when the context menu is closed, elsewise the edge menu cannot be opened again.
-              setCurrentEdge(null);
-
-              // TODO: How to generate explanation report for the edge?
-              if (menuItem.key == 'explain-relationship') {
-                setCurrentEdge(edge);
-                setExplanationPanelVisible(true);
-              }
-
-              if (onEdgeMenuClick) {
-                onEdgeMenuClick(menuItem, source, target, edge, graph, apis);
-              }
-            }}
-          />
-        </ContextMenu>
-        <Legend bindType="node" sortKey="nlabel">
-          {(renderProps: LegendChildrenProps) => {
-            console.log('renderProps', renderProps);
-            return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
+    <Graphin
+      ref={ref}
+      layoutCache={false}
+      enabledStack={false}
+      animate={true}
+      data={{} as GraphinData}
+      // We will set the layout manually for more flexibility.
+      layout={{} as Layout}
+      style={style}
+      // You can increase the maxStep if you want to save more history steps.
+      maxStep={50}
+    >
+      {/* You can drag node to stop layout */}
+      <DragNodeWithForce autoPin={true} />
+      {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
+      {/* <DragNode /> */}
+      <ZoomCanvas />
+      {settings.selectionMode == 'lasso-select' ? <LassoSelect /> : null}
+      {settings.selectionMode == 'brush-select' ? <BrushSelect /> : null}
+      <NodeLabelVisible visible={settings.nodeLabelVisible} />
+      {/* BUG: Cannot restore the label of edges */}
+      <EdgeLabelVisible visible={settings.edgeLabelVisible} />
+      <FishEye options={{}} visible={fishEyeVisible} handleEscListener={onCloseFishEye} />
+      <HighlightNodeEdge selectedNodes={selectedNodes || []} selectedEdges={selectedEdges || []} />
+      {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
+      {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
+      {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
+      <ContextMenu style={{ width: '160px' }} bindType="node">
+        <NodeMenu
+          chatbotVisible={props.chatbotVisible}
+          item={currentNode}
+          onChange={(menuItem, data, graph, graphin) => {
+            // Clear the current node when the context menu is closed, elsewise the node menu cannot be opened again.
+            setCurrentNode(null);
+            onNodeMenuClick && onNodeMenuClick(menuItem, data, graph, graphin);
           }}
-        </Legend>
-        {props.layoutSettingPanelVisible ? (
-          <Moveable
-            title="Layout Settings"
-            width="320px"
-            maxWidth="320px"
-            top="100px"
-            right="140px"
-            help={layoutHelpDoc}
-            onClose={() => {
-              props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
+        />
+      </ContextMenu>
+      <ContextMenu style={{ width: '160px' }} bindType="canvas">
+        <CanvasMenu
+          handleOpenFishEye={handleOpenFishEye}
+          onCanvasClick={(menuItem, graph, graphin) => {
+            // Clear the current node & edge when the context menu is closed
+            setCurrentNode(null);
+            setCurrentEdge(null);
+            onCanvasMenuClick && onCanvasMenuClick(menuItem, graph, graphin);
+          }}
+          onClearGraph={props.onClearGraph}
+        />
+      </ContextMenu>
+      <ContextMenu style={{ width: '160px' }} bindType="edge">
+        <EdgeMenu
+          item={currentEdge}
+          chatbotVisible={props.chatbotVisible}
+          onChange={(menuItem, source, target, edge, graph, apis) => {
+            // Clear the current edge when the context menu is closed, elsewise the edge menu cannot be opened again.
+            setCurrentEdge(null);
+
+            // TODO: How to generate explanation report for the edge?
+            if (menuItem.key == 'explain-relationship') {
+              setCurrentEdge(edge);
+              setExplanationPanelVisible(true);
+            }
+
+            if (onEdgeMenuClick) {
+              onEdgeMenuClick(menuItem, source, target, edge, graph, apis);
+            }
+          }}
+        />
+      </ContextMenu>
+      <Legend bindType="node" sortKey="nlabel">
+        {(renderProps: LegendChildrenProps) => {
+          console.log('renderProps', renderProps);
+          return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
+        }}
+      </Legend>
+      {props.layoutSettingPanelVisible ? (
+        <Moveable
+          title="Layout Settings"
+          width="320px"
+          maxWidth="320px"
+          top="100px"
+          right="140px"
+          help={layoutHelpDoc}
+          onClose={() => {
+            props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
+          }}
+        >
+          <LayoutSelector type={layout.type} layouts={LayoutNetwork} onChange={changeLayout} />
+        </Moveable>
+      ) : null}
+      {props.toolbarVisible ? (
+        <Moveable
+          title="Settings"
+          width="220px"
+          maxWidth="220px"
+          top="100px"
+          right="30px"
+          help={toolbarHelpDoc}
+          onClose={() => {
+            props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
+          }}
+        >
+          <Toolbar
+            style={{
+              // Remove absolute position to make it work with the Moveable component.
+              position: 'relative',
+              marginBottom: '0px',
+              opacity: 0.8,
             }}
+            direction="horizontal"
           >
-            <LayoutSelector type={layout.type} layouts={LayoutNetwork} onChange={changeLayout} />
-          </Moveable>
-        ) : null}
-        {props.toolbarVisible ? (
-          <Moveable
-            title="Settings"
-            width="220px"
-            maxWidth="220px"
-            top="100px"
-            right="30px"
-            help={toolbarHelpDoc}
-            onClose={() => {
-              props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
-            }}
-          >
-            <Toolbar
-              style={{
-                // Remove absolute position to make it work with the Moveable component.
-                position: 'relative',
-                marginBottom: '0px',
-                opacity: 0.8,
-              }}
-              direction="horizontal"
-            >
-              <Toolbar.Item>
-                <Select
-                  style={{ width: '100%' }}
-                  allowClear
-                  value={settings.interactiveMode}
-                  getPopupContainer={(triggerNode) => {
-                    return triggerNode.parentNode;
-                  }}
-                  onChange={(value) => {
-                    setSettings({ ...settings, interactiveMode: value as any });
-                  }}
-                  placeholder="Select a interactive mode"
-                >
-                  {['show-details', 'select-nodes', 'show-paths'].map((item) => {
-                    return (
-                      <Select.Option key={item} value={item}>
-                        <ForkOutlined />
-                        &nbsp;
-                        {voca.titleCase(item)}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Select
-                  style={{ width: '100%' }}
-                  allowClear
-                  defaultValue={'brush-select'}
-                  getPopupContainer={(triggerNode) => {
-                    return triggerNode.parentNode;
-                  }}
-                  disabled={settings.interactiveMode !== 'select-nodes'}
-                  onChange={(value) => {
-                    setSettings({ ...settings, selectionMode: value });
-                  }}
-                  placeholder="Select a selection mode"
-                >
-                  {['brush-select', 'lasso-select'].map((item) => {
-                    return (
-                      <Select.Option key={item} value={item}>
-                        <ForkOutlined />
-                        &nbsp;
-                        {voca.titleCase(item)}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Toolbar.Item>
-              {/* <Toolbar.Item>
+            <Toolbar.Item>
+              <Select
+                style={{ width: '100%' }}
+                allowClear
+                value={settings.interactiveMode}
+                getPopupContainer={(triggerNode) => {
+                  return triggerNode.parentNode;
+                }}
+                onChange={(value) => {
+                  setSettings({ ...settings, interactiveMode: value as any });
+                }}
+                placeholder="Select a interactive mode"
+              >
+                {['show-details', 'select-nodes', 'show-paths'].map((item) => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      <ForkOutlined />
+                      &nbsp;
+                      {voca.titleCase(item)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Select
+                style={{ width: '100%' }}
+                allowClear
+                defaultValue={'brush-select'}
+                getPopupContainer={(triggerNode) => {
+                  return triggerNode.parentNode;
+                }}
+                disabled={settings.interactiveMode !== 'select-nodes'}
+                onChange={(value) => {
+                  setSettings({ ...settings, selectionMode: value });
+                }}
+                placeholder="Select a selection mode"
+              >
+                {['brush-select', 'lasso-select'].map((item) => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      <ForkOutlined />
+                      &nbsp;
+                      {voca.titleCase(item)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Toolbar.Item>
+            {/* <Toolbar.Item>
                 <Switch
                   onChange={(checked) => {
                     setSettings({ ...settings, autoPin: checked });
@@ -1408,232 +1450,231 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                 />
                 Auto Pin
               </Toolbar.Item> */}
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, nodeLabelVisible: checked });
-                  }}
-                  checked={settings.nodeLabelVisible}
-                />
-                Node Label
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, edgeLabelVisible: checked });
-                  }}
-                  checked={settings.edgeLabelVisible}
-                />
-                Edge Label
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, nodeTooltipEnabled: checked });
-                  }}
-                  checked={settings.nodeTooltipEnabled}
-                />
-                Node Tooltip
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, edgeTooltipEnabled: checked });
-                  }}
-                  checked={settings.edgeTooltipEnabled}
-                />
-                Edge Tooltip
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, miniMapEnabled: checked });
-                  }}
-                  checked={settings.miniMapEnabled}
-                />
-                MiniMap
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, snapLineEnabled: checked });
-                  }}
-                  checked={settings.snapLineEnabled}
-                />
-                SnapLine
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, infoPanelEnabled: checked });
-                  }}
-                  checked={settings.infoPanelEnabled}
-                />
-                Info Panel
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Button
-                  type="primary"
-                  size="small"
-                  style={{ width: '100%' }}
-                  onClick={() => {
-                    localStorage.setItem('graphin-settings', JSON.stringify(settings));
-                    message.success('Settings saved');
-                  }}
-                >
-                  Save Settings
-                </Button>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Button
-                  danger
-                  size="small"
-                  style={{ width: '100%' }}
-                  onClick={() => {
-                    loadSettings();
-                  }}
-                >
-                  Load Settings
-                </Button>
-              </Toolbar.Item>
-            </Toolbar>
-          </Moveable>
-        ) : null}
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, nodeLabelVisible: checked });
+                }}
+                checked={settings.nodeLabelVisible}
+              />
+              Node Label
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, edgeLabelVisible: checked });
+                }}
+                checked={settings.edgeLabelVisible}
+              />
+              Edge Label
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, nodeTooltipEnabled: checked });
+                }}
+                checked={settings.nodeTooltipEnabled}
+              />
+              Node Tooltip
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, edgeTooltipEnabled: checked });
+                }}
+                checked={settings.edgeTooltipEnabled}
+              />
+              Edge Tooltip
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, miniMapEnabled: checked });
+                }}
+                checked={settings.miniMapEnabled}
+              />
+              MiniMap
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, snapLineEnabled: checked });
+                }}
+                checked={settings.snapLineEnabled}
+              />
+              SnapLine
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, infoPanelEnabled: checked });
+                }}
+                checked={settings.infoPanelEnabled}
+              />
+              Info Panel
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Button
+                type="primary"
+                size="small"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  localStorage.setItem('graphin-settings', JSON.stringify(settings));
+                  message.success('Settings saved');
+                }}
+              >
+                Save Settings
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Button
+                danger
+                size="small"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  loadSettings();
+                }}
+              >
+                Load Settings
+              </Button>
+            </Toolbar.Item>
+          </Toolbar>
+        </Moveable>
+      ) : null}
 
-        <NodeSearcherPanel
-          changeSelectedEdges={props.changeSelectedEdges}
-          changeSelectedNodes={props.changeSelectedNodes}
+      <NodeSearcherPanel
+        changeSelectedEdges={props.changeSelectedEdges}
+        changeSelectedNodes={props.changeSelectedNodes}
+      />
+
+      {settings.interactiveMode == 'show-paths' ? (
+        <FocusBehavior
+          queriedId={props.queriedId}
+          onClickNode={onClickNodeInFocusMode}
+          mode={'focus'}
         />
+      ) : null}
 
-        {settings.interactiveMode == 'show-paths' ? (
-          <FocusBehavior
-            queriedId={props.queriedId}
-            onClickNode={onClickNodeInFocusMode}
-            mode={'focus'}
+      {settings.interactiveMode == 'select-nodes' ? (
+        <FocusBehavior
+          queriedId={props.queriedId}
+          onClickNode={onClickNodeInFocusMode}
+          mode={'select'}
+        />
+      ) : null}
+
+      {/* Only work at focus mode */}
+      {settings.interactiveMode == 'show-paths' ? (
+        <>
+          <ShowPaths
+            selectedNodes={focusedNodes}
+            nodes={data.nodes}
+            edges={data.edges}
+            onClosePathsFinder={onClosePathsFinder}
+            adjacencyList={adjacencyList}
+            // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
+            algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
           />
-        ) : null}
-
-        {settings.interactiveMode == 'select-nodes' ? (
-          <FocusBehavior
-            queriedId={props.queriedId}
-            onClickNode={onClickNodeInFocusMode}
-            mode={'select'}
-          />
-        ) : null}
-
-        {/* Only work at focus mode */}
-        {settings.interactiveMode == 'show-paths' ? (
-          <>
-            <ShowPaths
-              selectedNodes={focusedNodes}
-              nodes={data.nodes}
-              edges={data.edges}
-              onClosePathsFinder={onClosePathsFinder}
-              adjacencyList={adjacencyList}
-              // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
-              algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
-            />
-          </>
-        ) : null}
-        {
-          // TODO: generate explanations for the current edge
-          // 1. Get the current edge, the source node and target node
-          // 2. Send the source node and target node to the backend and get the prompt (markdown format) which contains the prompt and api codes for retrieving context information
-          // 3. Send the markdown to the backend and get the filled markdown
-          // 4. Send the filled markdown to LLM and generate explanations by using `rethinking with retrieval` method
-          // 5. Show the filled markdown in the explanation panel
-          currentEdge && explanationPanelVisible ? (
-            <Moveable
-              onClose={() => {
-                setExplanationPanelVisible(false);
-              }}
-            >
-              <p>
-                TODO: generate explanations for the current edge
-                <br />
-                1. Get the current edge, the source node and target node
-                <br />
-                2. Send the source node and target node to the backend and get the prompt (markdown
-                format) which contains the prompt and api codes for retrieving context information
-                <br />
-                3. Send the markdown to the backend and get the filled markdown
-                <br />
-                4. Send the filled markdown to LLM and generate explanations by using `rethinking
-                with retrieval` method
-                <br />
-                5. Show the filled markdown in the explanation panel
-                <br />
-              </p>
-            </Moveable>
-          ) : null
-        }
-        {settings.interactiveMode == 'select-nodes' ? (
-          <ClickSelect multiple={true} trigger={'shift'}></ClickSelect>
-        ) : null}
-        {settings.interactiveMode == 'show-details' ? (
-          <NodeClickBehavior onClick={props.onClickNode}></NodeClickBehavior>
-        ) : null}
-        {settings.interactiveMode == 'show-details' ? (
-          <EdgeClickBehavior onClick={props.onClickEdge}></EdgeClickBehavior>
-        ) : null}
-        {settings.nodeTooltipEnabled ? (
-          <Tooltip bindType="node" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
-            {(value: TooltipValue) => {
-              if (value.model) {
-                const { model } = value;
-                return (
-                  <HoverText
-                    data={model}
-                    style={{ padding: '10px', width: 'fit-content', maxWidth: '400px' }}
-                  ></HoverText>
-                );
-              }
-              return null;
+        </>
+      ) : null}
+      {
+        // TODO: generate explanations for the current edge
+        // 1. Get the current edge, the source node and target node
+        // 2. Send the source node and target node to the backend and get the prompt (markdown format) which contains the prompt and api codes for retrieving context information
+        // 3. Send the markdown to the backend and get the filled markdown
+        // 4. Send the filled markdown to LLM and generate explanations by using `rethinking with retrieval` method
+        // 5. Show the filled markdown in the explanation panel
+        currentEdge && explanationPanelVisible ? (
+          <Moveable
+            onClose={() => {
+              setExplanationPanelVisible(false);
             }}
-          </Tooltip>
-        ) : null}
-        {settings.edgeTooltipEnabled ? (
-          <Tooltip bindType="edge" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
-            {(value: TooltipValue) => {
-              if (value.model) {
-                const { model } = value;
-                return (
-                  <HoverText
-                    data={model}
-                    style={{ padding: '10px', width: 'fit-content' }}
-                  ></HoverText>
-                );
-              }
-              return null;
-            }}
-          </Tooltip>
-        ) : null}
-        {settings.miniMapEnabled ? <MiniMap /> : null}
-        {settings.snapLineEnabled ? <SnapLine options={snapLineOptions} visible /> : null}
-        {settings.infoPanelEnabled ? (
-          <StatisticsDataArea
-            data={props.statistics}
-            style={{
-              position: 'absolute',
-              top: '0px',
-              left: '0px',
-              zIndex: 1,
-            }}
-          ></StatisticsDataArea>
-        ) : null}
-        <CustomGraphinContext.Provider
-          value={{
-            // @ts-ignore
-            graph: ref.current?.graph,
-            // @ts-ignore
-            apis: ref.current?.apis,
-            selectedNodes: focusedNodes,
+          >
+            <p>
+              TODO: generate explanations for the current edge
+              <br />
+              1. Get the current edge, the source node and target node
+              <br />
+              2. Send the source node and target node to the backend and get the prompt (markdown
+              format) which contains the prompt and api codes for retrieving context information
+              <br />
+              3. Send the markdown to the backend and get the filled markdown
+              <br />
+              4. Send the filled markdown to LLM and generate explanations by using `rethinking with
+              retrieval` method
+              <br />
+              5. Show the filled markdown in the explanation panel
+              <br />
+            </p>
+          </Moveable>
+        ) : null
+      }
+      {settings.interactiveMode == 'select-nodes' ? (
+        <ClickSelect multiple={true} trigger={'shift'}></ClickSelect>
+      ) : null}
+      {settings.interactiveMode == 'show-details' ? (
+        <NodeClickBehavior onClick={props.onClickNode}></NodeClickBehavior>
+      ) : null}
+      {settings.interactiveMode == 'show-details' ? (
+        <EdgeClickBehavior onClick={props.onClickEdge}></EdgeClickBehavior>
+      ) : null}
+      {settings.nodeTooltipEnabled ? (
+        <Tooltip bindType="node" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
+          {(value: TooltipValue) => {
+            if (value.model) {
+              const { model } = value;
+              return (
+                <HoverText
+                  data={model}
+                  style={{ padding: '10px', width: 'fit-content', maxWidth: '400px' }}
+                ></HoverText>
+              );
+            }
+            return null;
           }}
-        >
-          {props.children ? props.children : null}
-        </CustomGraphinContext.Provider>
-      </Graphin>
-    )
+        </Tooltip>
+      ) : null}
+      {settings.edgeTooltipEnabled ? (
+        <Tooltip bindType="edge" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
+          {(value: TooltipValue) => {
+            if (value.model) {
+              const { model } = value;
+              return (
+                <HoverText
+                  data={model}
+                  style={{ padding: '10px', width: 'fit-content' }}
+                ></HoverText>
+              );
+            }
+            return null;
+          }}
+        </Tooltip>
+      ) : null}
+      {settings.miniMapEnabled ? <MiniMap /> : null}
+      {settings.snapLineEnabled ? <SnapLine options={snapLineOptions} visible /> : null}
+      {settings.infoPanelEnabled ? (
+        <StatisticsDataArea
+          data={props.statistics}
+          style={{
+            position: 'absolute',
+            top: '0px',
+            left: '0px',
+            zIndex: 1,
+          }}
+        ></StatisticsDataArea>
+      ) : null}
+      <CustomGraphinContext.Provider
+        value={{
+          // @ts-ignore
+          graph: ref.current?.graph,
+          // @ts-ignore
+          apis: ref.current?.apis,
+          selectedNodes: focusedNodes,
+        }}
+      >
+        {props.children ? props.children : null}
+      </CustomGraphinContext.Provider>
+    </Graphin>
   );
 };
 

@@ -5,7 +5,6 @@ import type { GraphNode, GraphEdge } from '../../typings';
 import { Button, Row, Select, Empty } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import { UndoOutlined, RedoOutlined } from '@ant-design/icons';
-import UndoRedo from './UndoRedo';
 
 type NodeSearcherProps = {
   changeSelectedNodes?: (selectedNodes: string[]) => void;
@@ -14,7 +13,6 @@ type NodeSearcherProps = {
 
 const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
   const { graph, apis } = useContext(GraphinContext);
-  const { undo, getUndoStack, redo, getRedoStack } = UndoRedo();
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [nodeOptions, setNodeOptions] = useState<any[]>([]);
@@ -54,45 +52,6 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
 
   return (
     <Row className="node-searcher">
-      <ButtonGroup>
-        <Button
-          shape="default"
-          icon={<UndoOutlined />}
-          onClick={() => {
-            undo(
-              (nodes) => {
-                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
-              },
-              (edges) => {
-                props.changeSelectedEdges && props.changeSelectedEdges(edges);
-              },
-            );
-          }}
-          // The first item in the stack is the initial layout, so we don't need to undo it.
-          disabled={getUndoStack().length - 1 < 1}
-        >
-          {/* Back [{getUndoStack().length - 1 == -1 ? 0 : getUndoStack().length - 1}] */}
-          Back
-        </Button>
-        <Button
-          shape="default"
-          icon={<RedoOutlined />}
-          onClick={() => {
-            redo(
-              (nodes) => {
-                props.changeSelectedNodes && props.changeSelectedNodes(nodes);
-              },
-              (edges) => {
-                props.changeSelectedEdges && props.changeSelectedEdges(edges);
-              },
-            );
-          }}
-          disabled={getRedoStack().length < 1}
-        >
-          {/* Forward [{getRedoStack().length}] */}
-          Forward
-        </Button>
-      </ButtonGroup>
       <Select
         showSearch
         allowClear

@@ -7,7 +7,6 @@ export type ExpandedGraphData = {
   edges: GraphEdge[];
   currentUUID: string;
   isDirty: boolean;
-  layout: Layout;
 };
 
 declare module '*.png' {
@@ -24,6 +23,8 @@ export type OptionType = {
 export type NodeMenuItem = {
   key: string;
   label: string;
+  title?: string;
+  disabled?: boolean;
   hidden?: boolean;
   danger?: boolean;
   children?: MenuItem[];
@@ -35,6 +36,8 @@ export type EdgeMenuItem = {
   key: string;
   label: string;
   hidden?: boolean;
+  disabled?: boolean;
+  title?: string;
   danger?: boolean;
   children?: MenuItem[];
   icon: string | React.ReactNode;
@@ -45,6 +48,8 @@ export type CanvasMenuItem = {
   key: string;
   label: string;
   hidden?: boolean;
+  disabled?: boolean;
+  title?: string;
   danger?: boolean;
   icon: string | React.Element;
   handler?: (item: CanvasMenuItem, graph?: Graph, apis?: ApisType) => void;

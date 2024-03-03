@@ -54,6 +54,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = (props) => {
       label: 'Ask Question',
       key: 'question',
       children: <AskQuestion onCancel={props.onCancel} onOk={props.onOk} />,
+      disabled: true,
     },
   ];
 

@@ -6,7 +6,6 @@ import TableTabs from './TableTabs';
 import { NodeAttribute } from '../../NodeTable/index.t';
 import { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
-import { pushStack } from '../../utils';
 import type { GraphData, GraphEdge, GraphNode, RelationStat } from '../../typings';
 import { uniq } from 'lodash';
 
@@ -134,22 +133,6 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   oldSelectedNodeIds,
                   graph,
                 );
-                // graph.pushStack(
-                //   'select-nodes',
-                //   {
-                //     after: selectedNodeIds,
-                //     before: oldSelectedNodeIds,
-                //   },
-                //   'undo',
-                // );
-                pushStack(
-                  'select-nodes',
-                  {
-                    after: selectedNodeIds,
-                    before: oldSelectedNodeIds,
-                  },
-                  graph.getUndoStack(),
-                );
               });
           }}
           style={props.style ? props.style : { minHeight: '300px', height: '300px' }}
@@ -200,34 +183,6 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   oldSelectedEdgeIds,
                   oldSelectedNodeIds,
                   graph,
-                );
-                // graph.pushStack(
-                //   'select-edges',
-                //   {
-                //     after: {
-                //       edges: selectedEdgeIds,
-                //       nodes: selectedNodeIds,
-                //     },
-                //     before: {
-                //       edges: oldSelectedEdgeIds,
-                //       nodes: oldSelectedNodeIds,
-                //     },
-                //   },
-                //   'undo',
-                // );
-                pushStack(
-                  'select-edges',
-                  {
-                    after: {
-                      edges: selectedEdgeIds,
-                      nodes: selectedNodeIds,
-                    },
-                    before: {
-                      edges: oldSelectedEdgeIds,
-                      nodes: oldSelectedNodeIds,
-                    },
-                  },
-                  graph.getUndoStack(),
                 );
               });
           }}
