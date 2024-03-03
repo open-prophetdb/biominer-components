@@ -167,7 +167,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       nodes: newNodes,
       edges: newEdges,
     });
-    updateGraphTable(newNodes, newEdges);
   };
 
   const onClearGraph = () => {
@@ -175,6 +174,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       nodes: [],
       edges: [],
     });
+    setNodeDataSources([]);
+    setEdgeDataSources([]);
     setSearchObject(undefined);
     setParentGraphUUID('');
     setCurrentGraphUUID('');
@@ -190,6 +191,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   useEffect(() => {
+    updateGraphTable(data.nodes, data.edges);
+
     setStatistics({
       numNodes: data.nodes.length,
       numEdges: data.edges.length,
@@ -1294,10 +1297,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                           (edge) => !edgeKeys.includes(edge.relid),
                         );
                         if (nodes.length == 0) {
-                          checkAndSetData({
+                          setData({
                             nodes: data.nodes,
                             edges: remaningEdges,
                           });
+                          updateGraphTable(data.nodes, remaningEdges);
                           // Clear the selected nodes and edges
                           setSelectedNodeKeys([]);
                           setSelectedEdgeKeys([]);
@@ -1327,10 +1331,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                             remaningNodes,
                           );
 
-                          checkAndSetData({
+                          setData({
                             nodes: remaningNodes,
                             edges: remaningEdges,
                           });
+                          updateGraphTable(remaningNodes, remaningEdges);
                           // Clear the selected nodes and edges
                           setSelectedNodeKeys([]);
                           setSelectedEdgeKeys([]);

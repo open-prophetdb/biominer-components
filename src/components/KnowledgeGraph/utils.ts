@@ -51,7 +51,8 @@ const uniqLst = (lst: string[]): string[] => {
       .map((item) => {
         return item.split('|');
       })
-      .flat(),
+      .flat()
+      .filter((item) => item && item.length > 0),
   );
 };
 

@@ -90,6 +90,10 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       let sourceNode = props.nodeDataSources.find((node) => node.id === source) as NodeAttribute;
       let targetNode = props.nodeDataSources.find((node) => node.id === target) as NodeAttribute;
 
+      if (!sourceNode || !targetNode) {
+        return;
+      }
+
       tempEdgeDataSources.push({
         ...edge,
         source_name: sourceNode.name,
