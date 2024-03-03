@@ -1146,25 +1146,27 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
             <GraphinWrapper
               onDataChanged={(graph: Graph) => {
-                let newData = graph.save();
-                console.log('Graph Data Changed: ', newData, graph);
-                const edges = newData.edges as GraphEdge[];
-                const nodes = newData.nodes as GraphNode[];
-                saveGraphDataToLocalStorage(
-                  {
-                    nodes: nodes,
-                    edges: edges.map((edge: any) => {
-                      return {
-                        ...edge,
-                        // They will cause the JSON.stringify to throw an error, so we need to remove them.
-                        targetNode: undefined,
-                        sourceNode: undefined,
-                      };
-                    }),
-                  },
-                  isDirty,
-                  currentGraphUUID,
-                );
+                if (graph && graph.save) {
+                  let newData = graph.save();
+                  console.log('Graph Data Changed: ', newData, graph);
+                  const edges = newData.edges as GraphEdge[];
+                  const nodes = newData.nodes as GraphNode[];
+                  saveGraphDataToLocalStorage(
+                    {
+                      nodes: nodes,
+                      edges: edges.map((edge: any) => {
+                        return {
+                          ...edge,
+                          // They will cause the JSON.stringify to throw an error, so we need to remove them.
+                          targetNode: undefined,
+                          sourceNode: undefined,
+                        };
+                      }),
+                    },
+                    isDirty,
+                    currentGraphUUID,
+                  );
+                }
               }}
               selectedNodes={selectedNodeKeys}
               selectedEdges={selectedEdgeKeys}
