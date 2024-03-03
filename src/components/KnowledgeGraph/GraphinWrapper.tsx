@@ -447,15 +447,33 @@ const NodeMenu = (props: NodeMenuProps) => {
       })
       .flat();
 
+    const grandChildOptions = childOptions
+      .filter((item) => {
+        return item.children;
+      })
+      .map((item) => {
+        return item.children;
+      })
+      .flat();
+
     const allOptions = options.filter((item) => {
       return !item.children;
     });
+
+    console.log('NodeMenu: ', childOptions, grandChildOptions, allOptions);
 
     const menuItem =
       allOptions.find((item) => {
         return item.key === menuKey;
       }) ||
       childOptions.find((item) => {
+        if (item) {
+          return item.key === menuKey;
+        } else {
+          return false;
+        }
+      }) ||
+      grandChildOptions.find((item) => {
         if (item) {
           return item.key === menuKey;
         } else {
@@ -509,6 +527,7 @@ const NodeMenu = (props: NodeMenuProps) => {
         return !item.hidden;
       })}
       onClick={(menuInfo) => {
+        console.log('NodeMenu onClick: ', menuInfo, node);
         onChange(menuInfo.key);
         setVisible(false);
       }}
@@ -628,11 +647,11 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     {
       key: 'refresh-graph',
       icon: <ReloadOutlined />,
-      label: 'Refresh Graph',
+      label: 'Refresh Layout',
       handler: () => {
         // TODO: which function is better?
-        graph.render();
-        message.success(`Refresh graph successfully`);
+        graph.layout();
+        message.success(`Refresh layout successfully`);
       },
     },
     {
@@ -998,6 +1017,16 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     setFocusedNodes([]);
   }, [settings.interactiveMode]);
 
+  useEffect(() => {
+    // @ts-ignore
+    ref.current?.graph?.updateLayout({
+      type: layout.type,
+      ...layout.options,
+    });
+    // @ts-ignore
+    console.log('Change the layout: ', ref.current, layout);
+  }, [layout]);
+
   const hasPostions = (data: GraphData) => {
     return data.nodes.every((node) => {
       return node.x && node.x > 0 && node.y && node.y > 0;
@@ -1164,7 +1193,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         data={data as GraphinData}
         // We will set the layout manually for more flexibility.
         // layout={layout} may not work well when the layout is changed.
-        layout={{ type: layout.type || 'preset', ...layout.options, center: [0, 0] }}
+        // layout={{ type: layout.type || 'preset', ...layout.options, center: [500, 500] }}
         handleAfterLayout={(graph) => {
           console.log(
             'handleAfterLayout -> layoutChanged: ',
@@ -1209,8 +1238,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
           console.log('handleAfterLayout: ', graph.getStackData());
           // Always move the graph to the center of the canvas after the layout is changed.
-          console.log('Fit the graph to the center of the canvas after the layout is changed.');
-          graph.fitCenter(true);
+          // console.log('Fit the graph to the center of the canvas after the layout is changed.');
+          // graph.fitCenter(true);
         }}
         style={style}
         // You can increase the maxStep if you want to save more history steps.

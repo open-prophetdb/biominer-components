@@ -140,7 +140,22 @@ const LayoutSelector: React.FunctionComponent<LayoutSelectorProps> = (props) => 
 
   const { title } = matchLayout;
   const handleChange = (selectedType: string, options?: {}) => {
-    console.log('Select Layout Type: ', selectedType, options);
+    const matchedOptions = layouts.find((item) => item.type === selectedType);
+    console.log('Select Layout Type: ', selectedType, options, matchedOptions);
+    if (!options && matchedOptions && matchedOptions.options) {
+      options = matchedOptions.options
+        .map((c) => {
+          const { key, defaultValue } = c;
+          return { [key]: defaultValue };
+        })
+        .reduce((acc, curr) => {
+          return {
+            ...acc,
+            ...curr,
+          };
+        }, {});
+    }
+
     if (onChange) {
       // message.warning(
       //   `Layout ${selectedType} is selected, but it may take a while to render, please wait...`,
