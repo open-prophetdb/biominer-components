@@ -45,11 +45,23 @@ export const getEntityId = (node: GraphNode) => {
   return node.data.id;
 };
 
+const uniqLst = (lst: string[]): string[] => {
+  return uniq(
+    lst
+      .map((item) => {
+        return item.split('|');
+      })
+      .flat(),
+  );
+};
+
 export const processEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
   const edgeMap: Map<string, GraphEdge[]> = new Map();
   edges.forEach((edge) => {
     const { source, target } = edge;
-    const id = `${source}-${target}`;
+    // Sort the source and target to make sure the id is unique
+    const ids = [source, target].sort();
+    const id = ids.join('-');
     if (edgeMap.has(id)) {
       const objs = edgeMap.get(id);
       if (objs) {
@@ -62,15 +74,20 @@ export const processEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
 
   const newEdges: GraphEdge[] = [];
   edgeMap.forEach((value, key) => {
-    if (value.length > 1) {
+    console.log('processEdges: ', value, key);
+    const uniqValue = uniqBy(value, 'reltype');
+    if (uniqValue.length > 1) {
       const [firstEdge] = value;
       const { source, target, ...others } = firstEdge;
-      const reltypes = value.map((edge: GraphEdge) => edge.reltype);
+      const reltypes = uniqLst(value.map((edge: GraphEdge) => edge.reltype));
+      const descs = uniqLst(value.map((edge: GraphEdge) => edge.description || ''));
+      console.log('Multiple edges: ', reltypes, descs);
       newEdges.push({
         source,
         target,
         ...others,
         reltype: reltypes.join('|'),
+        description: descs.length > 1 ? descs.join('|') : descs[0],
         relid: `MultipleLabels-${source}-${target}`,
         style: {
           ...others.style,
@@ -83,6 +100,7 @@ export const processEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
           // @ts-ignore
           identity: `MultipleLabels-${source}-${target}`,
           reltypes: reltypes,
+          relation_type: reltypes.join('|'),
         },
       });
     } else {

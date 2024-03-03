@@ -181,6 +181,10 @@ type NodeData = {
   name: string;
   description?: string;
   resource: string;
+  xrefs?: string;
+  taxid?: string;
+  synonyms?: string;
+  pmid?: string;
 };
 
 type NodeKeyShape = {

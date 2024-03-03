@@ -23,7 +23,7 @@ $ yarn
 
 ### Start the dev server
 
-Before you start the dev server, you need to run a biomedgps server locally (Port: 8000). Please refer to [biomedgps](https://github.com/yjcyxky/biomedgps) for more details.
+Before you start the dev server, you need to run a biomedgps server locally (Port: 8000). Please refer to [biomedgps](https://github.com/yjcyxky/biomedgps) for more details. You might need to fill a token into the localStorage of your browser for accessing the biomedgps server.
 
 ```bash
 $ yarn start

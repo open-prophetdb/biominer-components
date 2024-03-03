@@ -751,6 +751,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             return {
               id: node.id,
               name: node.data.name,
+              label: node.data.label,
+              description: node.data.description,
+              xrefs: node.data.xrefs || '',
+              synonyms: node.data.synonyms || '',
             };
           }),
           edges: data.edges.map((edge) => {
@@ -758,6 +762,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               source: edge.source,
               target: edge.target,
               reltype: edge.reltype,
+              reltype_desc: edge.description || '',
+              key_sentence: edge.data.key_sentence || '',
+              score: edge.data.score || 0,
+              resource: edge.data.resource || '',
             };
           }),
         };
