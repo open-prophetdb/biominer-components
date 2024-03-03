@@ -212,9 +212,12 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         label="Top K"
         tooltip="The number of similar nodes you want to get. The default value is 50."
         initialValue={50}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+        rules={[
+          { required: false, message: 'Please input your expected value', type: 'number' },
+          { type: 'number', min: 1, max: 50, message: 'The value should be between 1 and 50' },
+        ]}
       >
-        <InputNumber min={1} max={50} />
+        <InputNumber />
       </Form.Item>
       <Form.Item
         label="Merging Mode"

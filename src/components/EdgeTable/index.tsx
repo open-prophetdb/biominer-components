@@ -13,6 +13,11 @@ import { SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy } from 'ag-g
 import { uniq, uniqBy } from 'lodash';
 import { guessLink } from '../utils';
 
+export interface SimpleNode {
+  id: string;
+  label: string;
+}
+
 export interface Column {
   field: string;
   type: string;
@@ -23,6 +28,7 @@ export interface EdgeTableProps {
   className?: string;
   selectedKeys?: string[];
   onSelectedRows?: (selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => void;
+  onDeletedRows?: (deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => void;
   edges: EdgeAttribute[];
   edgeStat?: RelationStat[];
 }
@@ -376,9 +382,67 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           rowMultiSelectWithClick={true}
           statusBar={statusBar}
           onGridReady={onGridReady}
-          onColumnRowGroupChanged={onColumnRowGroupChanged}
+          // It seems that the row selection checkbox also works well at the row group mode.
+          // onColumnRowGroupChanged={onColumnRowGroupChanged}
           onSelectionChanged={onSelectedChanged}
           autoSizeStrategy={autoSizeStrategy}
+          getContextMenuItems={(params: any) => {
+            var result = [
+              {
+                name: 'Delete Selected Relations (Only)',
+                action: function () {
+                  var selectedRows = params.api.getSelectedRows();
+                  params.api.applyTransaction({ remove: selectedRows });
+                  props.onDeletedRows && props.onDeletedRows(selectedRows, []);
+                },
+                disabled: params.node.isSelected() ? false : true,
+              },
+              {
+                name: 'Delete Selected Relations and Nodes',
+                action: function () {
+                  var selectedRows = params.api.getSelectedRows();
+                  const nodes: SimpleNode[] = selectedRows
+                    .map((row: EdgeAttribute): SimpleNode[] => {
+                      return [
+                        {
+                          id: row.source_id,
+                          label: row.source_type,
+                        },
+                        {
+                          id: row.target_id,
+                          label: row.target_type,
+                        },
+                      ];
+                    })
+                    .flat();
+                  if (nodes.length > 0) {
+                    const uniqueNodes = uniqBy(nodes, 'id');
+                    const deletedNodes = uniqueNodes.map((node) => {
+                      return {
+                        id: node.id,
+                        label: node.label,
+                      };
+                    });
+                    params.api.applyTransaction({ remove: selectedRows });
+                    props.onDeletedRows && props.onDeletedRows(selectedRows, deletedNodes);
+                  }
+                },
+                disabled: params.node.isSelected() ? false : true,
+              },
+              'separator',
+              'copy',
+              'copyWithHeaders',
+              'copyWithGroupHeaders',
+              'separator',
+              'autoSizeAll',
+              'resetColumns',
+              'expandAll',
+              'contractAll',
+              'separator',
+              'export',
+            ];
+            return result;
+          }}
         />
       </div>
     </div>

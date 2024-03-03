@@ -89,27 +89,51 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
         label="Number of Hops"
         tooltip="The depth of the search. The maximum number of hops to be searched. For performance reasons, we limit the maximum number of hops to 2."
         initialValue={1}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+        rules={[
+          { required: false, message: 'Please input your expected value', type: 'number' },
+          {
+            type: 'number',
+            min: 1,
+            max: 2,
+            message: 'The number of hops should be between 1 and 2.',
+          },
+        ]}
       >
-        <InputNumber min={1} max={2} />
+        <InputNumber />
       </Form.Item>
       <Form.Item
         name="topk"
         label="Top K"
         tooltip="The count of nodes to be returned."
         initialValue={10}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+        rules={[
+          { required: false, message: 'Please input your expected value', type: 'number' },
+          {
+            type: 'number',
+            min: 1,
+            max: 50,
+            message: 'The number of top k should be between 1 and 50.',
+          },
+        ]}
       >
-        <InputNumber min={1} max={50} />
+        <InputNumber />
       </Form.Item>
       <Form.Item
         name="nums_shared_by"
         label="Number of Shared By"
         tooltip="The count of specified nodes connected to each found node, highlighting shared relationships."
         initialValue={props.searchObject?.data.nodes.length}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+        rules={[
+          { required: false, message: 'Please input your expected value', type: 'number' },
+          {
+            type: 'number',
+            min: 1,
+            max: props.searchObject?.data.nodes.length || 2,
+            message: 'The number of shared by should be between 1 and the number of nodes.',
+          },
+        ]}
       >
-        <InputNumber min={1} max={props.searchObject?.data.nodes.length || 2} />
+        <InputNumber />
       </Form.Item>
       <Form.Item label="Merging Mode" name="merge_mode" initialValue={'append'}>
         <Select

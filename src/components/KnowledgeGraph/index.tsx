@@ -160,10 +160,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       });
 
     setIsDirty(true);
+
+    const newNodes = data.nodes;
+    const newEdges = processEdges(edges, {});
     setData({
-      nodes: data.nodes,
-      edges: processEdges(edges, {}),
+      nodes: newNodes,
+      edges: newEdges,
     });
+    updateGraphTable(newNodes, newEdges);
   };
 
   const onClearGraph = () => {
@@ -180,15 +184,12 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setLlmResponse(undefined);
   };
 
+  const updateGraphTable = (nodes: GraphNode[], edges: GraphEdge[]): void => {
+    setNodeDataSources(makeDataSources(nodes));
+    setEdgeDataSources(makeDataSources(edges));
+  };
+
   useEffect(() => {
-    const nodes = makeDataSources(data.nodes);
-    setNodeDataSources(nodes);
-
-    const edges = makeDataSources(data.edges);
-    setEdgeDataSources(edges);
-
-    console.log('Data: ', data, nodes, edges);
-
     setStatistics({
       numNodes: data.nodes.length,
       numEdges: data.edges.length,
@@ -687,12 +688,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         nodes.forEach((node) => {
           graph.removeItem(node.id);
         });
+        const newNodes = data.nodes.filter((node) => !ids.includes(node.id));
+        const newEdges = data.edges.filter(
+          (edge) => !ids.includes(edge.source) && !ids.includes(edge.target),
+        );
         checkAndSetData({
-          nodes: data.nodes.filter((node) => !ids.includes(node.id)),
-          edges: data.edges.filter(
-            (edge) => !ids.includes(edge.source) && !ids.includes(edge.target),
-          ),
+          nodes: newNodes,
+          edges: newEdges,
         });
+        updateGraphTable(newNodes, newEdges);
       }
     } else if (menuItem.key == 'expand-one-step') {
       enableAdvancedSearch();
@@ -1274,6 +1278,64 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                           .concat(edges.map((edge) => edge.target));
                         setSelectedNodeKeys(uniq(nodeKeys));
                         resolve();
+                      });
+                    }}
+                    onDeletedEdges={(
+                      edges: EdgeAttribute[],
+                      nodes: { id: string; label: string }[],
+                    ): Promise<void> => {
+                      const getComposedId = (node: { id: string; label: string }) => {
+                        return `${node.label}::${node.id}`;
+                      };
+
+                      return new Promise((resolve, reject) => {
+                        const edgeKeys = edges.map((edge) => edge.relid);
+                        const remaningEdges = data.edges.filter(
+                          (edge) => !edgeKeys.includes(edge.relid),
+                        );
+                        if (nodes.length == 0) {
+                          checkAndSetData({
+                            nodes: data.nodes,
+                            edges: remaningEdges,
+                          });
+                          // Clear the selected nodes and edges
+                          setSelectedNodeKeys([]);
+                          setSelectedEdgeKeys([]);
+                          return resolve();
+                        } else {
+                          const nodeKeys = nodes.map((node) => getComposedId(node));
+                          const deletingNodeKeys = nodeKeys.filter((nodeKey) => {
+                            const found = remaningEdges.find(
+                              (edge) => edge.source == nodeKey || edge.target == nodeKey,
+                            );
+                            return found ? false : true;
+                          });
+                          const remaningNodes = data.nodes.filter(
+                            (node) =>
+                              !deletingNodeKeys.includes(
+                                getComposedId({
+                                  id: node.data.id,
+                                  label: node.data.label,
+                                }),
+                              ),
+                          );
+                          console.log(
+                            'Deleting Node Keys: ',
+                            deletingNodeKeys,
+                            nodeKeys,
+                            remaningEdges,
+                            remaningNodes,
+                          );
+
+                          checkAndSetData({
+                            nodes: remaningNodes,
+                            edges: remaningEdges,
+                          });
+                          // Clear the selected nodes and edges
+                          setSelectedNodeKeys([]);
+                          setSelectedEdgeKeys([]);
+                          return resolve();
+                        }
                       });
                     }}
                     edgeStat={edgeStat}

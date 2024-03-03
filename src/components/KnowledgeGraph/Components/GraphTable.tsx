@@ -3,8 +3,9 @@ import { Empty } from 'antd';
 import NodeTable from '../../NodeTable';
 import EdgeTable from '../../EdgeTable';
 import TableTabs from './TableTabs';
-import { NodeAttribute } from '../../NodeTable/index.t';
-import { EdgeAttribute } from '../../EdgeTable/index.t';
+import type { SimpleNode } from '../../EdgeTable';
+import type { NodeAttribute } from '../../NodeTable/index.t';
+import type { EdgeAttribute } from '../../EdgeTable/index.t';
 import { CustomGraphinContext } from '../../Context/CustomGraphinContext';
 import type { GraphData, GraphEdge, GraphNode, RelationStat } from '../../typings';
 import { uniq } from 'lodash';
@@ -23,6 +24,7 @@ export interface GraphTableProps {
   selectedEdgeKeys?: string[];
   onSelectedNodes?: (selectedRows: NodeAttribute[]) => Promise<void>;
   onSelectedEdges?: (selectedRows: EdgeAttribute[]) => Promise<void>;
+  onDeletedEdges?: (deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => Promise<void>;
   edgeStat?: RelationStat[];
 }
 
@@ -41,6 +43,22 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       .map((node) => node.metadata);
     const edges = props.edgeDataSources
       .filter((edge) => selectedEdgeIds.includes(edge.relid))
+      .map((edge) => edge.metadata);
+
+    return {
+      nodes: nodes as GraphNode[],
+      edges: edges as GraphEdge[],
+    };
+  };
+
+  const removeNodes = (selectedNodeIds: string[]) => {
+    const nodes = props.nodeDataSources
+      .filter((node) => !selectedNodeIds.includes(node.id))
+      .map((node) => node.metadata);
+    const edges = props.edgeDataSources
+      .filter(
+        (edge) => !selectedNodeIds.includes(edge.source) && !selectedNodeIds.includes(edge.target),
+      )
       .map((edge) => edge.metadata);
 
     return {
@@ -102,6 +120,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
     >
       {props.nodeDataSources.length > 0 ? (
         <NodeTable
+          key={props.nodeDataSources.map((node) => node.id).join(',')}
           nodes={props.nodeDataSources as NodeAttribute[]}
           selectedKeys={props.selectedNodeKeys}
           onSelectedRows={(selectedRows: NodeAttribute[], oldSelectedRows: NodeAttribute[]) => {
@@ -185,6 +204,9 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
                   graph,
                 );
               });
+          }}
+          onDeletedRows={(deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => {
+            props.onDeletedEdges && props.onDeletedEdges(deletedRows, deletedNodes);
           }}
           style={props.style ? props.style : { minHeight: '300px', height: '60vh' }}
         />

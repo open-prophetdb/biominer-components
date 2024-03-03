@@ -981,16 +981,46 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     return true;
   };
 
-  const findUpdatedData = (oldData: GraphData, newData: GraphData) => {
-    const oldNodeIds = new Set(oldData.nodes.map((item) => item.id));
-    const addedNodes = newData.nodes.filter((item) => !oldNodeIds.has(item.id));
+  const findUpdatedData = (
+    oldData: GraphData,
+    newData: GraphData,
+  ): {
+    data: GraphData;
+    addedData: GraphData;
+    subtractedData: GraphData;
+  } => {
+    const oldNodesMap = new Map(oldData.nodes.map((node) => [node.id, node]));
+    const oldEdgesMap = new Map(oldData.edges.map((edge) => [edge.relid, edge]));
+    const newNodeIds = new Set(newData.nodes.map((node) => node.id));
+    const newEdgeIds = new Set(newData.edges.map((edge) => edge.relid));
 
-    const oldEdgeIds = new Set(oldData.edges.map((item) => item.relid));
-    const addedEdges = newData.edges.filter((item) => !oldEdgeIds.has(item.relid));
+    const addedNodes = newData.nodes.filter((node) => !oldNodesMap.has(node.id));
+    const addedEdges = newData.edges.filter((edge) => !oldEdgesMap.has(edge.relid));
+
+    const subtractedNodes = oldData.nodes.filter((node) => !newNodeIds.has(node.id));
+    const subtractedEdges = oldData.edges.filter((edge) => !newEdgeIds.has(edge.relid));
+
+    // 创建最终的节点和边数组，排除subtractedData，添加addedData
+    const finalNodes = oldData.nodes
+      .filter((node) => !subtractedNodes.some((subNode) => subNode.id === node.id))
+      .concat(addedNodes);
+    const finalEdges = oldData.edges
+      .filter((edge) => !subtractedEdges.some((subEdge) => subEdge.relid === edge.relid))
+      .concat(addedEdges);
 
     return {
-      nodes: addedNodes,
-      edges: addedEdges,
+      data: {
+        nodes: finalNodes,
+        edges: finalEdges,
+      },
+      addedData: {
+        nodes: addedNodes,
+        edges: addedEdges,
+      },
+      subtractedData: {
+        nodes: subtractedNodes,
+        edges: subtractedEdges,
+      },
     };
   };
 
@@ -1127,13 +1157,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       // @ts-ignore
       const graph = ref.current.graph;
       const oldData = graph.save();
-      const newData = {
-        nodes: [...data.nodes, ...oldData.nodes],
-        edges: [...data.edges, ...oldData.edges],
-      };
-
-      graph.data(newData);
-      graph.render();
 
       if (!hasPositions(oldData)) {
         changeLayout(defaultLayout);
@@ -1141,8 +1164,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         changeLayout(presetLayout);
       }
 
-      const updatedData = findUpdatedData(oldData, newData);
-      refreshNodePosition(updatedData, newData);
+      const updatedData = findUpdatedData(oldData, data);
+      graph.data(updatedData.data);
+      graph.render();
+
+      if (updatedData.addedData.nodes.length > 0) {
+        refreshNodePosition(updatedData.addedData, data);
+      }
     }
   }, [data]);
 

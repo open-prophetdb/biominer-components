@@ -286,7 +286,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             entity_id: values.entity_id,
             relation_types: values.relation_types ? values.relation_types : [],
             nsteps: values.nsteps ? values.nsteps : 1,
-            limit: values.limit ? values.limit : 50,
+            limit: values.limit ? values.limit : 10,
           };
 
           props.onOk(new LinkedNodesSearchObjectClass(payload, values.merge_mode));
@@ -447,7 +447,10 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
         label="Num of Steps"
         initialValue={1}
         hidden
-        rules={[{ required: false, message: 'Please select your expected nsteps', type: 'number' }]}
+        rules={[
+          { required: false, message: 'Please select your expected nsteps', type: 'number' },
+          { type: 'number', min: 1, max: 2, message: 'The value should be between 1 and 2' },
+        ]}
       >
         <Select
           disabled
@@ -461,11 +464,14 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
       <Form.Item
         name="limit"
         label="Max Num of Edges"
-        tooltip="The maximum number of edges to return. You might get several edges between two nodes. So you will find less than the expected number of nodes."
-        initialValue={50}
-        rules={[{ required: false, message: 'Please input your expected value', type: 'number' }]}
+        tooltip="The maximum number of edges to return. You might get several edges between two nodes and our platform will merge them into one edge. so the number of edges and nodes might be less than the expected value."
+        initialValue={10}
+        rules={[
+          { required: false, message: 'Please input your expected value', type: 'number' },
+          { type: 'number', min: 1, max: 50, message: 'The value should be between 1 and 50' },
+        ]}
       >
-        <InputNumber min={1} max={50} />
+        <InputNumber />
       </Form.Item>
       <Form.Item
         label="Merging Mode"
