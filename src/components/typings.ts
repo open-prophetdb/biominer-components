@@ -225,6 +225,8 @@ export type GraphEdge = {
   data: EdgeData;
   // Only for explaining the relation type.
   description?: string;
+  // Only for labeling several edges between two nodes.
+  multiple?: boolean;
 };
 
 type EdgeData = {

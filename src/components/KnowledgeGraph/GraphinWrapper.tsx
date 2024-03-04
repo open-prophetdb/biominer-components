@@ -6,6 +6,7 @@ import Graphin, {
   IG6GraphEvent,
   GraphinData,
 } from '@antv/graphin';
+import { Collapse } from 'antd';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
@@ -60,13 +61,14 @@ import type { GraphNode, GraphEdge } from '../typings';
 import ShowPaths from './Components/ShowPaths';
 import NodeSearcherPanel from './Components/NodeSearcherPanel';
 import HighlightNodeEdge from './Components/HighlightNodeEdge';
-import { popCurrectData } from './Components/UndoRedo';
 import voca from 'voca';
-import { pushStack } from '../utils';
+// import { popCurrectData } from './Components/UndoRedo';
+// import { pushStack } from '../utils';
 
 import './GraphinWrapper.less';
 
 const { MiniMap, SnapLine, Tooltip, Legend } = Components;
+const { Panel } = Collapse;
 
 const {
   ZoomCanvas,
@@ -1198,93 +1200,154 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     setFocusedNodes([]);
   };
 
-  const HoverText: React.FC<{ data: Record<string, any>; style: any }> = ({ data, style }) => {
-    const isLink = (key: string) => {
-      return ['source_id', 'target_id', 'id', 'label'].includes(key);
+  const HoverText: React.FC<{ data: Record<string, any>; style: Record<string, any> }> = ({
+    data,
+    style,
+  }) => {
+    const { graph, apis } = useContext(GraphinContext);
+    const mergeStyle = { width: '300px', ...style };
+
+    const [activeKey, setActiveKey] = useState(['1']);
+
+    const handleChange = (key: string | string[]) => {
+      console.log('HoverText: ', key, activeKey);
+      if (typeof key === 'string') {
+        key = [key];
+      }
+
+      if (key.length === 0) {
+        key = ['1'];
+      }
+      setActiveKey(key);
     };
 
-    const formatItem = (key: string, value: string | number) => {
-      const externalLink = guessLink(value);
-      if (isLink(key) && externalLink) {
-        return (
-          <a href={externalLink} target="_blank">
-            {value}
-          </a>
-        );
-      } else if (key == 'pmids') {
-        if (value) {
-          const pmids = `${value}`.split('|');
-          return pmids.map((pmid: string) => {
-            return (
-              <a href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}`} target="_blank">
-                {pmid}
-              </a>
-            );
-          });
-        }
-      } else if (key == 'taxid') {
-        if (value) {
-          return guessSpecies(value);
-        }
-      } else if (key == 'score') {
-        if (typeof value == 'number') {
-          return value.toFixed(2);
+    const buildHoverTextComponent = (data: Record<string, any>) => {
+      const isLink = (key: string) => {
+        return ['source_id', 'target_id', 'id', 'label'].includes(key);
+      };
+
+      const formatItem = (key: string, value: string | number) => {
+        const externalLink = guessLink(value);
+        if (isLink(key) && externalLink) {
+          return (
+            <a href={externalLink} target="_blank">
+              {value}
+            </a>
+          );
+        } else if (key == 'pmids') {
+          if (value) {
+            const pmids = `${value}`.split('|');
+            return pmids.map((pmid: string) => {
+              return (
+                <a href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}`} target="_blank">
+                  {pmid}
+                </a>
+              );
+            });
+          }
+        } else if (key == 'taxid') {
+          if (value) {
+            return guessSpecies(value);
+          }
+        } else if (key == 'score') {
+          if (typeof value == 'number') {
+            return value.toFixed(2);
+          } else {
+            return value;
+          }
         } else {
           return value;
         }
-      } else {
-        return value;
-      }
+      };
+
+      console.log('HoverText: ', data);
+      const dataSource = makeDataSource(data, [
+        // For node
+        'comboId',
+        'degree',
+        'depth',
+        'layoutOrder',
+        'x',
+        'y',
+        'type',
+        'category',
+        'nlabel',
+        'identity',
+        // It will cause the graph dispearing if we don't remove any complex objects in this component.
+        'metadata',
+
+        // For edge
+        'multiple',
+        'relid',
+        'reltype',
+        'source',
+        'target',
+        'id',
+      ]);
+
+      const items = Object.keys(dataSource)
+        .sort()
+        .map((key) => {
+          if (dataSource[key]) {
+            return (
+              <Descriptions.Item
+                key={key}
+                label={voca.titleCase(key.replace(/_/g, ' '))}
+                style={{ height: '50px', overflowY: 'scroll' }}
+              >
+                {formatItem(key, dataSource[key])}
+              </Descriptions.Item>
+            );
+          } else {
+            return null;
+          }
+        });
+
+      return items.length > 0 ? (
+        <Descriptions
+          size={'small'}
+          column={1}
+          title={null}
+          bordered
+          style={mergeStyle}
+          key={Math.random()}
+        >
+          {items}
+        </Descriptions>
+      ) : (
+        <span style={style}>No Properties</span>
+      );
     };
 
-    console.log('HoverText: ', data);
-    const dataSource = makeDataSource(data, [
-      // For node
-      'comboId',
-      'degree',
-      'depth',
-      'layoutOrder',
-      'x',
-      'y',
-      'type',
-      'category',
-      'nlabel',
-      'identity',
-      // It will cause the graph dispearing if we don't remove any complex objects in this component.
-      'metadata',
-
-      // For edge
-      'relid',
-      'reltype',
-      'source',
-      'target',
-      'id',
-    ]);
-
-    const items = Object.keys(dataSource)
-      .sort()
-      .map((key) => {
-        if (dataSource[key]) {
-          return (
-            <Descriptions.Item
-              key={key}
-              label={voca.titleCase(key.replace(/_/g, ' '))}
-              style={{ height: '50px', overflowY: 'scroll' }}
-            >
-              {formatItem(key, dataSource[key])}
-            </Descriptions.Item>
-          );
-        } else {
-          return null;
-        }
+    if (data.multiple) {
+      const allEdges = graph.getEdges();
+      const currectEdges = allEdges.filter((edge) => {
+        return (
+          (edge.getModel().source == data.source && edge.getModel().target == data.target) ||
+          (edge.getModel().source == data.target && edge.getModel().target == data.source)
+        );
       });
-    return items.length > 0 ? (
-      <Descriptions size={'small'} column={1} title={null} bordered style={style}>
-        {items}
-      </Descriptions>
-    ) : (
-      <span style={style}>No Properties</span>
-    );
+
+      const items = currectEdges.map((edge, index) => {
+        return {
+          key: index.toString(),
+          label: `${edge.getModel().reltype}`,
+          children: buildHoverTextComponent(edge.getModel()),
+        };
+      });
+
+      return (
+        <Collapse
+          defaultActiveKey={['1']}
+          items={items}
+          accordion
+          onChange={handleChange}
+          activeKey={activeKey}
+        />
+      );
+    } else {
+      return buildHoverTextComponent(data);
+    }
   };
 
   const onChangeLegend = (checkedValue: LegendOptionType, options: LegendOptionType[]) => {
@@ -1655,7 +1718,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         <EdgeClickBehavior onClick={props.onClickEdge}></EdgeClickBehavior>
       ) : null}
       {settings.nodeTooltipEnabled ? (
-        <Tooltip bindType="node" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
+        <Tooltip bindType="node" placement="bottom" style={{ opacity: 0.9 }}>
           {(value: TooltipValue) => {
             if (value.model) {
               const { model } = value;
@@ -1671,14 +1734,19 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         </Tooltip>
       ) : null}
       {settings.edgeTooltipEnabled ? (
-        <Tooltip bindType="edge" hasArrow placement="bottom" style={{ opacity: 0.9 }}>
+        <Tooltip bindType="edge" placement="bottom" style={{ opacity: 0.9 }}>
           {(value: TooltipValue) => {
             if (value.model) {
               const { model } = value;
               return (
                 <HoverText
                   data={model}
-                  style={{ padding: '10px', width: 'fit-content' }}
+                  style={{
+                    padding: '10px',
+                    width: 'fit-content',
+                    maxWidth: '400px',
+                    minWidth: '300px',
+                  }}
                 ></HoverText>
               );
             }

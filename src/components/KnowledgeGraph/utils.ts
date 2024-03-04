@@ -56,7 +56,55 @@ const uniqLst = (lst: string[]): string[] => {
   );
 };
 
+// Label the edges with several attributes when there are several edges between two nodes
 export const processEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
+  const edgeMap: Map<string, GraphEdge[]> = new Map();
+  edges.forEach((edge) => {
+    const { source, target } = edge;
+    // Sort the source and target to make sure the id is unique
+    const ids = [source, target].sort();
+    const id = ids.join('-');
+    if (edgeMap.has(id)) {
+      const objs = edgeMap.get(id);
+      if (objs) {
+        edgeMap.set(id, [...objs, edge]);
+      }
+    } else {
+      edgeMap.set(id, [edge]);
+    }
+  });
+
+  const newEdges: GraphEdge[] = [];
+  edgeMap.forEach((value, key) => {
+    value.forEach((edge, index) => {
+      const { source, target, ...others } = edge;
+      const reltypes = uniqLst(value.map((edge: GraphEdge) => edge.reltype));
+      if (reltypes.length > 1) {
+        newEdges.push({
+          source,
+          target,
+          ...others,
+          style: {
+            ...others.style,
+            label: {
+              value: 'MultipleLabels',
+            },
+          },
+          multiple: true,
+        });
+      } else {
+        newEdges.push(edge);
+      }
+    });
+  });
+
+  return newEdges;
+};
+
+// TODO: This method will cause the several issues:
+// 1. Cannot filter the edges by the relation type
+// 2. Cannot identify the multiple edges between two nodes
+export const mergeEdges = (edges: GraphEdge[], options: {}): GraphEdge[] => {
   const edgeMap: Map<string, GraphEdge[]> = new Map();
   edges.forEach((edge) => {
     const { source, target } = edge;
