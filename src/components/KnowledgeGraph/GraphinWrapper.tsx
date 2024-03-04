@@ -1208,6 +1208,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     const mergeStyle = { width: '300px', ...style };
 
     const [activeKey, setActiveKey] = useState(['1']);
+    const [multipleEdges, setMultipleEdges] = useState<any[]>([]);
 
     const handleChange = (key: string | string[]) => {
       console.log('HoverText: ', key, activeKey);
@@ -1319,32 +1320,44 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       );
     };
 
+    useEffect(() => {
+      if (data.multiple) {
+        const allEdges = graph.getEdges();
+        const currectEdges = allEdges.filter((edge) => {
+          return (
+            (edge.getModel().source == data.source && edge.getModel().target == data.target) ||
+            (edge.getModel().source == data.target && edge.getModel().target == data.source)
+          );
+        });
+
+        const items = currectEdges.map((edge, index) => {
+          return {
+            key: index.toString(),
+            label: `${edge.getModel().reltype}`,
+            children: buildHoverTextComponent(edge.getModel()),
+          };
+        });
+
+        setMultipleEdges(items);
+      }
+    }, [data]);
+
     if (data.multiple) {
-      const allEdges = graph.getEdges();
-      const currectEdges = allEdges.filter((edge) => {
+      if (multipleEdges.length > 0) {
+        console.log('HoverText - multiple: ', data, multipleEdges);
+
         return (
-          (edge.getModel().source == data.source && edge.getModel().target == data.target) ||
-          (edge.getModel().source == data.target && edge.getModel().target == data.source)
+          <Collapse
+            defaultActiveKey={['1']}
+            items={multipleEdges}
+            accordion
+            onChange={handleChange}
+            activeKey={activeKey}
+          />
         );
-      });
-
-      const items = currectEdges.map((edge, index) => {
-        return {
-          key: index.toString(),
-          label: `${edge.getModel().reltype}`,
-          children: buildHoverTextComponent(edge.getModel()),
-        };
-      });
-
-      return (
-        <Collapse
-          defaultActiveKey={['1']}
-          items={items}
-          accordion
-          onChange={handleChange}
-          activeKey={activeKey}
-        />
-      );
+      } else {
+        return <span style={style}>No Properties</span>;
+      }
     } else {
       return buildHoverTextComponent(data);
     }
