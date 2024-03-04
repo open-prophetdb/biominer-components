@@ -1026,8 +1026,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
   const refreshDragedNodePosition = (e: any) => {
     const model = e.item.get('model');
-    model.fx = e.x;
-    model.fy = e.y;
+    model.x = e.x;
+    model.y = e.y;
   };
 
   const allowNodeEdgeMenu = () => {
@@ -1051,12 +1051,20 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           // @ts-ignore
           props.onDataChanged(ref.current?.graph);
         }
+
+        // TODO: It will cause the position of a subgraph to be changed after the layout is changed.
+        // @ts-ignore
+        ref.current?.graph?.fitCenter();
       });
       graph.on('afterrender', () => {
         if (props.onDataChanged) {
           // @ts-ignore
           props.onDataChanged(ref.current?.graph);
         }
+
+        // TODO: It will cause the position of a subgraph to be changed after the layout is changed.
+        // @ts-ignore
+        ref.current?.graph?.fitCenter();
       });
       // More details: https://g6.antv.vision/api/graph-func/layout#graphlayout
       graph.on('node:drag', (e: any) => {

@@ -1257,7 +1257,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   width="800px"
                   height="600px"
                   maxWidth="80vw"
-                  maxHeight="60vh"
                   title="Graph Table"
                 >
                   <GraphTable
@@ -1377,7 +1376,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   minHeight="500px"
                   height="600px"
                   maxWidth="80vw"
-                  maxHeight="60vh"
                   title="Explanation Panel"
                 >
                   <ExplanationPanel data={llmResponse}></ExplanationPanel>
