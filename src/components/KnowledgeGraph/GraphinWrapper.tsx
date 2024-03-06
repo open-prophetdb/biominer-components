@@ -66,6 +66,7 @@ import voca from 'voca';
 // import { pushStack } from '../utils';
 
 import './GraphinWrapper.less';
+import { sortBy } from 'lodash';
 
 const { MiniMap, SnapLine, Tooltip, Legend } = Components;
 const { Panel } = Collapse;
@@ -1209,18 +1210,19 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     const { graph, apis } = useContext(GraphinContext);
     const mergeStyle = { width: '300px', ...style };
 
-    const [activeKey, setActiveKey] = useState(['1']);
+    const [activeKey, setActiveKey] = useState(['0']);
     const [multipleEdges, setMultipleEdges] = useState<any[]>([]);
 
+    // TODO: Do we need to use the activeKey?
     const handleChange = (key: string | string[]) => {
       console.log('HoverText: ', key, activeKey);
       if (typeof key === 'string') {
         key = [key];
       }
 
-      if (key.length === 0) {
-        key = ['1'];
-      }
+      // if (key.length === 0) {
+      //   key = ['1'];
+      // }
       setActiveKey(key);
     };
 
@@ -1334,11 +1336,20 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             (edge.getModel().source == data.target && edge.getModel().target == data.source)
           );
         });
+        const sortedCurrentEdges = sortBy(currectEdges, (edge) => {
+          return edge.getModel().reltype;
+        });
 
-        const items = currectEdges.map((edge, index) => {
+        const items = sortedCurrentEdges.map((edge, index) => {
           return {
             key: index.toString(),
-            label: `${edge.getModel().reltype}`,
+            // @ts-ignore
+            label: (
+              <span>
+                {edge.getModel().reltype}
+                <br />[{edge.getModel().data?.source_id} -&gt; {edge.getModel().data?.target_id}]
+              </span>
+            ),
             children: buildHoverTextComponent(edge.getModel()),
           };
         });
@@ -1353,7 +1364,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
         return (
           <Collapse
-            defaultActiveKey={['1']}
+            defaultActiveKey={['0']}
             items={multipleEdges}
             accordion
             onChange={handleChange}
@@ -1763,7 +1774,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
                     padding: '10px',
                     width: 'fit-content',
                     maxWidth: '400px',
-                    minWidth: '300px',
+                    minWidth: 'fit-content',
                   }}
                 ></HoverText>
               );
