@@ -89,10 +89,12 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
     }
   }, [props.searchObject]);
 
+  // We expect other fields to be set by the user again after the nodeIds are set.
   const clearNodeIdType = (value: string) => {
     form.setFieldsValue({ entity_type: undefined });
     setEntityOptions(undefined);
     form.setFieldsValue({ entity_id: undefined });
+    setPlaceholder('Search nodes ...');
   };
 
   const onConfirm = () => {

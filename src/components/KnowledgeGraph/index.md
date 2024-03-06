@@ -196,6 +196,19 @@ const fetchPaths = (params) => {
   });
 };
 
+const fetchSharedNodes = (params) => {
+  return new Promise((resolve, reject) => {
+    request
+      .get('/api/v1/shared-nodes', { params })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export default () => {
   return (
     <Row style={{ position: 'relative', width: '900px' }}>
@@ -215,6 +228,7 @@ export default () => {
           GetEntity2DFn: getEntity2D,
           GetNStepsLinkedNodesFn: fetchPaths,
           GetEntityColorMapFn: getEntityColorMap,
+          GetSharedNodesFn: fetchSharedNodes,
         }}
       />
     </Row>

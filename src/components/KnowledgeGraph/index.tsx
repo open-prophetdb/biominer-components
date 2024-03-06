@@ -388,6 +388,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     if (advancedSearchPanelActive === false && searchObject) {
       setLoading(true);
       message.info('Loading data, please wait...');
+      console.log('Search Object: ', searchObject);
       searchObject
         .process(props.apis)
         .then((response) => {
@@ -517,6 +518,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   };
 
   const searchSharedNodes = (
+    start_node: GraphNode,
     nodes: GraphNode[],
     nodeTypes: string[] | undefined,
     mergeMode?: MergeMode,
@@ -526,6 +528,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     if (nodes && nodes.length > 1) {
       let sharedNodesSearchObject = new SharedNodesSearchObjectClass(
         {
+          start_node_id: start_node.id,
           nodes: nodes,
           node_types: nodeTypes || [],
           topk: topk || 10,
@@ -711,7 +714,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const nodes = getSelectedNodes(graph);
       if (nodes && nodes.length >= 1) {
         enableAdvancedSearch();
-        searchSharedNodes(nodes, undefined, 'append', 10, 1);
+        searchSharedNodes(node, nodes, undefined, 'append', 10, 1);
       } else {
         message.warning('Please select at least one node to find shared nodes.');
       }

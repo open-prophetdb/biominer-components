@@ -332,6 +332,7 @@ export type SymptomsWithDiseaseCtx = {
 export type LlmResponse = { prompt: string; response: string; created_at: number };
 
 export type SharedNodesParams = {
+  start_node_id?: string;
   node_ids: string;
   nhops?: number;
   topk?: number;

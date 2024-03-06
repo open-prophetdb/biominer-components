@@ -35,6 +35,7 @@ export type SharedNodesSearcherProps = {
 
 // Allow to predict the edges between two nodes.
 type SharedNodesSearchObject = {
+  start_node_id?: string;
   nodes: GraphNode[];
   node_types?: string[];
   topk?: number;
@@ -56,6 +57,8 @@ export class SharedNodesSearchObjectClass implements SearchObjectInterface {
   }
 
   get_current_node_id(): string | undefined {
+    if (this.data.start_node_id) return this.data.start_node_id;
+
     if (this.data.nodes.length === 0) return undefined;
     let node = this.data.nodes[0];
     return `${node.data.label}${COMPOSED_ENTITY_DELIMITER}${node.data.id}`;
@@ -66,6 +69,8 @@ export class SharedNodesSearchObjectClass implements SearchObjectInterface {
     let query = undefined;
 
     let params: any = {
+      // NOTE: the node id is in the format of `label${COMPOSED_ENTITY_DELIMITER}id`
+      start_node_id: this.data.start_node_id,
       node_ids: this.data.nodes
         .map((node) => `${node.data.label}${COMPOSED_ENTITY_DELIMITER}${node.data.id}`)
         .join(','),
