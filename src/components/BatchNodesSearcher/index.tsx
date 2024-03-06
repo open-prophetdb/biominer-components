@@ -1,9 +1,9 @@
-import { Form, Select, Empty, Popover, Button } from 'antd';
+import { Form, Select, Empty, Popover, Button, message } from 'antd';
 import React, { useState, useEffect } from 'react';
 import type { BatchNodesSearcherProps } from './index.t';
 import { BatchNodesSearchObjectClass } from './index.t';
 import { type OptionType, MergeModeOptions } from '../typings';
-import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId } from '../utils';
+import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId, debouncedWarning } from '../utils';
 import { sortBy, uniqBy } from 'lodash';
 import EntityCard from '../EntityCard';
 
@@ -25,14 +25,22 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
     setPlaceholder(`Search ${value} nodes ...`);
   };
 
+  useEffect(() => {
+    if (entityType) {
+      form.setFieldsValue({ entity_id: undefined });
+      setEntityOptions(undefined);
+    }
+  }, [entityType]);
+
   const handleSearchNode = function (entityType: string, value: string) {
-    if (value) {
+    if (value && entityType) {
       setLoading(true);
       fetchNodes(props.getEntities, entityType, value, (options: OptionType[]) => {
         setEntityOptions(options);
         setLoading(false);
       });
     } else {
+      debouncedWarning('Please select a node type first.', 3);
       setEntityOptions(undefined);
     }
   };
@@ -82,7 +90,9 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
   }, [props.searchObject]);
 
   const clearNodeIdType = (value: string) => {
-    form.setFieldsValue({ entity_type: undefined, entity_id: undefined });
+    form.setFieldsValue({ entity_type: undefined });
+    setEntityOptions(undefined);
+    form.setFieldsValue({ entity_id: undefined });
   };
 
   const onConfirm = () => {

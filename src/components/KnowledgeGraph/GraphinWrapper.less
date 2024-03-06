@@ -73,6 +73,17 @@
         0px 3px 14px 2px rgba(0, 0, 0, 0.12);
     }
 
+    // How to fix the popup menu for debugging in the chrome
+    // document.querySelectorAll('.ant-menu-submenu-popup').forEach(el => {
+    //     el.style.display = 'block';
+    //     el.style.visibility = 'visible';
+    //     el.style.opacity = '1';
+    // });
+    // To fix the shadow of the submenu-popup window, otherwise the shadow will be covered by the parent menu
+    .ant-menu-submenu-popup {
+      box-shadow: unset !important;
+    }
+
     .graphin-components-contextmenu-content {
       li {
         padding: 0px 20px;

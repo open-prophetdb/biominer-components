@@ -722,7 +722,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       console.log('Expand All Paths: ', menuItem.key);
       const selectedNodes = getSelectedNodes(graph);
       if (selectedNodes.length !== 2) {
-        message.info('Please select two nodes to expand.');
+        message.info(
+          'Please select two nodes to expand, and only two nodes are allowed. If you want to expand more nodes, please use the "Find Shared Nodes" / "Auto Connect" function instead.',
+        );
         return;
       } else {
         const sourceType = getEntityType(selectedNodes[0]);

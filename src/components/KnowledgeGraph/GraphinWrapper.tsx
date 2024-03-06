@@ -1200,6 +1200,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     setFocusedNodes([]);
   };
 
+  // https://github.com/antvis/Graphin/issues/522
+  // Cannot keep the hovering status.
   const HoverText: React.FC<{ data: Record<string, any>; style: Record<string, any> }> = ({
     data,
     style,
@@ -1263,6 +1265,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
       console.log('HoverText: ', data);
       const dataSource = makeDataSource(data, [
+        // Blacklist
         // For node
         'comboId',
         'degree',
@@ -1274,6 +1277,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         'category',
         'nlabel',
         'identity',
+        'mass',
         // It will cause the graph dispearing if we don't remove any complex objects in this component.
         'metadata',
 
