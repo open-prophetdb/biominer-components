@@ -744,7 +744,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 title: `Edge - ${edge.relid}`,
               },
             };
-            setLlmResponse(record);
+            setLlmResponse({
+              ...llmResponse,
+              ...record,
+            });
             setExplanationPanelVisible(true);
             setLoading(false);
           })
@@ -850,7 +853,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 title: `Node - ${entity.name}`,
               },
             };
-            setLlmResponse(record);
+            setLlmResponse({
+              ...llmResponse,
+              ...record,
+            });
             setExplanationPanelVisible(true);
             setLoading(false);
           })
@@ -919,7 +925,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   title: `Subgraph - ${diseaseName}`,
                 },
               };
-              setLlmResponse(record);
+              setLlmResponse({
+                ...llmResponse,
+                ...record,
+              });
               setExplanationPanelVisible(true);
               setLoading(false);
             })
