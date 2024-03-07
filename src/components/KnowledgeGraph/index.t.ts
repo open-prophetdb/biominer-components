@@ -7,3 +7,9 @@ export type KnowledgeGraphProps = {
   getGeneInfo?: GetGeneInfoFn;
   getItems4GenePanel?: GetItems4GenePanelFn;
 };
+
+export type PromptItem = {
+  key: string;
+  label: string;
+  type: 'node' | 'edge' | 'subgraph';
+};

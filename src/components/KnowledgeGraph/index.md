@@ -209,6 +209,19 @@ const fetchSharedNodes = (params) => {
   });
 };
 
+const fetchPrompts = (params) => {
+  return new Promise((resolve, reject) => {
+    request
+      .get('/api/v1/llm-prompts', { params })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export default () => {
   return (
     <Row style={{ position: 'relative', width: '900px' }}>
@@ -229,6 +242,7 @@ export default () => {
           GetNStepsLinkedNodesFn: fetchPaths,
           GetEntityColorMapFn: getEntityColorMap,
           GetSharedNodesFn: fetchSharedNodes,
+          GetPromptsFn: fetchPrompts,
         }}
       />
     </Row>

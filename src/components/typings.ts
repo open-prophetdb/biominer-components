@@ -339,6 +339,12 @@ export type SharedNodesParams = {
   nums_shared_by?: number;
 };
 
+export type PromptItem = {
+  key: string;
+  label: string;
+  type: 'subgraph' | 'node' | 'edge';
+};
+
 // ------------------ APIs ------------------
 export type APIs = {
   GetStatisticsFn: () => Promise<{
@@ -378,6 +384,12 @@ export type APIs = {
     },
   ) => Promise<LlmResponse>;
   GetSharedNodesFn: (params: SharedNodesParams) => Promise<GraphData>;
+  GetPromptsFn?: () => Promise<{
+    records: PromptItem[];
+    total: number;
+    page: number;
+    page_size: number;
+  }>;
 };
 
 // ------------------ Search Object ------------------

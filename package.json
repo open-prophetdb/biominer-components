@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.80",
+  "version": "0.2.81",
   "scripts": {
     "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",
@@ -48,6 +48,7 @@
     "react-moveable": "^0.54.1",
     "react-plotly.js": "^2.6.0",
     "react-textarea-autosize": "^8.5.2",
+    "spark-md5": "^3.0.2",
     "viewerjs": "^1.10.5",
     "voca": "^1.4.1"
   },
@@ -59,6 +60,7 @@
     "@testing-library/react": "^13.0.0",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.195",
+    "@types/spark-md5": "^3.0.4",
     "@types/voca": "^1.4.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",

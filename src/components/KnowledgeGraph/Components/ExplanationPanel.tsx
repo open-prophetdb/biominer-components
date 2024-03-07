@@ -9,7 +9,7 @@ const onChange = (key: string) => {
 };
 
 type ExplanationPanelProps = {
-  data: Record<string, LlmResponse>;
+  data: Record<string, LlmResponse & { title: string }>;
 };
 
 const ExplanationPanel: React.FC<ExplanationPanelProps> = (props) => {
@@ -18,11 +18,13 @@ const ExplanationPanel: React.FC<ExplanationPanelProps> = (props) => {
   useEffect(() => {
     const keys = Object.keys(props.data);
     const newItems = keys.map((item: string, index) => {
+      const title = props.data[item].title;
       return {
-        label: item,
+        label: title,
         key: index.toString(),
         children: (
           <div>
+            {/* TODO: Show the subgraph */}
             <MarkdownViewer markdown={props.data[item].response} rehypePlugins={[]} />
           </div>
         ),

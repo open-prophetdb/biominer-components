@@ -38,9 +38,11 @@ import {
   ReloadOutlined,
   CheckCircleOutlined,
   PlusCircleOutlined,
+  AntCloudOutlined,
 } from '@ant-design/icons';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
+import { PromptItem } from './index.t';
 import Moveable from '../Moveable';
 import { message, Descriptions, Switch, Button, Select, Menu as AntdMenu } from 'antd';
 import { makeDataSource } from './utils';
@@ -97,6 +99,7 @@ type EdgeMenuProps = {
   chatbotVisible?: boolean;
   onExplainRelationship?: OnEdgeMenuClickFn;
   item?: IG6GraphEvent['item'];
+  prompts?: PromptItem[];
 };
 
 const EdgeMenu = (props: EdgeMenuProps) => {
@@ -161,8 +164,15 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       key: 'explain-relationship',
       icon: <RedditOutlined />,
       title: 'Using ChatGPT & Literatures to explain the relationship between the two nodes.',
-      disabled: true,
+      disabled: props.prompts?.length == 0,
       label: 'Explain Relationship (Experimental)',
+      children: props.prompts?.map((item) => {
+        return {
+          key: item.key,
+          icon: <RedditOutlined />,
+          label: item.label,
+        };
+      }),
     },
     {
       key: 'analyze-with-clinical-data',
@@ -259,6 +269,8 @@ type NodeMenuProps = {
   onChange?: OnNodeMenuClickFn;
   chatbotVisible?: boolean;
   item?: IG6GraphEvent['item'];
+  nodePrompts?: PromptItem[];
+  subgraphPrompts?: PromptItem[];
 };
 
 // Add menu items for the node. If you want to some functions executed when a node is clicked, you can add the function here.
@@ -405,22 +417,32 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Visualize Similarities',
     },
     {
+      key: 'explain-node',
+      icon: <AntCloudOutlined />,
+      title: 'Using ChatGPT to explain the node.',
+      disabled: props.nodePrompts?.length == 0,
+      label: 'Explain Node (Experimental)',
+      children: props.nodePrompts?.map((item) => {
+        return {
+          key: item.key,
+          icon: <AntCloudOutlined />,
+          label: item.label,
+        };
+      }),
+    },
+    {
       key: 'explain-subgraph',
       icon: <RedditOutlined />,
       title: 'Using ChatGPT to explain the subgraph in the context of the selected node.',
       label: 'Explain Subgraph (Experimental)',
-      children: [
-        {
-          key: 'subgraph_treatment_with_disease_ctx',
+      disabled: props.subgraphPrompts?.length == 0,
+      children: props.subgraphPrompts?.map((item) => {
+        return {
+          key: item.key,
           icon: <RedditOutlined />,
-          label: 'Treatment within Disease Context',
-        },
-        {
-          key: 'subgraph_mechanism_with_disease_ctx',
-          icon: <RedditOutlined />,
-          label: 'Disease Mechanism within Disease Context',
-        },
-      ],
+          label: item.label,
+        };
+      }),
     },
   ];
 
@@ -898,6 +920,7 @@ export type GraphinProps = {
   className?: string;
   children?: React.ReactNode;
   onDataChanged?: (graph: any) => void;
+  prompts?: PromptItem[];
 };
 
 type GraphinSettings = {
@@ -946,6 +969,30 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [currentNode, setCurrentNode] = useState<any>(null);
   const [focusedNodes, setFocusedNodes] = useState<GraphNode[]>([]);
   const [adjacencyList, setAdjacencyList] = useState<AdjacencyList>({} as AdjacencyList); // Adjacency list for the current graph
+
+  const [nodePrompts, setNodePrompts] = useState<PromptItem[]>([]);
+  const [edgePrompts, setEdgePrompts] = useState<PromptItem[]>([]);
+  const [subgraphPrompts, setSubgraphPrompts] = useState<PromptItem[]>([]);
+
+  useEffect(() => {
+    if (props.prompts) {
+      const nodePrompts = props.prompts.filter((item) => {
+        return item.type == 'node';
+      });
+
+      const edgePrompts = props.prompts.filter((item) => {
+        return item.type == 'edge';
+      });
+
+      const subgraphPrompts = props.prompts.filter((item) => {
+        return item.type == 'subgraph';
+      });
+
+      setNodePrompts(nodePrompts);
+      setEdgePrompts(edgePrompts);
+      setSubgraphPrompts(subgraphPrompts);
+    }
+  }, [props.prompts]);
 
   const ref = React.useRef(null);
 
@@ -1449,6 +1496,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
       <ContextMenu style={{ width: '160px' }} bindType="node">
         <NodeMenu
+          nodePrompts={nodePrompts}
+          subgraphPrompts={subgraphPrompts}
           chatbotVisible={props.chatbotVisible}
           item={currentNode}
           onChange={(menuItem, data, graph, graphin) => {
@@ -1472,6 +1521,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       </ContextMenu>
       <ContextMenu style={{ width: '160px' }} bindType="edge">
         <EdgeMenu
+          prompts={edgePrompts}
           item={currentEdge}
           chatbotVisible={props.chatbotVisible}
           onChange={(menuItem, source, target, edge, graph, apis) => {

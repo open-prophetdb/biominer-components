@@ -61,6 +61,7 @@ import type {
   MergeMode,
   Layout,
   LlmResponse,
+  PromptItem,
 } from '../typings';
 import { EdgeInfo, NodeMenuItem, CanvasMenuItem, EdgeMenuItem } from './typings';
 import Movable from '../Moveable';
@@ -73,6 +74,7 @@ import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
 import { SharedNodesSearchObjectClass } from '../SharedNodesSearcher/index.t';
 import { PathSearchObjectClass } from '../typings';
+import SparkMD5 from 'spark-md5';
 
 import './index.less';
 import { NodeAttribute } from '../NodeTable/index.t';
@@ -88,6 +90,19 @@ message.config({
 const style = {
   // @ts-ignore
   backgroundImage: `url(${GraphBackground})`,
+};
+
+const genUniqueKey4Graph = (graph: GraphData): string => {
+  // How to generate a md5 hash for the graph data?
+  let nodeIds = graph.nodes.map((node) => node.id).sort();
+  let edgeIds = graph.edges.map((edge) => edge.relid).sort();
+  const graphDataString = JSON.stringify({ nodes: nodeIds, edges: edgeIds });
+  const hash = SparkMD5.hash(graphDataString).toString();
+  return hash;
+};
+
+const genUniqueKey4String = (str: string): string => {
+  return SparkMD5.hash(str).toString();
 };
 
 const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
@@ -136,9 +151,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [graphFormVisible, setGraphFormVisible] = useState<boolean>(false);
   const [graphFormPayload, setGraphFormPayload] = useState<Record<string, any>>({});
   const [graphTableVisible, setGraphTableVisible] = useState<boolean>(false);
-  const [llmResponse, setLlmResponse] = useState<Record<string, LlmResponse> | undefined>(
-    undefined,
-  );
+  // Such as {subgraph: {uuid: {title: 'xxx', ...}, ...}, node: {uuid: {title: 'xxx', ...}, ...}, edge: {uuid: {title: 'xxx', ...}, ...}}
+  const [llmResponse, setLlmResponse] = useState<
+    Record<string, LlmResponse & { title: string }> | undefined
+  >(undefined);
+  const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
 
   // Annotate the relation type with the description
@@ -374,12 +391,31 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         message.error('Failed to get statistics, please check the network connection.');
       });
 
+    props.apis.GetPromptsFn &&
+      props.apis
+        .GetPromptsFn()
+        .then((response) => {
+          console.log('Get Prompts: ', response);
+          setPrompts(response.records);
+        })
+        .catch((error) => {
+          console.log('Get Prompts Error: ', error);
+          message.error('Failed to get prompts, please check the network connection.');
+        });
+
     loadGraphs();
     loadNodeColorMap();
     loadPresetGraphData();
     const d = loadLlmResponsesFromLocalStorage();
     if (d) {
-      setLlmResponse(d);
+      let uniqueKey = genUniqueKey4Graph(data);
+      let filtered = Object.keys(d).filter((key) => key.endsWith(uniqueKey));
+      let records: Record<string, LlmResponse & { title: string }> = {};
+      filtered.forEach((key) => {
+        records[key] = d[key];
+      });
+      // Find all responses related with the current graph
+      setLlmResponse(records);
     }
   }, []);
 
@@ -678,6 +714,46 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const uniqNodeKeys = uniq(allNodeKeys);
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
+    } else if (menuItem.key.match(/explain_edge_.*/)) {
+      const expandedRelation = {
+        source: {
+          ...source.data,
+          idx: Math.random() * 1000000,
+        },
+        target: {
+          ...target.data,
+          idx: Math.random() * 1000000,
+        },
+        relation: {
+          ...edge.data,
+          id: Math.random() * 1000000,
+        },
+      };
+
+      console.log('Explain Edge: ', menuItem, expandedRelation, edge.relid);
+      if (props.apis.AskLlmFn) {
+        message.info("Explaining the edge, please wait a moment...(Don't leave this page)", 5);
+        setLoading(true);
+        props.apis
+          .AskLlmFn({ prompt_template_id: menuItem.key }, { expanded_relation: expandedRelation })
+          .then((response) => {
+            console.log('AskLlmFn Response: ', response);
+            let record: Record<string, LlmResponse & { title: string }> = {
+              [`${edge.relid}`]: {
+                ...response,
+                title: `Edge - ${edge.relid}`,
+              },
+            };
+            setLlmResponse(record);
+            setExplanationPanelVisible(true);
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.log('AskLlmFn Error: ', error);
+            message.warning('The AskLlm function encounter an error, please try again later.', 5);
+            setLoading(false);
+          });
+      }
     }
   };
 
@@ -756,11 +832,35 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       if (props.postMessage) {
         props.postMessage(`what is the ${node.data.name}?`);
       }
-    } else if (
-      ['subgraph_mechanism_with_disease_ctx', 'subgraph_treatment_with_disease_ctx'].includes(
-        menuItem.key,
-      )
-    ) {
+    } else if (menuItem.key.match(/explain_node_.*/)) {
+      const entity = node.data;
+      console.log('Explain Node: ', menuItem, entity, node.data.label, node.data.id);
+
+      if (props.apis.AskLlmFn) {
+        message.info("Explaining the node, please wait a moment...(Don't leave this page)", 5);
+        setLoading(true);
+        props.apis
+          .AskLlmFn({ prompt_template_id: menuItem.key }, { entity: entity })
+          .then((response) => {
+            console.log('AskLlmFn Response: ', response);
+            const uniqueKey = genUniqueKey4String(`${entity.name}_${entity.id}`);
+            let record: Record<string, LlmResponse & { title: string }> = {
+              [`node_${uniqueKey}`]: {
+                ...response,
+                title: `Node - ${entity.name}`,
+              },
+            };
+            setLlmResponse(record);
+            setExplanationPanelVisible(true);
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.log('AskLlmFn Error: ', error);
+            message.warning('The AskLlm function encounter an error, please try again later.', 5);
+            setLoading(false);
+          });
+      }
+    } else if (menuItem.key.match(/explain_subgraph_.*$/)) {
       // explain-subgraph menu
       const cleanData = (data: GraphData) => {
         return {
@@ -811,10 +911,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             )
             .then((response) => {
               console.log('AskLlmFn Response: ', response);
-              setLlmResponse({
-                ...llmResponse,
-                [diseaseName]: response,
-              });
+              // Get the unique key for the current graph
+              let uniqueKey = genUniqueKey4Graph(data);
+              let record: Record<string, LlmResponse & { title: string }> = {
+                [`subgraph_${uniqueKey}`]: {
+                  ...response,
+                  title: `Subgraph - ${diseaseName}`,
+                },
+              };
+              setLlmResponse(record);
               setExplanationPanelVisible(true);
               setLoading(false);
             })
@@ -1151,6 +1256,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           </Row>
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
             <GraphinWrapper
+              prompts={prompts}
               onDataChanged={(graph: Graph) => {
                 if (graph && graph.save) {
                   let newData = graph.save();
