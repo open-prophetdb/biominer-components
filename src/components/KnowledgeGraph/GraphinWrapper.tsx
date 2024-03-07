@@ -408,7 +408,19 @@ const NodeMenu = (props: NodeMenuProps) => {
       key: 'explain-subgraph',
       icon: <RedditOutlined />,
       title: 'Using ChatGPT to explain the subgraph in the context of the selected node.',
-      label: 'Explain Subgraph in Context (Experimental)',
+      label: 'Explain Subgraph (Experimental)',
+      children: [
+        {
+          key: 'subgraph_treatment_with_disease_ctx',
+          icon: <RedditOutlined />,
+          label: 'Treatment within Disease Context',
+        },
+        {
+          key: 'subgraph_mechanism_with_disease_ctx',
+          icon: <RedditOutlined />,
+          label: 'Disease Mechanism within Disease Context',
+        },
+      ],
     },
   ];
 
@@ -1347,6 +1359,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             label: (
               <span>
                 {edge.getModel().reltype}
+                {/* @ts-ignore */}
                 <br />[{edge.getModel().data?.source_id} -&gt; {edge.getModel().data?.target_id}]
               </span>
             ),

@@ -323,9 +323,8 @@ export type ExpandedRelation = {
   target: Entity;
 };
 
-export type SymptomsWithDiseaseCtx = {
+export type SubgraphWithDiseaseCtx = {
   disease_name: string;
-  symptoms: string[];
   subgraph: string;
 };
 
@@ -375,7 +374,7 @@ export type APIs = {
     body: {
       entity?: NodeData;
       expanded_relation?: ExpandedRelation;
-      symptoms_with_disease_ctx?: SymptomsWithDiseaseCtx;
+      subgraph_with_disease_ctx?: SubgraphWithDiseaseCtx;
     },
   ) => Promise<LlmResponse>;
   GetSharedNodesFn: (params: SharedNodesParams) => Promise<GraphData>;

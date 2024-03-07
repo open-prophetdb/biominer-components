@@ -756,7 +756,12 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       if (props.postMessage) {
         props.postMessage(`what is the ${node.data.name}?`);
       }
-    } else if (menuItem.key == 'explain-subgraph') {
+    } else if (
+      ['subgraph_mechanism_with_disease_ctx', 'subgraph_treatment_with_disease_ctx'].includes(
+        menuItem.key,
+      )
+    ) {
+      // explain-subgraph menu
       const cleanData = (data: GraphData) => {
         return {
           nodes: data.nodes.map((node) => {
@@ -785,11 +790,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const nodeLabel = node.data.label;
       if (nodeLabel === 'Disease') {
         const diseaseName = node.data.name;
-        // Filter all symptoms in the graph
-        const symptoms = data.nodes
-          .filter((node) => node.data.label === 'Symptom')
-          .map((node) => node.data.name);
         const subgraph = JSON.stringify(cleanData(data));
+        console.log('Explain Subgraph: ', diseaseName, subgraph, menuItem.key);
 
         if (props.apis.AskLlmFn) {
           message.info(
@@ -799,11 +801,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           setLoading(true);
           props.apis
             .AskLlmFn(
-              { prompt_template_id: 'subgraph_symptoms_with_disease_ctx' },
+              { prompt_template_id: menuItem.key },
               {
-                symptoms_with_disease_ctx: {
+                subgraph_with_disease_ctx: {
                   disease_name: diseaseName,
-                  symptoms: symptoms,
                   subgraph: subgraph,
                 },
               },
