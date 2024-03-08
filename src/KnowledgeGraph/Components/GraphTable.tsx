@@ -116,9 +116,9 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
       onLoadGraph={
         props.onLoadGraph
           ? () => {
-              // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
-              props.onLoadGraph(selectedGraph);
-            }
+            // @ts-ignore Don't worry about this error, the nodes and edges don't have undefined values
+            props.onLoadGraph(selectedGraph);
+          }
           : undefined
       }
     >
@@ -210,7 +210,14 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
               });
           }}
           onDeletedRows={(deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => {
-            props.onDeletedEdges && props.onDeletedEdges(deletedRows, deletedNodes);
+            const g = graph?.save();
+            props.onDeletedEdges && props.onDeletedEdges(deletedRows, deletedNodes).then((rows) => {
+              if (!graph) {
+                return;
+              }
+            }).catch((err) => {
+              console.error('onDeletedEdges error: ', err);
+            })
           }}
           style={props.style ? props.style : { minHeight: '300px', height: '60vh' }}
         />

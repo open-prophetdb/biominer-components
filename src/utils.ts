@@ -6,7 +6,6 @@ import type {
   ComposeQueryItem,
   APIs,
 } from './typings';
-import { Stack } from '@antv/algorithm';
 import { filter, uniqBy, isEqual } from 'lodash';
 import { Graph } from '@antv/g6';
 import { COMPOSED_ENTITY_DELIMITER, Layout, GraphData } from './typings';
@@ -355,21 +354,6 @@ export const prepareGraphData = (
       matrix: graph.cfg.group.getMatrix(),
     },
   };
-};
-
-export const pushStack = (action: String, data: any, stack: Stack) => {
-  const item = stack.peek();
-
-  if (item && item.action == action && isEqual(item.data, data)) {
-    console.log('Skip to push the same action and data to the stack: ', action, data, item);
-  } else {
-    stack.push({
-      action: action,
-      data: data,
-    });
-  }
-
-  console.log('pushStack - stack: ', stack);
 };
 
 export const guessLink = (value: string | number | boolean | undefined) => {

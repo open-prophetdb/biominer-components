@@ -43,7 +43,7 @@ import {
   loadLlmResponsesFromLocalStorage,
   clearLlmResponsesFromLocalStorage,
 } from './utils';
-import { presetLayout, defaultLayout, pushStack } from '../utils';
+import { presetLayout, defaultLayout } from '../utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
@@ -698,20 +698,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
       const uniqNodeKeys = uniq(allNodeKeys);
-      pushStack(
-        'select-edges',
-        {
-          after: {
-            edges: uniqEdgeKeys,
-            nodes: uniqNodeKeys,
-          },
-          before: {
-            edges: selectedEdgeKeys,
-            nodes: selectedNodeKeys,
-          },
-        },
-        graph.getUndoStack(),
-      );
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
     } else if (menuItem.key == 'hide-edges-with-same-type') {
@@ -793,13 +779,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         return;
       } else {
         message.info(`Deleting ${nodes.length} nodes, please wait...`);
-        nodes.forEach((node) => {
-          graph.removeItem(node.id);
-        });
         const newNodes = data.nodes.filter((node) => !ids.includes(node.id));
         const newEdges = data.edges.filter(
           (edge) => !ids.includes(edge.source) && !ids.includes(edge.target),
         );
+
+        nodes.forEach((node) => {
+          graph.removeItem(node.id, false);
+        });
+
         checkAndSetData({
           nodes: newNodes,
           edges: newEdges,
@@ -1050,7 +1038,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqNodeKeys = uniq(newSelectedNodeKeys);
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
-
       setSelectedNodeKeys(uniqNodeKeys);
       setSelectedEdgeKeys(uniqEdgeKeys);
     }
@@ -1282,12 +1269,13 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             <GraphinWrapper
               layout={layout}
               prompts={prompts}
-              onDataChanged={(graph: Graph) => {
-                if (graph && graph.save) {
-                  let newData = graph.save();
-                  console.log('Graph Data Changed: ', newData, graph);
-                  const edges = newData.edges as GraphEdge[];
-                  const nodes = newData.nodes as GraphNode[];
+              onDataChanged={(graphData: GraphData, width: number, height: number, matrix: any) => {
+                if (graphData) {
+                  console.log('Graph Data Changed: ', graphData);
+                  const edges = graphData.edges as GraphEdge[];
+                  const nodes = graphData.nodes as GraphNode[];
+                  // Reset the initial data, otherwise the data will have not chance to be updated.
+                  setData(graphData);
                   const payload = {
                     data: {
                       nodes: nodes,
@@ -1303,10 +1291,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     isDirty: isDirty,
                     currentUUID: currentGraphUUID,
                     layout: {
-                      width: graph.getWidth(),
-                      height: graph.getHeight(),
+                      width: width,
+                      height: height,
                       // @ts-ignore
-                      matrix: graph.cfg.group.getMatrix(),
+                      matrix: matrix
                     },
                   };
 

@@ -16,7 +16,6 @@ import {
   StepBackwardOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
-import UndoRedo from './UndoRedo';
 
 type NodeSearcherProps = {
   changeSelectedNodes?: (selectedNodes: string[]) => void;
@@ -25,7 +24,6 @@ type NodeSearcherProps = {
 
 const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
   const { graph, apis } = useContext(GraphinContext);
-  const { undo, getUndoStack } = UndoRedo();
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [nodeOptions, setNodeOptions] = useState<any[]>([]);
@@ -68,22 +66,18 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
       <ButtonGroup>
         <Tooltip title="Undo">
           <Button
-            disabled
             shape="circle"
             icon={<UndoOutlined />}
             onClick={() => {
-              if (getUndoStack().length === 1) {
+              // @ts-ignore
+              const undoStack = graph.getCustomUndoStack();
+              if (undoStack.length === 0) {
                 message.info('No more undo');
               };
 
-              undo(
-                (nodes) => {
-                  props.changeSelectedNodes && props.changeSelectedNodes(nodes);
-                },
-                (edges) => {
-                  props.changeSelectedEdges && props.changeSelectedEdges(edges);
-                },
-              );
+              console.log('NodeSearcherPanel- undoStack: ', undoStack);
+              const undoData = undoStack.pop();
+              graph.changeData(undoData, false);
             }}
           />
         </Tooltip>

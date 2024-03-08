@@ -9,7 +9,6 @@ import Graphin, {
 import { Collapse } from 'antd';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
-import G6 from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
 import type { Layout, GraphData } from '../typings';
@@ -41,6 +40,7 @@ import {
   PlusCircleOutlined,
   AntCloudOutlined,
 } from '@ant-design/icons';
+import { Stack } from '@antv/algorithm';
 import type { TooltipValue, LegendChildrenProps, LegendOptionType } from '@antv/graphin';
 import StatisticsDataArea from '../StatisticsDataArea';
 import { PromptItem } from './index.t';
@@ -67,7 +67,7 @@ import HighlightNodeEdge from './Components/HighlightNodeEdge';
 import voca from 'voca';
 
 import './GraphinWrapper.less';
-import { sortBy, debounce } from 'lodash';
+import { sortBy, debounce, cloneDeep } from 'lodash';
 
 const { MiniMap, SnapLine, Tooltip, Legend } = Components;
 const { Panel } = Collapse;
@@ -239,6 +239,10 @@ const EdgeMenu = (props: EdgeMenuProps) => {
       if (menuItem.handler && edge) {
         menuItem.handler(edge);
       } else if (props.onChange && sourceNode && targetNode && edge && graph && apis) {
+        if (['hide-current-edge', 'hide-edges-with-same-type'].includes(menuKey)) {
+          // @ts-ignore
+          graph.pushCustomStack();
+        }
         props.onChange(menuItem, sourceNode, targetNode, edge, graph, apis);
       }
     } else {
@@ -621,9 +625,9 @@ const CanvasMenu = (props: CanvasMenuProps) => {
   };
 
   const handleStopAnimate = (item: CanvasMenuItem) => {
-      message.info(`Stop animatition successfully`);
+    message.info(`Stop animatition successfully`);
     graph.stopAnimate();
-    
+
     const allEdges = graph.getEdges();
     allEdges.forEach((edge) => {
       graph.updateItem(edge, {
@@ -631,7 +635,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
           ...edge.getModel()?.style,
           animate: false,
         }
-      });
+      }, false);
     });
   };
 
@@ -937,7 +941,7 @@ export type GraphinProps = {
   onClearGraph?: () => void;
   className?: string;
   children?: React.ReactNode;
-  onDataChanged?: (graph: any) => void;
+  onDataChanged?: (graph: GraphData, width: number, height: number, matrix: any) => void;
   prompts?: PromptItem[];
   layout?: Layout;
 };
@@ -992,6 +996,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [nodePrompts, setNodePrompts] = useState<PromptItem[]>([]);
   const [edgePrompts, setEdgePrompts] = useState<PromptItem[]>([]);
   const [subgraphPrompts, setSubgraphPrompts] = useState<PromptItem[]>([]);
+  const [undoStack, setUndoStack] = useState<Stack>(new Stack(50));
 
   const ref = React.useRef(null);
 
@@ -1089,12 +1094,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     const model = e.item.get('model');
     model.fx = e.x;
     model.fy = e.y;
-
-    saveGraphData();
   };
 
   const refreshDragedCanvas = (e: any) => {
-    saveGraphData();
+
   };
 
   const initEvents = () => {
@@ -1116,7 +1119,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       // https://g6.antv.antgroup.com/zh/examples/net/forceDirected/#basicForceDirectedDragFix
       graph.on('node:drag', refreshDragedNodePosition);
       graph.on('canvas:drag', (e: any) => refreshDragedCanvas);
-      graph.on('afterrender', saveGraphData);
+      graph.on('node:dragstart', pushUndoStack);
+      // We need to reset the props.data when the graph is changed. Otherwise, the props.data will affect the following operations.
+      graph.on('afterchangedata', debouncedSaveGraphData);
 
       if (typeof window !== 'undefined') {
         // @ts-ignore
@@ -1136,7 +1141,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         e.returnValue = ''; // 显示默认的离开确认对话框
 
         console.log('handleBeforeUnload: ', e);
-        saveGraphData();
       };
 
       window.addEventListener('beforeunload', handleBeforeUnload);
@@ -1149,7 +1153,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.off('canvas:drag', () => {
           // console.log('canvas:drag', e);
         });
-        graph.off('afterrender', saveGraphData);
+        
+        graph.off('node:dragstart', pushUndoStack);
+
         window.removeEventListener('beforeunload', handleBeforeUnload);
         window.onresize = null;
       };
@@ -1164,15 +1170,20 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     return n.length / data.nodes.length > 0.8;
   };
 
-  const saveGraphData = debounce(() => {
+  const debouncedSaveGraphData = debounce(() => {
     // We must save the graph data after the layout is changed, elsewise the graph data will not contains the position of the nodes and edges.
     console.log("Save the graph data to the local storage: ", new Date());
-    if (props.onDataChanged) {
-      // @ts-ignore
-      props.onDataChanged(ref.current?.graph);
-    }
+    saveGraphData();
     // TODO: what value is better?
   }, 2000);
+
+  const saveGraphData = () => {
+    console.log('saveGraphData: ', props.onDataChanged);
+    if (props.onDataChanged) {
+      // @ts-ignore
+      props.onDataChanged(ref.current?.graph.save(), ref.current?.graphDOM.clientWidth, ref.current?.graphDOM.clientHeight, ref.current?.graph.cfg.group.getMatrix());
+    }
+  }
 
   const getMostFrequentNode = (edges: GraphEdge[]): string | undefined => {
     const nodes = edges.map((edge) => {
@@ -1195,6 +1206,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   };
 
   const refreshAddedNodePosition = (addedData: GraphData, fullData: GraphData) => {
+    // @ts-ignore
+    const graph = ref.current?.graph;
     const nodeMap: Record<string, GraphNode> = {};
     // Fix the position of the old nodes and update the position of the new nodes.
     fullData.nodes.forEach((node) => {
@@ -1218,9 +1231,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         x = node.x || 0;
         y = node.y || 0;
       }
-    } else {
-      // @ts-ignore
-      const center = ref.current?.graph?.getGraphCenterPoint();
+    }
+
+    if (!x || !y) {
+      const center = graph?.getGraphCenterPoint();
 
       // TODO: Do we have a better way to layout the new nodes?
       console.log('refreshAddedNodePosition: ', center, addedData.nodes);
@@ -1245,17 +1259,17 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           };
 
           // @ts-ignore
-          ref.current?.graph?.updateItem(node.id, {
+          graph?.updateItem(node.id, {
             x: position.x,
             y: position.y,
-          });
+          }, false);
         }
       });
 
       // Label all new edges with a new edge type.
       addedData.edges.forEach((edge) => {
         // @ts-ignore
-        ref.current?.graph?.updateItem(edge.id, {
+        graph?.updateItem(edge.id, {
           style: {
             ...style,
             animate: {
@@ -1265,11 +1279,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
               duration: 2000
             }
           }
-        });
+        }, false);
       });
-
-      // NOTE: We place two operations to save the graph data. one is to save the graph data after the rendering, but it doesn't get the updated position of the new nodes. so we add another operation here.
-      saveGraphData();
     }
   };
 
@@ -1299,6 +1310,17 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const onClickNodeInFocusMode = (node: GraphNode) => {
     setFocusedNodes((prevState) => [...prevState, node]);
   };
+
+  const pushUndoStack = () => {
+    // @ts-ignore
+    let graph = ref.current?.graph;
+    let undoStack = graph?.getCustomUndoStack();
+    let d = graph?.save()
+    console.log("pushUndoStack: ", d);
+    if (undoStack && d) {
+      undoStack.push(cloneDeep(d));
+    }
+  }
 
   const onClosePathsFinder = () => {
     setFocusedNodes([]);
@@ -1518,10 +1540,14 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     loadSettings();
     initEvents();
 
-    return () => {
-      // Save the graph data when the component is unmounted.
-      saveGraphData();
-    };
+    // @ts-ignore
+    const graph = ref.current?.graph;
+    if (graph) {
+      graph.getCustomUndoStack = () => {
+        return undoStack;
+      }
+      graph.pushCustomStack = pushUndoStack;
+    }
   }, []);
 
   useEffect(() => {
@@ -1573,6 +1599,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         // @ts-ignore
         const graph = ref.current.graph;
         const oldData = graph.save();
+        pushUndoStack();
 
         // If the graph has no positions, we need to change the layout to the default layout.
         console.log(
@@ -1597,10 +1624,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.data(updatedData.data);
         graph.render();
 
-        if (props.layout?.matrix) {
-          console.log('Set the matrix for the layout: ', props.layout.matrix);
-          graph.cfg.group.setMatrix(props.layout.matrix);
-        }
+        // if (props.layout?.matrix) {
+        //   console.log('Set the matrix for the layout: ', props.layout.matrix);
+        //   graph.cfg.group.setMatrix(props.layout.matrix);
+        // }
 
         console.log(
           'GraphinWrapper addData: ',
@@ -1624,7 +1651,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     <Graphin
       ref={ref}
       layoutCache={false}
-      enabledStack={true}
+      enabledStack={false}
       animate={true}
       data={{} as GraphinData}
       // We will set the layout manually for more flexibility.
@@ -1632,6 +1659,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       style={style}
       // You can increase the maxStep if you want to save more history steps.
       maxStep={50}
+      willUnmount={() => {
+        console.log("GraphinWrapper will unmount, so we need to save the graph data.");
+        saveGraphData();
+      }}
     >
       {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
       {/* <DragNode /> */}
@@ -1716,7 +1747,12 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           <LayoutSelector
             type={layout.type || 'preset'}
             layouts={LayoutNetwork}
-            onChange={changeLayout}
+            onChange={(layout: Layout) => { 
+              // Layout change might mess up the graph, so we need to save the graph data before the layout change.
+              debouncedSaveGraphData();
+              pushUndoStack();
+              changeLayout(layout);
+            }}
           />
         </Moveable>
       ) : null}
