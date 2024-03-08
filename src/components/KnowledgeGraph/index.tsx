@@ -369,15 +369,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     let parsedGraphData = loadGraphDataFromLocalStorage();
     console.log('Load Preset Graph Data: ', parsedGraphData, data, presetLayout);
     if (parsedGraphData) {
-      checkAndSetData({
-        nodes: [...data.nodes, ...parsedGraphData.nodes],
-        edges: [...data.edges, ...parsedGraphData.edges],
-      });
       // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
-      // checkAndSetData({
-      //   nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
-      //   edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
-      // });
+      checkAndSetData({
+        nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
+        edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
+      });
 
       setLayout(parsedGraphData.layout || {});
       setIsDirty(parsedGraphData.isDirty);
@@ -442,15 +438,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           if (searchObject.merge_mode == 'replace') {
             checkAndSetData(response);
           } else if (searchObject.merge_mode == 'append') {
-            checkAndSetData({
-              nodes: [...data.nodes, ...response.nodes],
-              edges: [...data.edges, ...response.edges],
-            });
             // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
-            // checkAndSetData({
-            //   nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
-            //   edges: uniqBy([...data.edges, ...response.edges], 'relid'),
-            // });
+            checkAndSetData({
+              nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
+              edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+            });
           } else if (searchObject.merge_mode == 'subtract') {
             const { nodes, edges } = response;
             let nodesToRemove: string[] = nodes.map((node) => node.id);
@@ -640,15 +632,11 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         })
         .then((response: GraphData) => {
           console.log('Auto Connect Response: ', response);
-          checkAndSetData({
-            nodes: [...data.nodes, ...response.nodes],
-            edges: [...data.edges, ...response.edges],
-          });
           // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
-          // checkAndSetData({
-          //   nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
-          //   edges: uniqBy([...data.edges, ...response.edges], 'relid'),
-          // });
+          checkAndSetData({
+            nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
+            edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+          });
 
           if (response.nodes.length == 0 && response.edges.length == 0) {
             message.warning('No more relationships can be found.');
