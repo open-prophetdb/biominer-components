@@ -1,10 +1,3 @@
----
-title: SimilarityChart
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## SimilarityChart
 
 ```tsx

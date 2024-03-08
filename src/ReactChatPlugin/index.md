@@ -1,10 +1,3 @@
----
-title: ReactChatPlugin
-group:
-  path: /components/utility-components
-  title: Utility Components
----
-
 ## ReactChatPlugin
 
 ```tsx

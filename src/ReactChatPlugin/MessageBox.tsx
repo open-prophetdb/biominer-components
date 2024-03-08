@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import moment from 'moment';
 import ErrorIcon from './error-icon.svg';

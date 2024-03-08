@@ -12,6 +12,7 @@ import { INode, NodeConfig, IEdge } from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
 import type { Layout, GraphData } from '../typings';
+import { useLocation } from 'react-router-dom';
 import LayoutNetwork from './Components/LayoutNetworks';
 import {
   BoxPlotOutlined,
@@ -976,8 +977,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [nodePrompts, setNodePrompts] = useState<PromptItem[]>([]);
   const [edgePrompts, setEdgePrompts] = useState<PromptItem[]>([]);
   const [subgraphPrompts, setSubgraphPrompts] = useState<PromptItem[]>([]);
-  const [isDataSaved, setIsDataSaved] = useState<boolean>(false);
 
+  const location = useLocation();
   const ref = React.useRef(null);
 
   const toolbarHelpDoc = (
@@ -1466,6 +1467,11 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       graph.layout();
     }
   };
+
+  useEffect(() => {
+    console.log('GraphinWrapper: location changed: ', location);
+    saveGraphData();
+  }, [location]);
 
   // All initializations
   // Save the node or edge when the context menu is clicked.

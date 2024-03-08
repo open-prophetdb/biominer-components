@@ -1,10 +1,3 @@
----
-title: DataArea
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## DataArea
 
 ```tsx

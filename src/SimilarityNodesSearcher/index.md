@@ -1,10 +1,3 @@
----
-title: SimilarityNodesSearcher
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## SimilarityNodesSearcher
 
 ```tsx

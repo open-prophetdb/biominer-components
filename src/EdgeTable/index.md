@@ -1,10 +1,3 @@
----
-title: EdgeTable
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## EdgeTable
 
 ```tsx

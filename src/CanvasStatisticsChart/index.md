@@ -1,10 +1,3 @@
----
-title: CanvasStatisticsChart
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## CanvasStatisticsChart
 
 ```tsx

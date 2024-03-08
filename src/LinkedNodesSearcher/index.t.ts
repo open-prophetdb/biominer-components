@@ -1,4 +1,4 @@
-import { message } from 'antd';
+// import { message } from 'antd';
 import type {
   APIs,
   RelationStat,
@@ -126,7 +126,8 @@ export class LinkedNodesSearchObjectClass implements SearchObjectInterface {
       });
     } else {
       return new Promise((resolve, reject) => {
-        message.error('Not implemented yet.');
+        // message.error('Not implemented yet.');
+        console.log('LinkedNodesSearchObjectClass: Not implemented yet.');
         resolve({ nodes: [], edges: [] });
       });
     }

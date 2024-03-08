@@ -1,10 +1,3 @@
----
-title: KnowledgeGraph
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## KnowledgeGraph
 
 ```tsx

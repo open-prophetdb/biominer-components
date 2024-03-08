@@ -1,6 +1,6 @@
 import type { MergeMode, SearchObjectInterface, GraphData, APIs } from '../typings';
 import { joinNodeIds } from '../utils';
-import { message } from 'antd';
+// import { message } from 'antd';
 
 // Allow to query a set of nodes and related edges if the enableAutoConnection is turned on.
 type NodesSearchObject = {
@@ -39,7 +39,8 @@ export class NodesSearchObjectClass implements SearchObjectInterface {
 
     if (this.data.enableAutoConnection) {
       return new Promise((resolve, reject) => {
-        message.error('Not implemented yet.');
+        // message.error('Not implemented yet.');
+        console.log('NodeSearchObjectClass: Not implemented yet.');
         resolve({ nodes: [], edges: [] });
       });
     }

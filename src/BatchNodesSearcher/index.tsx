@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import type { BatchNodesSearcherProps } from './index.t';
 import { BatchNodesSearchObjectClass } from './index.t';
 import { type OptionType, MergeModeOptions } from '../typings';
-import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId, debouncedWarning } from '../utils';
-import { sortBy, uniqBy } from 'lodash';
+import { fetchNodes, formatNodeIds, parseNodeIds, formatNodeId } from '../utils';
+import { sortBy, uniqBy, debounce } from 'lodash';
 import EntityCard from '../EntityCard';
 
 import './index.less';
@@ -31,6 +31,10 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
       setEntityOptions(undefined);
     }
   }, [entityType]);
+
+  const debouncedWarning = debounce((msg: string, duration: number) => {
+    message.warning(msg, duration);
+  }, 600);
 
   const handleSearchNode = function (entityType: string, value: string) {
     if (value && entityType) {

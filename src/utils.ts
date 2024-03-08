@@ -11,8 +11,6 @@ import { filter, uniqBy, isEqual } from 'lodash';
 import { Graph } from '@antv/g6';
 import { COMPOSED_ENTITY_DELIMITER, Layout, GraphData } from './typings';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
-import { message } from 'antd';
-import { debounce } from 'lodash';
 
 const getJwtAccessToken = (): string | null => {
   let jwtToken = null;
@@ -444,7 +442,3 @@ export const guessSpecies = (value: string | number | undefined) => {
 
   return speciesMap[v] || '';
 };
-
-export const debouncedWarning = debounce((msg: string, duration: number) => {
-  message.warning(msg, duration);
-}, 600);

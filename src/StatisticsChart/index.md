@@ -1,10 +1,3 @@
----
-title: StatisticsChart
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## StatisticsChart
 
 ```tsx

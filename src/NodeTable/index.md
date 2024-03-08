@@ -1,10 +1,3 @@
----
-title: NodeTable
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## NodeTable
 
 ```tsx

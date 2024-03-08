@@ -1,10 +1,3 @@
----
-title: PlotlyViewer
-group:
-  path: /components/visualization-components
-  title: Visualization
----
-
 ## PlotlyViewer
 
 ### Plotly Mode

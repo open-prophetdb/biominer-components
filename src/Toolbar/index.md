@@ -1,10 +1,3 @@
----
-title: Toolbar
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## Toolbar
 
 ```tsx

@@ -1,10 +1,3 @@
----
-title: MarkdownViewer
-group:
-  path: /components/utility-components
-  title: Utility Components
----
-
 ## MarkdownViewer
 
 ```tsx

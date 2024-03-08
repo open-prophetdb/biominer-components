@@ -1,10 +1,3 @@
----
-title: KnowledgeGraphEditor
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## KnowledgeGraphEditor
 
 ```tsx

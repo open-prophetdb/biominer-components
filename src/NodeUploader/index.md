@@ -1,10 +1,3 @@
----
-title: NodeUploader
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## NodeUploader
 
 ```tsx

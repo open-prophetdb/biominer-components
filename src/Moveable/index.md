@@ -1,10 +1,3 @@
----
-title: Movable
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## Movable
 
 ```tsx

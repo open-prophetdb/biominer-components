@@ -1,10 +1,3 @@
----
-title: GraphStoreTable
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## GraphStoreTable
 
 ```tsx

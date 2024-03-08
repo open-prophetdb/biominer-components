@@ -1,7 +1,5 @@
 ---
-title: BatchNodesSearcher
-group:
-  title: Knowledge Graph
+nav: Components
 ---
 
 ## BatchNodesSearcher

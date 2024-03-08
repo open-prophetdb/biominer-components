@@ -1,10 +1,3 @@
----
-title: TransferTable
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## TransferTable
 
 ```tsx

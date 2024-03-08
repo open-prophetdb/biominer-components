@@ -1,10 +1,3 @@
----
-title: GuideScoperViewer
-group:
-  path: /components/crispr-cas9
-  title: Crispr/Cas9
----
-
 ## GuideScoperViewer
 
 ```tsx

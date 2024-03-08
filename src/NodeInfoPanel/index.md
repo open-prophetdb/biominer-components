@@ -1,10 +1,3 @@
----
-title: NodeInfoPanel
-group:
-  path: /components/knowledge-graph-components
-  title: Knowledge Graph
----
-
 ## NodeInfoPanel
 
 ```tsx

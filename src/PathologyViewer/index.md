@@ -1,10 +1,3 @@
----
-title: PathologyViewer
-group:
-  path: /components/pathology
-  title: Pathology
----
-
 ## PathologyViewer
 
 ### Default Parameters
