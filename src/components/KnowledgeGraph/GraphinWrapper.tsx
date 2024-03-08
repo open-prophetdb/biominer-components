@@ -1538,411 +1538,408 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   }, [data]);
 
   return (
-    <>
-      <Prompt
-        when={!isDataSaved}
-        message={'You have unsaved changes, are you sure you want to leave?'}
-      />
-      <Graphin
-        ref={ref}
-        layoutCache={false}
-        enabledStack={false}
-        animate={true}
-        data={{} as GraphinData}
-        // We will set the layout manually for more flexibility.
-        layout={{} as Layout}
-        style={style}
-        // You can increase the maxStep if you want to save more history steps.
-        maxStep={50}
-      >
-        {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
-        {/* <DragNode /> */}
-        <ZoomCanvas />
-        {settings.selectionMode == 'lasso-select' ? <LassoSelect /> : null}
-        {settings.selectionMode == 'brush-select' ? <BrushSelect /> : null}
-        <NodeLabelVisible visible={settings.nodeLabelVisible} />
-        {/* BUG: Cannot restore the label of edges */}
-        <EdgeLabelVisible visible={settings.edgeLabelVisible} />
-        <FishEye options={{}} visible={fishEyeVisible} handleEscListener={onCloseFishEye} />
-        <HighlightNodeEdge
-          selectedNodes={selectedNodes || []}
-          selectedEdges={selectedEdges || []}
-        />
-        {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
-        {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
-        {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
-        <ContextMenu style={{ width: '160px' }} bindType="node">
-          <NodeMenu
-            nodePrompts={nodePrompts}
-            subgraphPrompts={subgraphPrompts}
-            chatbotVisible={props.chatbotVisible}
-            item={currentNode}
-            onChange={(menuItem, data, graph, graphin) => {
-              // Clear the current node when the context menu is closed, elsewise the node menu cannot be opened again.
-              setCurrentNode(null);
-              onNodeMenuClick && onNodeMenuClick(menuItem, data, graph, graphin);
-            }}
-          />
-        </ContextMenu>
-        <ContextMenu style={{ width: '160px' }} bindType="canvas">
-          <CanvasMenu
-            handleOpenFishEye={handleOpenFishEye}
-            onCanvasClick={(menuItem, graph, graphin) => {
-              // Clear the current node & edge when the context menu is closed
-              setCurrentNode(null);
-              setCurrentEdge(null);
-              onCanvasMenuClick && onCanvasMenuClick(menuItem, graph, graphin);
-            }}
-            onClearGraph={props.onClearGraph}
-          />
-        </ContextMenu>
-        <ContextMenu style={{ width: '160px' }} bindType="edge">
-          <EdgeMenu
-            prompts={edgePrompts}
-            item={currentEdge}
-            chatbotVisible={props.chatbotVisible}
-            onChange={(menuItem, source, target, edge, graph, apis) => {
-              // Clear the current edge when the context menu is closed, elsewise the edge menu cannot be opened again.
-              setCurrentEdge(null);
-
-              // TODO: How to generate explanation report for the edge?
-              if (menuItem.key == 'explain-relationship') {
-                setCurrentEdge(edge);
-                setExplanationPanelVisible(true);
-              }
-
-              if (onEdgeMenuClick) {
-                onEdgeMenuClick(menuItem, source, target, edge, graph, apis);
-              }
-            }}
-          />
-        </ContextMenu>
-        <Legend bindType="node" sortKey="nlabel">
-          {(renderProps: LegendChildrenProps) => {
-            console.log('renderProps', renderProps);
-            return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
+    // <>
+    //   <Prompt
+    //     when={!isDataSaved}
+    //     message={'You have unsaved changes, are you sure you want to leave?'}
+    //   />
+    <Graphin
+      ref={ref}
+      layoutCache={false}
+      enabledStack={false}
+      animate={true}
+      data={{} as GraphinData}
+      // We will set the layout manually for more flexibility.
+      layout={{} as Layout}
+      style={style}
+      // You can increase the maxStep if you want to save more history steps.
+      maxStep={50}
+    >
+      {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
+      {/* <DragNode /> */}
+      <ZoomCanvas />
+      {settings.selectionMode == 'lasso-select' ? <LassoSelect /> : null}
+      {settings.selectionMode == 'brush-select' ? <BrushSelect /> : null}
+      <NodeLabelVisible visible={settings.nodeLabelVisible} />
+      {/* BUG: Cannot restore the label of edges */}
+      <EdgeLabelVisible visible={settings.edgeLabelVisible} />
+      <FishEye options={{}} visible={fishEyeVisible} handleEscListener={onCloseFishEye} />
+      <HighlightNodeEdge selectedNodes={selectedNodes || []} selectedEdges={selectedEdges || []} />
+      {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="node" /> : null}
+      {settings.interactiveMode == 'show-paths' ? <CustomHoverable bindType="edge" /> : null}
+      {settings.interactiveMode == 'show-paths' ? <ActivateRelations /> : null}
+      <ContextMenu style={{ width: '160px' }} bindType="node">
+        <NodeMenu
+          nodePrompts={nodePrompts}
+          subgraphPrompts={subgraphPrompts}
+          chatbotVisible={props.chatbotVisible}
+          item={currentNode}
+          onChange={(menuItem, data, graph, graphin) => {
+            // Clear the current node when the context menu is closed, elsewise the node menu cannot be opened again.
+            setCurrentNode(null);
+            onNodeMenuClick && onNodeMenuClick(menuItem, data, graph, graphin);
           }}
-        </Legend>
-        {props.layoutSettingPanelVisible ? (
-          <Moveable
-            title="Layout Settings"
-            width="320px"
-            maxWidth="320px"
-            top="100px"
-            right="140px"
-            help={layoutHelpDoc}
-            onClose={() => {
-              props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
-            }}
-          >
-            <LayoutSelector
-              type={layout.type || 'preset'}
-              layouts={LayoutNetwork}
-              onChange={changeLayout}
-            />
-          </Moveable>
-        ) : null}
-        {props.toolbarVisible ? (
-          <Moveable
-            title="Settings"
-            width="220px"
-            maxWidth="220px"
-            top="100px"
-            right="30px"
-            help={toolbarHelpDoc}
-            onClose={() => {
-              props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
-            }}
-          >
-            <Toolbar
-              style={{
-                // Remove absolute position to make it work with the Moveable component.
-                position: 'relative',
-                marginBottom: '0px',
-                opacity: 0.8,
-              }}
-              direction="horizontal"
-            >
-              <Toolbar.Item>
-                <Select
-                  style={{ width: '100%' }}
-                  allowClear
-                  value={settings.interactiveMode}
-                  getPopupContainer={(triggerNode) => {
-                    return triggerNode.parentNode;
-                  }}
-                  onChange={(value) => {
-                    setSettings({ ...settings, interactiveMode: value as any });
-                  }}
-                  placeholder="Select a interactive mode"
-                >
-                  {['show-details', 'select-nodes', 'show-paths'].map((item) => {
-                    return (
-                      <Select.Option key={item} value={item}>
-                        <ForkOutlined />
-                        &nbsp;
-                        {voca.titleCase(item)}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Select
-                  style={{ width: '100%' }}
-                  allowClear
-                  defaultValue={'brush-select'}
-                  getPopupContainer={(triggerNode) => {
-                    return triggerNode.parentNode;
-                  }}
-                  disabled={settings.interactiveMode !== 'select-nodes'}
-                  onChange={(value) => {
-                    setSettings({ ...settings, selectionMode: value });
-                  }}
-                  placeholder="Select a selection mode"
-                >
-                  {['brush-select', 'lasso-select'].map((item) => {
-                    return (
-                      <Select.Option key={item} value={item}>
-                        <ForkOutlined />
-                        &nbsp;
-                        {voca.titleCase(item)}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, nodeLabelVisible: checked });
-                  }}
-                  checked={settings.nodeLabelVisible}
-                />
-                Node Label
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, edgeLabelVisible: checked });
-                  }}
-                  checked={settings.edgeLabelVisible}
-                />
-                Edge Label
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, nodeTooltipEnabled: checked });
-                  }}
-                  checked={settings.nodeTooltipEnabled}
-                />
-                Node Tooltip
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, edgeTooltipEnabled: checked });
-                  }}
-                  checked={settings.edgeTooltipEnabled}
-                />
-                Edge Tooltip
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, miniMapEnabled: checked });
-                  }}
-                  checked={settings.miniMapEnabled}
-                />
-                MiniMap
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, snapLineEnabled: checked });
-                  }}
-                  checked={settings.snapLineEnabled}
-                />
-                SnapLine
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Switch
-                  onChange={(checked) => {
-                    setSettings({ ...settings, infoPanelEnabled: checked });
-                  }}
-                  checked={settings.infoPanelEnabled}
-                />
-                Info Panel
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Button
-                  type="primary"
-                  size="small"
-                  style={{ width: '100%' }}
-                  onClick={() => {
-                    localStorage.setItem('graphin-settings', JSON.stringify(settings));
-                    message.success('Settings saved');
-                  }}
-                >
-                  Save Settings
-                </Button>
-              </Toolbar.Item>
-              <Toolbar.Item>
-                <Button
-                  danger
-                  size="small"
-                  style={{ width: '100%' }}
-                  onClick={() => {
-                    loadSettings();
-                  }}
-                >
-                  Load Settings
-                </Button>
-              </Toolbar.Item>
-            </Toolbar>
-          </Moveable>
-        ) : null}
-
-        <NodeSearcherPanel
-          changeSelectedEdges={props.changeSelectedEdges}
-          changeSelectedNodes={props.changeSelectedNodes}
         />
+      </ContextMenu>
+      <ContextMenu style={{ width: '160px' }} bindType="canvas">
+        <CanvasMenu
+          handleOpenFishEye={handleOpenFishEye}
+          onCanvasClick={(menuItem, graph, graphin) => {
+            // Clear the current node & edge when the context menu is closed
+            setCurrentNode(null);
+            setCurrentEdge(null);
+            onCanvasMenuClick && onCanvasMenuClick(menuItem, graph, graphin);
+          }}
+          onClearGraph={props.onClearGraph}
+        />
+      </ContextMenu>
+      <ContextMenu style={{ width: '160px' }} bindType="edge">
+        <EdgeMenu
+          prompts={edgePrompts}
+          item={currentEdge}
+          chatbotVisible={props.chatbotVisible}
+          onChange={(menuItem, source, target, edge, graph, apis) => {
+            // Clear the current edge when the context menu is closed, elsewise the edge menu cannot be opened again.
+            setCurrentEdge(null);
 
-        {settings.interactiveMode == 'show-paths' ? (
-          <FocusBehavior
-            queriedId={props.queriedId}
-            onClickNode={onClickNodeInFocusMode}
-            mode={'focus'}
-          />
-        ) : null}
+            // TODO: How to generate explanation report for the edge?
+            if (menuItem.key == 'explain-relationship') {
+              setCurrentEdge(edge);
+              setExplanationPanelVisible(true);
+            }
 
-        {settings.interactiveMode == 'select-nodes' ? (
-          <FocusBehavior
-            queriedId={props.queriedId}
-            onClickNode={onClickNodeInFocusMode}
-            mode={'select'}
-          />
-        ) : null}
-
-        {/* Only work at focus mode */}
-        {settings.interactiveMode == 'show-paths' ? (
-          <>
-            <ShowPaths
-              selectedNodes={focusedNodes}
-              nodes={data.nodes}
-              edges={data.edges}
-              onClosePathsFinder={onClosePathsFinder}
-              adjacencyList={adjacencyList}
-              // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
-              algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
-            />
-          </>
-        ) : null}
-        {
-          // TODO: generate explanations for the current edge
-          // 1. Get the current edge, the source node and target node
-          // 2. Send the source node and target node to the backend and get the prompt (markdown format) which contains the prompt and api codes for retrieving context information
-          // 3. Send the markdown to the backend and get the filled markdown
-          // 4. Send the filled markdown to LLM and generate explanations by using `rethinking with retrieval` method
-          // 5. Show the filled markdown in the explanation panel
-          currentEdge && explanationPanelVisible ? (
-            <Moveable
-              onClose={() => {
-                setExplanationPanelVisible(false);
-              }}
-            >
-              <p>
-                TODO: generate explanations for the current edge
-                <br />
-                1. Get the current edge, the source node and target node
-                <br />
-                2. Send the source node and target node to the backend and get the prompt (markdown
-                format) which contains the prompt and api codes for retrieving context information
-                <br />
-                3. Send the markdown to the backend and get the filled markdown
-                <br />
-                4. Send the filled markdown to LLM and generate explanations by using `rethinking
-                with retrieval` method
-                <br />
-                5. Show the filled markdown in the explanation panel
-                <br />
-              </p>
-            </Moveable>
-          ) : null
-        }
-        {settings.interactiveMode == 'select-nodes' ? (
-          <ClickSelect multiple={true} trigger={'shift'}></ClickSelect>
-        ) : null}
-        {settings.interactiveMode == 'show-details' ? (
-          <NodeClickBehavior onClick={props.onClickNode}></NodeClickBehavior>
-        ) : null}
-        {settings.interactiveMode == 'show-details' ? (
-          <EdgeClickBehavior onClick={props.onClickEdge}></EdgeClickBehavior>
-        ) : null}
-        {settings.nodeTooltipEnabled ? (
-          <Tooltip bindType="node" placement="bottom" style={{ opacity: 0.9 }}>
-            {(value: TooltipValue) => {
-              if (value.model) {
-                const { model } = value;
-                return (
-                  <HoverText
-                    data={model}
-                    style={{ padding: '10px', width: 'fit-content', maxWidth: '400px' }}
-                  ></HoverText>
-                );
-              }
-              return null;
-            }}
-          </Tooltip>
-        ) : null}
-        {settings.edgeTooltipEnabled ? (
-          <Tooltip bindType="edge" placement="bottom" style={{ opacity: 0.9 }}>
-            {(value: TooltipValue) => {
-              if (value.model) {
-                const { model } = value;
-                return (
-                  <HoverText
-                    data={model}
-                    style={{
-                      padding: '10px',
-                      width: 'fit-content',
-                      maxWidth: '400px',
-                      minWidth: 'fit-content',
-                    }}
-                  ></HoverText>
-                );
-              }
-              return null;
-            }}
-          </Tooltip>
-        ) : null}
-        {settings.miniMapEnabled ? <MiniMap /> : null}
-        {settings.snapLineEnabled ? <SnapLine options={snapLineOptions} visible /> : null}
-        {settings.infoPanelEnabled ? (
-          <StatisticsDataArea
-            data={props.statistics}
-            style={{
-              position: 'absolute',
-              top: '0px',
-              left: '0px',
-              zIndex: 1,
-            }}
-          ></StatisticsDataArea>
-        ) : null}
-        <CustomGraphinContext.Provider
-          value={{
-            // @ts-ignore
-            graph: ref.current?.graph,
-            // @ts-ignore
-            apis: ref.current?.apis,
-            selectedNodes: focusedNodes,
+            if (onEdgeMenuClick) {
+              onEdgeMenuClick(menuItem, source, target, edge, graph, apis);
+            }
+          }}
+        />
+      </ContextMenu>
+      <Legend bindType="node" sortKey="nlabel">
+        {(renderProps: LegendChildrenProps) => {
+          console.log('renderProps', renderProps);
+          return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
+        }}
+      </Legend>
+      {props.layoutSettingPanelVisible ? (
+        <Moveable
+          title="Layout Settings"
+          width="320px"
+          maxWidth="320px"
+          top="100px"
+          right="140px"
+          help={layoutHelpDoc}
+          onClose={() => {
+            props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
           }}
         >
-          {props.children ? props.children : null}
-        </CustomGraphinContext.Provider>
-      </Graphin>
-    </>
+          <LayoutSelector
+            type={layout.type || 'preset'}
+            layouts={LayoutNetwork}
+            onChange={changeLayout}
+          />
+        </Moveable>
+      ) : null}
+      {props.toolbarVisible ? (
+        <Moveable
+          title="Settings"
+          width="220px"
+          maxWidth="220px"
+          top="100px"
+          right="30px"
+          help={toolbarHelpDoc}
+          onClose={() => {
+            props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
+          }}
+        >
+          <Toolbar
+            style={{
+              // Remove absolute position to make it work with the Moveable component.
+              position: 'relative',
+              marginBottom: '0px',
+              opacity: 0.8,
+            }}
+            direction="horizontal"
+          >
+            <Toolbar.Item>
+              <Select
+                style={{ width: '100%' }}
+                allowClear
+                value={settings.interactiveMode}
+                getPopupContainer={(triggerNode) => {
+                  return triggerNode.parentNode;
+                }}
+                onChange={(value) => {
+                  setSettings({ ...settings, interactiveMode: value as any });
+                }}
+                placeholder="Select a interactive mode"
+              >
+                {['show-details', 'select-nodes', 'show-paths'].map((item) => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      <ForkOutlined />
+                      &nbsp;
+                      {voca.titleCase(item)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Select
+                style={{ width: '100%' }}
+                allowClear
+                defaultValue={'brush-select'}
+                getPopupContainer={(triggerNode) => {
+                  return triggerNode.parentNode;
+                }}
+                disabled={settings.interactiveMode !== 'select-nodes'}
+                onChange={(value) => {
+                  setSettings({ ...settings, selectionMode: value });
+                }}
+                placeholder="Select a selection mode"
+              >
+                {['brush-select', 'lasso-select'].map((item) => {
+                  return (
+                    <Select.Option key={item} value={item}>
+                      <ForkOutlined />
+                      &nbsp;
+                      {voca.titleCase(item)}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, nodeLabelVisible: checked });
+                }}
+                checked={settings.nodeLabelVisible}
+              />
+              Node Label
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, edgeLabelVisible: checked });
+                }}
+                checked={settings.edgeLabelVisible}
+              />
+              Edge Label
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, nodeTooltipEnabled: checked });
+                }}
+                checked={settings.nodeTooltipEnabled}
+              />
+              Node Tooltip
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, edgeTooltipEnabled: checked });
+                }}
+                checked={settings.edgeTooltipEnabled}
+              />
+              Edge Tooltip
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, miniMapEnabled: checked });
+                }}
+                checked={settings.miniMapEnabled}
+              />
+              MiniMap
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, snapLineEnabled: checked });
+                }}
+                checked={settings.snapLineEnabled}
+              />
+              SnapLine
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Switch
+                onChange={(checked) => {
+                  setSettings({ ...settings, infoPanelEnabled: checked });
+                }}
+                checked={settings.infoPanelEnabled}
+              />
+              Info Panel
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Button
+                type="primary"
+                size="small"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  localStorage.setItem('graphin-settings', JSON.stringify(settings));
+                  message.success('Settings saved');
+                }}
+              >
+                Save Settings
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item>
+              <Button
+                danger
+                size="small"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  loadSettings();
+                }}
+              >
+                Load Settings
+              </Button>
+            </Toolbar.Item>
+          </Toolbar>
+        </Moveable>
+      ) : null}
+
+      <NodeSearcherPanel
+        changeSelectedEdges={props.changeSelectedEdges}
+        changeSelectedNodes={props.changeSelectedNodes}
+      />
+
+      {settings.interactiveMode == 'show-paths' ? (
+        <FocusBehavior
+          queriedId={props.queriedId}
+          onClickNode={onClickNodeInFocusMode}
+          mode={'focus'}
+        />
+      ) : null}
+
+      {settings.interactiveMode == 'select-nodes' ? (
+        <FocusBehavior
+          queriedId={props.queriedId}
+          onClickNode={onClickNodeInFocusMode}
+          mode={'select'}
+        />
+      ) : null}
+
+      {/* Only work at focus mode */}
+      {settings.interactiveMode == 'show-paths' ? (
+        <>
+          <ShowPaths
+            selectedNodes={focusedNodes}
+            nodes={data.nodes}
+            edges={data.edges}
+            onClosePathsFinder={onClosePathsFinder}
+            adjacencyList={adjacencyList}
+            // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
+            algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
+          />
+        </>
+      ) : null}
+      {
+        // TODO: generate explanations for the current edge
+        // 1. Get the current edge, the source node and target node
+        // 2. Send the source node and target node to the backend and get the prompt (markdown format) which contains the prompt and api codes for retrieving context information
+        // 3. Send the markdown to the backend and get the filled markdown
+        // 4. Send the filled markdown to LLM and generate explanations by using `rethinking with retrieval` method
+        // 5. Show the filled markdown in the explanation panel
+        currentEdge && explanationPanelVisible ? (
+          <Moveable
+            onClose={() => {
+              setExplanationPanelVisible(false);
+            }}
+          >
+            <p>
+              TODO: generate explanations for the current edge
+              <br />
+              1. Get the current edge, the source node and target node
+              <br />
+              2. Send the source node and target node to the backend and get the prompt (markdown
+              format) which contains the prompt and api codes for retrieving context information
+              <br />
+              3. Send the markdown to the backend and get the filled markdown
+              <br />
+              4. Send the filled markdown to LLM and generate explanations by using `rethinking with
+              retrieval` method
+              <br />
+              5. Show the filled markdown in the explanation panel
+              <br />
+            </p>
+          </Moveable>
+        ) : null
+      }
+      {settings.interactiveMode == 'select-nodes' ? (
+        <ClickSelect multiple={true} trigger={'shift'}></ClickSelect>
+      ) : null}
+      {settings.interactiveMode == 'show-details' ? (
+        <NodeClickBehavior onClick={props.onClickNode}></NodeClickBehavior>
+      ) : null}
+      {settings.interactiveMode == 'show-details' ? (
+        <EdgeClickBehavior onClick={props.onClickEdge}></EdgeClickBehavior>
+      ) : null}
+      {settings.nodeTooltipEnabled ? (
+        <Tooltip bindType="node" placement="bottom" style={{ opacity: 0.9 }}>
+          {(value: TooltipValue) => {
+            if (value.model) {
+              const { model } = value;
+              return (
+                <HoverText
+                  data={model}
+                  style={{ padding: '10px', width: 'fit-content', maxWidth: '400px' }}
+                ></HoverText>
+              );
+            }
+            return null;
+          }}
+        </Tooltip>
+      ) : null}
+      {settings.edgeTooltipEnabled ? (
+        <Tooltip bindType="edge" placement="bottom" style={{ opacity: 0.9 }}>
+          {(value: TooltipValue) => {
+            if (value.model) {
+              const { model } = value;
+              return (
+                <HoverText
+                  data={model}
+                  style={{
+                    padding: '10px',
+                    width: 'fit-content',
+                    maxWidth: '400px',
+                    minWidth: 'fit-content',
+                  }}
+                ></HoverText>
+              );
+            }
+            return null;
+          }}
+        </Tooltip>
+      ) : null}
+      {settings.miniMapEnabled ? <MiniMap /> : null}
+      {settings.snapLineEnabled ? <SnapLine options={snapLineOptions} visible /> : null}
+      {settings.infoPanelEnabled ? (
+        <StatisticsDataArea
+          data={props.statistics}
+          style={{
+            position: 'absolute',
+            top: '0px',
+            left: '0px',
+            zIndex: 1,
+          }}
+        ></StatisticsDataArea>
+      ) : null}
+      <CustomGraphinContext.Provider
+        value={{
+          // @ts-ignore
+          graph: ref.current?.graph,
+          // @ts-ignore
+          apis: ref.current?.apis,
+          selectedNodes: focusedNodes,
+        }}
+      >
+        {props.children ? props.children : null}
+      </CustomGraphinContext.Provider>
+    </Graphin>
+    // </>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs } from 'antd';
-import type { EdgeInfo } from '../typings';
+import type { EdgeInfo } from './index.t';
 
 import './index.less';
 
