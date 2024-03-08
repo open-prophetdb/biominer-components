@@ -17,6 +17,7 @@
 /coverage
 
 # umi
+.dumi
 .umi
 .umi-production
 .umi-test

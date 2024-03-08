@@ -1,14 +1,26 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "jsx": "react",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "types": ["jest"],
     "strict": true,
+    "declaration": true,
     "skipLibCheck": true,
-    "declaration": true
-  }
+    "esModuleInterop": true,
+    "jsx": "react",
+    "baseUrl": "./",
+    "paths": {
+      "@@/*": [
+        ".dumi/tmp/*"
+      ],
+      "app": [
+        "src"
+      ],
+      "app/*": [
+        "src/*",
+        "*"
+      ]
+    }
+  },
+  "include": [
+    ".dumirc.ts",
+    "src/**/*"
+  ]
 }

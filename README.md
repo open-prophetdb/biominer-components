@@ -18,7 +18,7 @@ cd biominer-components
 ### Install dependencies
 
 ```bash
-$ yarn
+$ yarn install
 ```
 
 ### Start the dev server
