@@ -13,6 +13,8 @@ import {
   DownloadOutlined,
   DeleteOutlined,
   FileDoneOutlined,
+  StepBackwardOutlined,
+  UndoOutlined,
 } from '@ant-design/icons';
 
 type NodeSearcherProps = {
@@ -62,6 +64,16 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
   return (
     <Row className="node-searcher">
       <ButtonGroup>
+        <Tooltip title="Undo">
+          <Button
+            disabled
+            shape="circle"
+            icon={<UndoOutlined />}
+            onClick={() => {
+              // TODO: Setup a undo stack.
+            }}
+          />
+        </Tooltip>
         <Tooltip title="Auto Zoom">
           <Button
             shape="circle"
@@ -119,24 +131,6 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
                   backgroundColor: '#fff',
                   padding: 20,
                 });
-            }}
-          />
-        </Tooltip>
-        <Tooltip title="Download Graph As JSON">
-          <Button
-            shape="circle"
-            icon={<FileDoneOutlined />}
-            onClick={() => {
-              const dateName = new Date().toISOString().replace(/:/g, '-');
-              const data = graph && graph.save();
-              const json = JSON.stringify(data);
-              const blob = new Blob([json], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `knowledge-graph-${dateName}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
             }}
           />
         </Tooltip>

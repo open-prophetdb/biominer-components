@@ -1,9 +1,12 @@
+// @ts-ignore
 import * as plotly from 'plotly.js/dist/plotly';
 import * as React from 'react';
+// @ts-ignore
 import PlotlyEditor from 'react-chart-editor';
 import PlotlyChart from 'react-plotly.js';
 import { getLocale } from './util';
 
+// @ts-ignore
 import * as localeDictionary from 'plotly.js/lib/locales/zh-cn';
 import type {
   Data,
@@ -93,6 +96,7 @@ export default class ChartEditor extends React.PureComponent<ChartEditorProps> {
         className="plotly-viewer"
         data={data}
         layout={layout}
+        // @ts-ignore - TODO: how to fix this?
         config={config}
       />
     ) : (

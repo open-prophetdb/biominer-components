@@ -7,6 +7,7 @@ export type ExpandedGraphData = {
   edges: GraphEdge[];
   currentUUID: string;
   isDirty: boolean;
+  layout: Layout;
 };
 
 declare module '*.png' {

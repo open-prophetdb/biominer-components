@@ -540,6 +540,7 @@ const ShowPaths = (props: ShowPathProps) => {
             }}
             columns={columns}
             dataSource={pathTableData}
+            // @ts-ignore - TODO: fix this
             ref={pathTableRef}
             scroll={{ y: 200 }}
             size="small"

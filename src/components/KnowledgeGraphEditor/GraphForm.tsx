@@ -234,8 +234,8 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
   const formatLabelOption = (item: Entity) => {
     if (item.label == 'Gene') {
       // TODO: How to deal with multiple species in the future?
-      if (item.taxname) {
-        return `${item.name} | ${item.id} | ${item.taxname} | ${item.resource}`;
+      if (item.taxid) {
+        return `${item.name} | ${item.id} | ${item.taxid} | ${item.resource}`;
       } else {
         return `${item.name} | ${item.id} | Homo sapiens | ${item.resource}`;
       }
@@ -346,9 +346,9 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
         width={'60%'}
       >
         <MarkdownViewer
+          // @ts-ignore
           url={`${window.publicPath}README/knowledge_editor_${anchor}.md`}
-          getFile={null}
-          enableRaw
+          getFile={undefined}
         />
       </Modal>
       <Form

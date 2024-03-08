@@ -157,6 +157,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   >(undefined);
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
+  const [layout, setLayout] = useState<Layout>(defaultLayout);
 
   // Annotate the relation type with the description
   const annotateEdge = (edge: GraphEdge, stat: RelationStat[]) => {
@@ -221,16 +222,18 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   }, [data, edgeStat, nodeStat, currentGraphUUID]);
 
   useEffect(() => {
-    saveLlmResponsesToLocalStorage(llmResponse);
+    if (llmResponse) {
+      saveLlmResponsesToLocalStorage(llmResponse);
+    }
   }, [llmResponse]);
 
   const loadGraphs = () => {
     props.apis
       .GetGraphHistoryFn({ page: 1, page_size: 100 })
-      .then((response) => {
+      .then((response: any) => {
         setGraphHistory(response.records);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
         message.error('Failed to get graph histories, please check the network connection.');
       });
@@ -292,6 +295,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setParentGraphUUID(latestChild.id);
       setCurrentGraphUUID(graphHistoryItem.id);
       checkAndSetData(payload.data);
+      setLayout(payload.layout || {});
       setToolbarVisible(payload.toolbarVisible);
       setLayoutSettingPanelVisible(false);
       setGraphStoreTableVisible(false);
@@ -366,10 +370,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     console.log('Load Preset Graph Data: ', parsedGraphData, data, presetLayout);
     if (parsedGraphData) {
       checkAndSetData({
-        nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
-        edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
+        nodes: [...data.nodes, ...parsedGraphData.nodes],
+        edges: [...data.edges, ...parsedGraphData.edges],
       });
+      // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
+      // checkAndSetData({
+      //   nodes: uniqBy([...data.nodes, ...parsedGraphData.nodes], 'id'),
+      //   edges: uniqBy([...data.edges, ...parsedGraphData.edges], 'relid'),
+      // });
 
+      setLayout(parsedGraphData.layout || {});
       setIsDirty(parsedGraphData.isDirty);
 
       if (parsedGraphData.currentUUID) {
@@ -433,9 +443,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             checkAndSetData(response);
           } else if (searchObject.merge_mode == 'append') {
             checkAndSetData({
-              nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
-              edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+              nodes: [...data.nodes, ...response.nodes],
+              edges: [...data.edges, ...response.edges],
             });
+            // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
+            // checkAndSetData({
+            //   nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
+            //   edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+            // });
           } else if (searchObject.merge_mode == 'subtract') {
             const { nodes, edges } = response;
             let nodesToRemove: string[] = nodes.map((node) => node.id);
@@ -626,9 +641,14 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         .then((response: GraphData) => {
           console.log('Auto Connect Response: ', response);
           checkAndSetData({
-            nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
-            edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+            nodes: [...data.nodes, ...response.nodes],
+            edges: [...data.edges, ...response.edges],
           });
+          // TODO: It seems that the graphin will be updated fully and cause the graph to be re-rendered, so we don't need to use uniqBy here?
+          // checkAndSetData({
+          //   nodes: uniqBy([...data.nodes, ...response.nodes], 'id'),
+          //   edges: uniqBy([...data.edges, ...response.edges], 'relid'),
+          // });
 
           if (response.nodes.length == 0 && response.edges.length == 0) {
             message.warning('No more relationships can be found.');
@@ -1039,6 +1059,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setGraphFormPayload({
       data: data,
       toolbarVisible: toolbarVisible,
+      isDirty: isDirty,
+      currentUUID: currentGraphUUID,
     });
   };
 
@@ -1080,16 +1102,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     setEdgeInfoPanelVisible(false);
     setNodeInfoPanelVisible(false);
   };
-
-  // const onWidthChange = (width?: number, height?: number) => {
-  //   // message.info(`Graph width changed to ${width}`)
-  //   // TODO: Fix this hacky way to refresh graph
-  //   if (width) {
-  //     setGraphRefreshKey(width)
-  //   } else if (height) {
-  //     setGraphRefreshKey(height)
-  //   }
-  // }
 
   const enterFullScreenHandler = useFullScreenHandle();
 
@@ -1265,6 +1277,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           </Row>
           <Col className="graphin" style={{ width: '100%', height: '100%', position: 'relative' }}>
             <GraphinWrapper
+              layout={layout}
               prompts={prompts}
               onDataChanged={(graph: Graph) => {
                 if (graph && graph.save) {
@@ -1272,8 +1285,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   console.log('Graph Data Changed: ', newData, graph);
                   const edges = newData.edges as GraphEdge[];
                   const nodes = newData.nodes as GraphNode[];
-                  saveGraphDataToLocalStorage(
-                    {
+                  const payload = {
+                    data: {
                       nodes: nodes,
                       edges: edges.map((edge: any) => {
                         return {
@@ -1284,8 +1297,22 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                         };
                       }),
                     },
-                    isDirty,
-                    currentGraphUUID,
+                    isDirty: isDirty,
+                    currentUUID: currentGraphUUID,
+                    layout: {
+                      width: graph.getWidth(),
+                      height: graph.getHeight(),
+                      // @ts-ignore
+                      matrix: graph.cfg.group.getMatrix(),
+                    },
+                  };
+
+                  console.log('Graph Data Payload: ', payload);
+                  saveGraphDataToLocalStorage(
+                    payload.data,
+                    payload.isDirty,
+                    payload.currentUUID,
+                    payload.layout,
                   );
                 }
               }}

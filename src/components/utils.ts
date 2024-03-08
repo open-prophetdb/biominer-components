@@ -324,6 +324,7 @@ export const prepareGraphData = (
   graph: Graph,
 ): {
   data: GraphData;
+  layout: Layout;
 } => {
   const data = {
     nodes: graph.getNodes().map((node: any) => {
@@ -346,6 +347,12 @@ export const prepareGraphData = (
 
   return {
     data: data,
+    layout: {
+      width: graph.getWidth(),
+      height: graph.getHeight(),
+      // @ts-ignore
+      matrix: graph.cfg.group.getMatrix(),
+    },
   };
 };
 

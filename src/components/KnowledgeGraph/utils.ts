@@ -277,6 +277,7 @@ const defaultExpandedGraphData: ExpandedGraphData = {
   edges: [],
   isDirty: false,
   currentUUID: 'New Graph',
+  layout: {},
 };
 
 export const loadGraphDataFromLocalStorage = (): ExpandedGraphData => {
@@ -296,12 +297,13 @@ export const loadGraphDataFromLocalStorage = (): ExpandedGraphData => {
 
 export const pushGraphDataToLocalStorage = (data: GraphData) => {
   let oldData = loadGraphDataFromLocalStorage() as ExpandedGraphData;
+  // TODO: it may cause to mess up the nodes and edges
   let newData = {
     nodes: uniqBy([...oldData.nodes, ...data.nodes], 'id'),
     edges: uniqBy([...oldData.edges, ...data.edges], 'relid'),
   };
 
-  saveGraphDataToLocalStorage(newData, true, oldData.currentUUID);
+  saveGraphDataToLocalStorage(newData, true, oldData.currentUUID, {});
 };
 
 export const saveLlmResponsesToLocalStorage = (responses: any) => {
@@ -330,6 +332,7 @@ export const saveGraphDataToLocalStorage = (
   data: GraphData,
   isDirty: boolean,
   currentUUID: string,
+  layout: Layout,
 ) => {
   if (!data || !data.nodes || data.nodes.length == 0) {
     return;
@@ -339,6 +342,7 @@ export const saveGraphDataToLocalStorage = (
     edges: data.edges,
     isDirty: isDirty,
     currentUUID: currentUUID,
+    layout: layout,
   };
   localStorage.setItem('presetGraphData', JSON.stringify(graphData));
 };

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GeneInfo } from './index.t';
+import { GeneInfo } from '../typings';
 
 export const parseEntityId = (entityId: string) => {
   const [source, id] = entityId.split(':');

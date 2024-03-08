@@ -4,6 +4,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react",
+    "sourceMap": true,
     "esModuleInterop": true,
     "types": ["jest"],
     "strict": true,

@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.2.82",
+  "version": "0.2.83",
   "scripts": {
     "start": "PORT=3000 dumi dev",
     "docs:build": "dumi build",
@@ -35,7 +35,7 @@
     "ag-grid-community": "^31.0.1",
     "ag-grid-enterprise": "^31.0.1",
     "ag-grid-react": "^31.0.1",
-    "gtex-d3": "thehyve/gtex-viz#7c822b0",
+    "gtex-d3": "yjcyxky/gtex-viz#7c822b0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "openseadragon": "^3.1.0",
@@ -60,6 +60,8 @@
     "@testing-library/react": "^13.0.0",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.195",
+    "@types/plotly.js": "^2.29.2",
+    "@types/react-plotly.js": "^2.6.3",
     "@types/spark-md5": "^3.0.4",
     "@types/voca": "^1.4.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",

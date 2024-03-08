@@ -1,9 +1,12 @@
+// @ts-ignore
 import * as plotly from 'plotly.js/dist/plotly';
 import React, { memo, useRef, useEffect } from 'react';
+// @ts-ignore
 import PlotlyEditor from 'react-chart-editor';
 import Plot from 'react-plotly.js';
 import { getLocale } from './util';
 
+// @ts-ignore
 import * as localeDictionary from 'plotly.js/lib/locales/zh-cn';
 import type { Data, Frames, Layout } from './data';
 import type { PlotlyViewerProps } from './index.t';
@@ -107,6 +110,7 @@ const PlotlyViewer: React.FC<PlotlyViewerProps> = (props) => {
       className="plotly-viewer"
       data={data}
       layout={{ ...layout, autosize: true }}
+      // @ts-ignore - TODO: how to fix this?
       config={config}
       onClick={props.onClick}
       frames={frames}

@@ -23,8 +23,11 @@ export type LayoutConfig = {
 };
 
 export type Layout = {
-  type: string;
+  type?: string;
   options?: Record<string, number | string | boolean>;
+  width?: number;
+  height?: number;
+  matrix?: number[][];
 };
 
 export type OptionType = {

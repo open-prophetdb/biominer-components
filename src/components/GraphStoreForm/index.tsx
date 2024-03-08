@@ -19,7 +19,12 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
       let payload = props.payload;
       if (graph) {
         console.log('Save graph data which are from graphin.');
-        payload = prepareGraphData(graph);
+        // We use the graphin data from the prepareGraphData function and merge other attributes from the payload.
+        // Such as data, layout, toolbarVisible, isDirty, currentUUID and so on.
+        payload = {
+          ...payload,
+          ...prepareGraphData(graph),
+        };
       }
 
       const owner = await getIdentity();

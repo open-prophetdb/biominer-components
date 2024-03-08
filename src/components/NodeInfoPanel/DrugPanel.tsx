@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Tabs } from 'antd';
-import type { GeneInfo } from './index.t';
-import type { GraphNode } from '../typings';
+import type { GraphNode, GeneInfo } from '../typings';
 
 import './index.less';
 
