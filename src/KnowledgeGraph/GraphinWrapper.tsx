@@ -1096,7 +1096,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       // https://g6.antv.antgroup.com/zh/examples/net/forceDirected/#basicForceDirectedDragFix
       graph.on('node:drag', refreshDragedNodePosition);
       graph.on('canvas:drag', (e: any) => {
-        console.log('canvas:drag', e);
+        // console.log('canvas:drag', e);
       });
 
       if (typeof window !== 'undefined') {
