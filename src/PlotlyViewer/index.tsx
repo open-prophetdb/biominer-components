@@ -3,6 +3,7 @@ import * as plotly from 'plotly.js/dist/plotly';
 import React, { memo, useRef, useEffect } from 'react';
 // @ts-ignore
 import PlotlyEditor from 'react-chart-editor';
+// @ts-ignore
 import Plot from 'react-plotly.js';
 import { getLocale } from './util';
 

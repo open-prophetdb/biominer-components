@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import OpenSeadragon from 'openseadragon';
 import getLocale from './locales/index';
 import { PathologyViewerLocale } from './locales/index.t';
