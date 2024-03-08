@@ -2,7 +2,7 @@ import React, { useContext, useState, memo, useEffect } from 'react';
 import { GraphinContext } from '@antv/graphin';
 import { NodeConfig } from '@antv/g6';
 import type { GraphNode, GraphEdge } from '../../typings';
-import { Button, Row, Select, Empty, Tooltip } from 'antd';
+import { Button, Row, Select, Empty, Tooltip, message } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import {
   ZoomInOutlined,
@@ -16,6 +16,7 @@ import {
   StepBackwardOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
+import UndoRedo from './UndoRedo';
 
 type NodeSearcherProps = {
   changeSelectedNodes?: (selectedNodes: string[]) => void;
@@ -24,6 +25,7 @@ type NodeSearcherProps = {
 
 const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
   const { graph, apis } = useContext(GraphinContext);
+  const { undo, getUndoStack } = UndoRedo();
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [nodeOptions, setNodeOptions] = useState<any[]>([]);
@@ -70,7 +72,18 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<UndoOutlined />}
             onClick={() => {
-              // TODO: Setup a undo stack.
+              if (getUndoStack().length === 1) {
+                message.info('No more undo');
+              };
+
+              undo(
+                (nodes) => {
+                  props.changeSelectedNodes && props.changeSelectedNodes(nodes);
+                },
+                (edges) => {
+                  props.changeSelectedEdges && props.changeSelectedEdges(edges);
+                },
+              );
             }}
           />
         </Tooltip>

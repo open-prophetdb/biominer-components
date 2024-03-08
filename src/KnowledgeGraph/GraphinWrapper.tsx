@@ -9,10 +9,10 @@ import Graphin, {
 import { Collapse } from 'antd';
 import { CustomGraphinContext } from '../Context/CustomGraphinContext';
 import { INode, NodeConfig, IEdge } from '@antv/g6';
+import G6 from '@antv/g6';
 import { ContextMenu, FishEye, Toolbar } from '@antv/graphin-components';
 import LayoutSelector from './Components/LayoutSelector';
 import type { Layout, GraphData } from '../typings';
-import { useLocation } from 'react-router-dom';
 import LayoutNetwork from './Components/LayoutNetworks';
 import {
   BoxPlotOutlined,
@@ -65,8 +65,6 @@ import ShowPaths from './Components/ShowPaths';
 import NodeSearcherPanel from './Components/NodeSearcherPanel';
 import HighlightNodeEdge from './Components/HighlightNodeEdge';
 import voca from 'voca';
-// import { popCurrectData } from './Components/UndoRedo';
-// import { pushStack } from '../utils';
 
 import './GraphinWrapper.less';
 import { sortBy, debounce } from 'lodash';
@@ -622,10 +620,20 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     }
   };
 
-  // const handleStopLayout = (item: CanvasMenuItem) => {
-  //     message.info(`Stop layout successfully`);
-  //     graph.stopAnimate();
-  // };
+  const handleStopAnimate = (item: CanvasMenuItem) => {
+      message.info(`Stop animatition successfully`);
+    graph.stopAnimate();
+    
+    const allEdges = graph.getEdges();
+    allEdges.forEach((edge) => {
+      graph.updateItem(edge, {
+        style: {
+          ...edge.getModel()?.style,
+          animate: false,
+        }
+      });
+    });
+  };
 
   const handleOpenFishEye = (item: CanvasMenuItem) => {
     if (props.handleOpenFishEye) {
@@ -667,6 +675,13 @@ const CanvasMenu = (props: CanvasMenuProps) => {
       title:
         'Auto connect the graph based on the current graph data. It will help us to find the potential relationships between the nodes. [NOTE] It may mess up the current graph layout.',
       handler: handleAutoConnect,
+    },
+    {
+      key: 'stop-animate',
+      icon: <ForkOutlined />,
+      label: 'Stop & Clear Animatition',
+      title: 'Stop and clear the animation of the graph.',
+      handler: handleStopAnimate,
     },
     {
       key: 'refresh-graph',
@@ -978,7 +993,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [edgePrompts, setEdgePrompts] = useState<PromptItem[]>([]);
   const [subgraphPrompts, setSubgraphPrompts] = useState<PromptItem[]>([]);
 
-  const location = useLocation();
   const ref = React.useRef(null);
 
   const toolbarHelpDoc = (
@@ -1075,6 +1089,12 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     const model = e.item.get('model');
     model.fx = e.x;
     model.fy = e.y;
+
+    saveGraphData();
+  };
+
+  const refreshDragedCanvas = (e: any) => {
+    saveGraphData();
   };
 
   const initEvents = () => {
@@ -1095,9 +1115,8 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       // More details: https://g6.antv.vision/api/graph-func/layout#graphlayout
       // https://g6.antv.antgroup.com/zh/examples/net/forceDirected/#basicForceDirectedDragFix
       graph.on('node:drag', refreshDragedNodePosition);
-      graph.on('canvas:drag', (e: any) => {
-        // console.log('canvas:drag', e);
-      });
+      graph.on('canvas:drag', (e: any) => refreshDragedCanvas);
+      graph.on('afterrender', saveGraphData);
 
       if (typeof window !== 'undefined') {
         // @ts-ignore
@@ -1127,6 +1146,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.off('edge:contextmenu', setEdge);
         graph.off('node:contextmenu', setNode);
         graph.off('node:drag', refreshDragedNodePosition);
+        graph.off('canvas:drag', () => {
+          // console.log('canvas:drag', e);
+        });
+        graph.off('afterrender', saveGraphData);
         window.removeEventListener('beforeunload', handleBeforeUnload);
         window.onresize = null;
       };
@@ -1141,13 +1164,15 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     return n.length / data.nodes.length > 0.8;
   };
 
-  const saveGraphData = () => {
+  const saveGraphData = debounce(() => {
     // We must save the graph data after the layout is changed, elsewise the graph data will not contains the position of the nodes and edges.
+    console.log("Save the graph data to the local storage: ", new Date());
     if (props.onDataChanged) {
       // @ts-ignore
       props.onDataChanged(ref.current?.graph);
     }
-  };
+    // TODO: what value is better?
+  }, 2000);
 
   const getMostFrequentNode = (edges: GraphEdge[]): string | undefined => {
     const nodes = edges.map((edge) => {
@@ -1226,6 +1251,25 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           });
         }
       });
+
+      // Label all new edges with a new edge type.
+      addedData.edges.forEach((edge) => {
+        // @ts-ignore
+        ref.current?.graph?.updateItem(edge.id, {
+          style: {
+            ...style,
+            animate: {
+              type: 'circle-running',
+              color: 'green',
+              repeat: true,
+              duration: 2000
+            }
+          }
+        });
+      });
+
+      // NOTE: We place two operations to save the graph data. one is to save the graph data after the rendering, but it doesn't get the updated position of the new nodes. so we add another operation here.
+      saveGraphData();
     }
   };
 
@@ -1468,11 +1512,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   };
 
-  useEffect(() => {
-    console.log('GraphinWrapper: location changed: ', location);
-    saveGraphData();
-  }, [location]);
-
   // All initializations
   // Save the node or edge when the context menu is clicked.
   useEffect(() => {
@@ -1585,7 +1624,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     <Graphin
       ref={ref}
       layoutCache={false}
-      enabledStack={false}
+      enabledStack={true}
       animate={true}
       data={{} as GraphinData}
       // We will set the layout manually for more flexibility.

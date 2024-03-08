@@ -698,6 +698,20 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
 
       const uniqEdgeKeys = uniq(newSelectedEdgeKeys);
       const uniqNodeKeys = uniq(allNodeKeys);
+      pushStack(
+        'select-edges',
+        {
+          after: {
+            edges: uniqEdgeKeys,
+            nodes: uniqNodeKeys,
+          },
+          before: {
+            edges: selectedEdgeKeys,
+            nodes: selectedNodeKeys,
+          },
+        },
+        graph.getUndoStack(),
+      );
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
     } else if (menuItem.key == 'hide-edges-with-same-type') {
