@@ -1122,6 +1122,16 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     }
   }
 
+  const handleSaveShortcut = (event: any) => {
+    // Check if the user is pressing the "Ctrl" key and "s" key
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      event.preventDefault(); // 阻止默认行为
+      message.success("Your graph data has been saved successfully.");
+
+      saveGraphData();
+    }
+  };
+
   const initEvents = () => {
     // @ts-ignore
     if (ref && ref.current && ref.current.graph) {
@@ -1166,6 +1176,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       };
 
       window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('keydown', handleSaveShortcut);
 
       return () => {
         // Clear the events.
@@ -1180,6 +1191,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.off('canvas:dragstart', pushUndoStackWithinEvent);
 
         window.removeEventListener('beforeunload', handleBeforeUnload);
+        window.removeEventListener('keydown', handleSaveShortcut);
         window.onresize = null;
       };
     }
