@@ -53,19 +53,18 @@ const MarkdownViewer: React.FC<MarkdownProps> = (props) => {
   useEffect(() => {
     if (!props.url && !props.markdown) {
       console.log('MarkdownViewer: no url or markdown');
-      return;
-    }
+    } else {
+      if (props.url) {
+        fetchMarkdown(props.url).then((response) => setMarkdown(response || null));
+        // How to convert the url to key
+        setKey(props.url);
+      }
 
-    if (props.url) {
-      fetchMarkdown(props.url).then((response) => setMarkdown(response || null));
-      // How to convert the url to key
-      setKey(props.url);
-    }
-
-    if (props.markdown) {
-      setMarkdown(props.markdown);
-      // TODO: how to convert the markdown string to a key
-      setKey(props.markdown);
+      if (props.markdown) {
+        setMarkdown(props.markdown);
+        // TODO: how to convert the markdown string to a key
+        setKey(props.markdown);
+      }
     }
   }, [props.url, props.markdown]);
 

@@ -41,7 +41,7 @@ const foo = 'bar';
 \`\`\`
 `;
 
-export default () => <MarkdownViewer markdown={markdown} rehypePlugins={[RehypeRaw, RehypeToc]} />;
+export default () => <MarkdownViewer markdown={markdown} />;
 ```
 
 <API></API>
