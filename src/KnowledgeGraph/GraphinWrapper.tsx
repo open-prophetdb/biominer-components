@@ -1653,9 +1653,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           pushUndoStack('dataChanged');
         }
 
-        graph.data(updatedData.data);
-        graph.render();
-
+        // The order is important. We need to change the layout first, then update the graph data. At last, we need to set the matrix for the layout.
         if (!hasPositions(oldData) && !hasPositions(data)) {
           changeLayout(defaultLayout);
         } else {
@@ -1664,6 +1662,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           console.log('Use the preset layout: ', presetLayout, props.layout, layout);
           changeLayout(presetLayout);
         }
+
+        graph.data(updatedData.data);
+        graph.render();
 
         // We expect to get the matrix only when loading a graph from the local storage.
         if (props.layout?.matrix) {
@@ -1691,6 +1692,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           refreshAddedNodePosition(updatedData.addedData, data);
         }
       }
+    } else {
+      console.log('GraphinWrapper: No data');
+      // When the data from the parent component is empty, this means the graph is cleared. So we need to clear the state of the graph.
+      setAdjacencyList({} as AdjacencyList);
+      setMatrix({});
+      setLayout(presetLayout);
+      setUndoStack(new Stack(50));
     }
   }, [data]);
 
