@@ -1556,12 +1556,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       graph.updateLayout({ type: newLayout.type, ...newLayout.options, center: [0, 0] });
       console.log('changeLayout: ', newLayout);
       graph.layout();
-
-      if (isEqual(newLayout, defaultLayout)) {
-        console.log("This is default layout, so we need to move the graph to the center.");
-        graph.refreshPositions();
-        graph.fitCenter();
-      }
     }
   };
 
@@ -1666,6 +1660,12 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.data(updatedData.data);
         graph.render();
 
+        if (!hasPositions(oldData) && !hasPositions(data)) {
+          console.log("This is default layout, so we need to move the graph to the center.");
+          graph.refreshPositions();
+          graph.fitCenter();
+        }
+
         // We expect to get the matrix only when loading a graph from the local storage.
         if (props.layout?.matrix) {
           console.log('Set the matrix for the layout: ', props.layout.matrix);
@@ -1692,13 +1692,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           refreshAddedNodePosition(updatedData.addedData, data);
         }
       }
-    } else {
-      console.log('GraphinWrapper: No data');
-      // When the data from the parent component is empty, this means the graph is cleared. So we need to clear the state of the graph.
-      setAdjacencyList({} as AdjacencyList);
-      setMatrix({});
-      setLayout(presetLayout);
-      setUndoStack(new Stack(50));
     }
   }, [data]);
 
