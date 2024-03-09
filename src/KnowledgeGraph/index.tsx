@@ -1271,40 +1271,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               prompts={prompts}
               onDataChanged={(graphData: GraphData, width: number, height: number, matrix: any) => {
                 if (graphData) {
-                  console.log('Graph Data Changed: ', graphData);
-                  const edges = graphData.edges as GraphEdge[];
-                  const nodes = graphData.nodes as GraphNode[];
                   // Reset the initial data, otherwise the data will have not chance to be updated.
                   setData(graphData);
-                  const payload = {
-                    data: {
-                      nodes: nodes,
-                      edges: edges.map((edge: any) => {
-                        return {
-                          ...edge,
-                          // They will cause the JSON.stringify to throw an error, so we need to remove them.
-                          targetNode: undefined,
-                          sourceNode: undefined,
-                        };
-                      }),
-                    },
-                    isDirty: isDirty,
-                    currentUUID: currentGraphUUID,
-                    layout: {
-                      width: width,
-                      height: height,
-                      // @ts-ignore
-                      matrix: matrix
-                    },
-                  };
-
-                  console.log('Graph Data Payload: ', payload);
-                  saveGraphDataToLocalStorage(
-                    payload.data,
-                    payload.isDirty,
-                    payload.currentUUID,
-                    payload.layout,
-                  );
                 }
               }}
               selectedNodes={selectedNodeKeys}

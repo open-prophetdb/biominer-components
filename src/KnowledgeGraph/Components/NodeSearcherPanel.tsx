@@ -15,8 +15,10 @@ import {
   FileDoneOutlined,
   StepBackwardOutlined,
   UndoOutlined,
+  SaveOutlined,
+  ReadOutlined
 } from '@ant-design/icons';
-import { getMatrix, restoreMatrix } from '../utils';
+import { getMatrix, restoreMatrix, saveToLocalStorage } from '../utils';
 
 type NodeSearcherProps = {
   saveGraphDataFn?: (graphData: { nodes: GraphNode[]; edges: GraphEdge[] }, width: number, height: number, matrix: any) => void;
@@ -95,6 +97,17 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             }}
           />
         </Tooltip>
+        <Tooltip title="Save to Local Storage">
+          <Button
+            shape="circle"
+            icon={<SaveOutlined />}
+            onClick={() => {
+              // @ts-ignore
+              saveToLocalStorage(graph.save(), graph.getWidth(), graph.getHeight(), getMatrix(graph));
+              message.success(<span>Your graph data has been saved to the local storage temporarily.</span>, 5);
+            }}
+          />
+        </Tooltip>
         <Tooltip title="Auto Zoom">
           <Button
             shape="circle"
@@ -137,17 +150,6 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
               // @ts-ignore
               graph && graph.pushCustomStack();
               graph && graph.fitCenter(true);
-            }}
-          />
-        </Tooltip>
-        <Tooltip title="Only Clear Canvas">
-          <Button
-            shape="circle"
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              // @ts-ignore
-              graph && graph.pushCustomStack();
-              graph && graph.clear();
             }}
           />
         </Tooltip>

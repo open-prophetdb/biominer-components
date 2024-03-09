@@ -348,6 +348,45 @@ export const saveGraphDataToLocalStorage = (
   localStorage.setItem('presetGraphData', JSON.stringify(graphData));
 };
 
+export const saveToLocalStorage = (data: GraphData, width: number, height: number, matrix: any) => {
+  console.log('saveToLocalStorage: ', data, width, height, matrix);
+  // @ts-ignore
+  if (data.nodes.length > 0) {
+    console.log('Graph Data Changed: ', data);
+    const edges = data.edges as GraphEdge[];
+    const nodes = data.nodes as GraphNode[];
+    const payload = {
+      data: {
+        nodes: nodes,
+        edges: edges.map((edge: any) => {
+          return {
+            ...edge,
+            // They will cause the JSON.stringify to throw an error, so we need to remove them.
+            targetNode: undefined,
+            sourceNode: undefined,
+          };
+        }),
+      },
+      isDirty: false,
+      currentUUID: 'New Graph',
+      layout: {
+        width: width,
+        height: height,
+        // @ts-ignore
+        matrix: matrix
+      },
+    };
+
+    console.log('Graph Data Payload: ', payload);
+    saveGraphDataToLocalStorage(
+      payload.data,
+      payload.isDirty,
+      payload.currentUUID,
+      payload.layout,
+    );
+  }
+};
+
 export const clearGraphDataFromLocalStorage = () => {
   localStorage.removeItem('presetGraphData');
 };

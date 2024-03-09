@@ -47,7 +47,7 @@ import StatisticsDataArea from '../StatisticsDataArea';
 import { PromptItem } from './index.t';
 import Moveable from '../Moveable';
 import { message, Descriptions, Switch, Button, Select, Menu as AntdMenu } from 'antd';
-import { makeDataSource, defaultLayout, presetLayout, getMatrix, restoreMatrix } from './utils';
+import { makeDataSource, defaultLayout, presetLayout, getMatrix, restoreMatrix, saveToLocalStorage } from './utils';
 import { prepareGraphData, guessLink, guessSpecies } from '../utils';
 import type {
   OnNodeMenuClickFn,
@@ -999,6 +999,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [subgraphPrompts, setSubgraphPrompts] = useState<PromptItem[]>([]);
   const [undoStack, setUndoStack] = useState<Stack>(new Stack(50));
   const [matrix, setMatrix] = useState<any>(null);
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
+  const [graphData, setGraphData] = useState<GraphData>(data);
 
   const ref = React.useRef(null);
 
@@ -1106,7 +1109,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     // @ts-ignore
     const graph = ref.current?.graph;
     if (graph) {
-      setMatrix(graph.cfg.group.getMatrix());
+      setMatrix(getMatrix(graph));
     }
   };
 
@@ -1336,15 +1339,25 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     let graph = ref.current?.graph;
     let undoStack = graph?.getCustomUndoStack();
     let d = graph?.save()
+    let width = graph?.getWidth();
+    let height = graph?.getHeight();
     let matrix = getMatrix(graph);
     let dm = cloneDeep({
       data: d,
-      matrix: matrix
+      matrix: matrix,
+      width: width,
+      height: height,
     });
     console.log("pushUndoStack: ", dm, evt, typeof evt);
     if (undoStack && dm.data) {
       undoStack.push(dm);
     }
+
+    // TODO: ISSUE: We cannot get the latest graph data, width, height, and matrix. How to fix it? Enough for now.
+    setWidth(width);
+    setHeight(height);
+    setMatrix(matrix);
+    setGraphData(d);
   }
 
   const onClosePathsFinder = () => {
@@ -1709,7 +1722,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       maxStep={50}
       willUnmount={() => {
         console.log("GraphinWrapper will unmount, so we need to save the graph data.");
-        saveGraphData();
+        saveToLocalStorage(graphData, width, height, matrix);
       }}
     >
       {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
