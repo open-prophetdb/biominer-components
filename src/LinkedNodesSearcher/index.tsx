@@ -322,7 +322,6 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
             return triggerNode.parentNode;
           }}
           defaultActiveFirstOption={false}
-          showArrow={true}
           placeholder={'Please select a node type'}
           options={entityTypeOptions}
           filterOption={true}
@@ -345,7 +344,6 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           allowClear
           loading={loading}
           defaultActiveFirstOption={false}
-          showArrow={true}
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}
@@ -358,10 +356,10 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
                 loading
                   ? 'Searching...'
                   : entityOptions !== undefined
-                  ? 'Not Found or Too Short Input'
-                  : entityType === undefined
-                  ? 'Please select a node type first.'
-                  : `Enter your interested ${entityType} ...`
+                    ? 'Not Found or Too Short Input'
+                    : entityType === undefined
+                      ? 'Please select a node type first.'
+                      : `Enter your interested ${entityType} ...`
               }
             />
           }
@@ -378,7 +376,6 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
                     getPopupContainer={(triggeredNode: any) => document.body}
                     overlayClassName="entity-id-popover"
                     autoAdjustOverflow={false}
-                    showArrow={true}
                     destroyTooltipOnHide={true}
                     zIndex={1500}
                   >
@@ -428,7 +425,7 @@ const LinkedNodesSearcher: React.FC<LinkedNodesSearcherProps> = (props) => {
           allowClear
           autoClearSearchValue={false}
           placeholder="Please select relation types"
-          // options={relationTypeOptions}
+        // options={relationTypeOptions}
         >
           {relationTypeOptions.map((item: OptionType) => {
             return (

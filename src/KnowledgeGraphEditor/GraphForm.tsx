@@ -372,7 +372,6 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
               return triggerNode.parentNode;
             }}
             defaultActiveFirstOption={false}
-            showArrow={true}
             placeholder="Please select a node type."
             options={entityTypeOptions}
             filterOption={true}
@@ -394,7 +393,6 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
             }}
             loading={loading}
             defaultActiveFirstOption={false}
-            showArrow={true}
             placeholder={placeholder}
             onSearch={(value) => handleSearchEntity(sourceType, value)}
             options={entityOptions}
@@ -406,10 +404,10 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
                   loading
                     ? 'Searching...'
                     : entityOptions !== undefined
-                    ? 'Not Found or Too Short Input'
-                    : sourceType
-                    ? `Enter your interested ${sourceType} ...`
-                    : 'Select source node type first.'
+                      ? 'Not Found or Too Short Input'
+                      : sourceType
+                        ? `Enter your interested ${sourceType} ...`
+                        : 'Select source node type first.'
                 }
               />
             }
@@ -437,7 +435,6 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
               return triggerNode.parentNode;
             }}
             defaultActiveFirstOption={false}
-            showArrow={true}
             placeholder="Please select a node type."
             options={entityTypeOptions}
             filterOption={true}
@@ -459,7 +456,6 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
               return triggerNode.parentNode;
             }}
             defaultActiveFirstOption={false}
-            showArrow={true}
             placeholder={placeholder}
             onSearch={(value) => handleSearchEntity(targetType, value)}
             options={entityOptions}
@@ -471,10 +467,10 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
                   loading
                     ? 'Searching...'
                     : entityOptions !== undefined
-                    ? 'Not Found or Too Short Input'
-                    : targetType
-                    ? `Enter your interested ${targetType} ...`
-                    : 'Select source node type first.'
+                      ? 'Not Found or Too Short Input'
+                      : targetType
+                        ? `Enter your interested ${targetType} ...`
+                        : 'Select source node type first.'
                 }
               />
             }
@@ -504,7 +500,6 @@ const GraphForm: React.FC<GraphFormProps> = (props) => {
               return triggerNode.parentNode;
             }}
             defaultActiveFirstOption={false}
-            showArrow={true}
             placeholder="Please select a relationship type."
             // options={relationOptions}
             filterOption={false}

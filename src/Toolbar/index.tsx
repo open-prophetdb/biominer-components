@@ -108,7 +108,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         height={props.height ? props.height : '300px'}
         title={props.title ? props.title : false}
         getContainer={container}
-        style={{ position: 'absolute' }}
+        rootStyle={{ position: 'absolute' }}
         closable={props.closable ? props.closable : false}
         mask={props.maskVisible ? props.maskVisible : false}
         placement={position}

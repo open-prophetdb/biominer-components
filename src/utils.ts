@@ -310,16 +310,6 @@ export const fetchNodes = async (
   timeout = setTimeout(fetchData, 300);
 };
 
-export const presetLayout: Layout = {
-  type: 'preset',
-  options: undefined,
-};
-
-export const defaultLayout: Layout = {
-  type: 'force2',
-  options: undefined,
-};
-
 export const prepareGraphData = (
   graph: Graph,
 ): {

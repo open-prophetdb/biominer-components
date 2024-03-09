@@ -123,7 +123,6 @@ const SharedNodesSearcher: React.FC<SharedNodesSearcherProps> = (props) => {
           allowClear
           mode="multiple"
           defaultActiveFirstOption={false}
-          showArrow={true}
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}

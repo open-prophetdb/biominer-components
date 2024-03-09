@@ -101,7 +101,6 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
           return triggerNode.parentNode;
         }}
         defaultActiveFirstOption={false}
-        showArrow={true}
         placeholder={placeholder}
         onSearch={handleSearch}
         onChange={handleChange}
@@ -113,10 +112,10 @@ const QueryBuilder: React.FC<QueryBuilderProps> = (props) => {
               loading
                 ? 'Searching...'
                 : entityOptions !== undefined
-                ? 'Not Found or Too Short Input'
-                : entityType === undefined
-                ? `Please select a node type ...`
-                : `Enter your interested ${entityType} ...`
+                  ? 'Not Found or Too Short Input'
+                  : entityType === undefined
+                    ? `Please select a node type ...`
+                    : `Enter your interested ${entityType} ...`
             }
           />
         }

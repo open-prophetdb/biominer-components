@@ -24,7 +24,7 @@ export type LayoutConfig = {
 
 export type Layout = {
   type?: string;
-  options?: Record<string, number | string | boolean>;
+  options?: Record<string, number | string | boolean | string[] | number[]>;
   width?: number;
   height?: number;
   matrix?: number[][];

@@ -105,7 +105,6 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
         <Select
           allowClear
           defaultActiveFirstOption={false}
-          showArrow={true}
           getPopupContainer={(triggerNode) => {
             return triggerNode.parentNode;
           }}
@@ -134,7 +133,6 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
           }}
           loading={loading}
           defaultActiveFirstOption={false}
-          showArrow={true}
           placeholder={placeholder}
           onSearch={(value) => handleSearchNode(entityType, value)}
           filterOption={false}
@@ -144,10 +142,10 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
                 loading
                   ? 'Searching...'
                   : entityOptions !== undefined
-                  ? 'Not Found or Too Short Input'
-                  : entityType === undefined
-                  ? 'Please select a node type first.'
-                  : `Enter your interested ${entityType} ...`
+                    ? 'Not Found or Too Short Input'
+                    : entityType === undefined
+                      ? 'Please select a node type first.'
+                      : `Enter your interested ${entityType} ...`
               }
             />
           }
@@ -164,7 +162,6 @@ const SimilarityNodesSearcher: React.FC<SimilarityNodesSearcherProps> = (props) 
                     getPopupContainer={(triggeredNode: any) => document.body}
                     overlayClassName="entity-id-popover"
                     autoAdjustOverflow={false}
-                    showArrow={true}
                     destroyTooltipOnHide={true}
                     zIndex={1500}
                   >

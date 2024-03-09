@@ -144,7 +144,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
             return triggerNode.parentNode;
           }}
           defaultActiveFirstOption={false}
-          showArrow={true}
           placeholder={'Please select a node type'}
           options={entityTypeOptions}
           filterOption={true}
@@ -167,7 +166,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           allowClear
           loading={loading}
           defaultActiveFirstOption={false}
-          showArrow={true}
           placeholder={placeholder}
           onSearch={(value) => handleSearchNode(entityType, value)}
           getPopupContainer={(triggerNode) => {
@@ -181,10 +179,10 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
                 loading
                   ? 'Searching...'
                   : entityOptions !== undefined
-                  ? 'Not Found or Too Short Input'
-                  : entityType === undefined
-                  ? 'Please select a node type first.'
-                  : `Enter your interested ${entityType} ...`
+                    ? 'Not Found or Too Short Input'
+                    : entityType === undefined
+                      ? 'Please select a node type first.'
+                      : `Enter your interested ${entityType} ...`
               }
             />
           }
@@ -201,7 +199,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
                     getPopupContainer={(triggeredNode: any) => document.body}
                     overlayClassName="entity-id-popover"
                     autoAdjustOverflow={false}
-                    showArrow={true}
                     destroyTooltipOnHide={true}
                     zIndex={1500}
                   >
@@ -229,7 +226,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
           mode="multiple"
           allowClear
           defaultActiveFirstOption={false}
-          showArrow={true}
           onSelect={clearNodeIdType}
           placeholder={'Please select composed node id'}
           getPopupContainer={(triggerNode) => {
@@ -249,7 +245,6 @@ const BatchNodesSearcher: React.FC<BatchNodesSearcherProps> = (props) => {
                     getPopupContainer={(triggeredNode: any) => document.body}
                     overlayClassName="entity-id-popover"
                     autoAdjustOverflow={false}
-                    showArrow={true}
                     destroyTooltipOnHide={true}
                     zIndex={1500}
                   >

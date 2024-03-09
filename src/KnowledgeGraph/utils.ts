@@ -334,6 +334,7 @@ export const saveGraphDataToLocalStorage = (
   currentUUID: string,
   layout: Layout,
 ) => {
+  // We don't like to save the empty graph data, if a user would like to save the empty graph data, they can use the clear button.
   if (!data || !data.nodes || data.nodes.length == 0) {
     return;
   }
@@ -349,4 +350,47 @@ export const saveGraphDataToLocalStorage = (
 
 export const clearGraphDataFromLocalStorage = () => {
   localStorage.removeItem('presetGraphData');
+};
+
+export const presetLayout: Layout = {
+  type: 'preset',
+  options: undefined,
+};
+
+export const getMatrix = (graph: Graph): any => {
+  if (graph) {
+    // @ts-ignore
+    return graph.cfg.group.getMatrix();
+  } else {
+    return {};
+  }
+}
+
+export const restoreMatrix = (graph: Graph, matrix: any) => {
+  if (!graph || !matrix) {
+    return;
+  }
+
+  // @ts-ignore
+  graph.cfg.group.setMatrix(matrix);
+}
+
+export const defaultLayout: Layout = {
+  type: 'force2',
+  options: {
+    animate: true,
+    preset: 'random',
+    linkDistance: 100,
+    nodeStrength: 1000,
+    edgeStrength: 10,
+    preventOverlap: true,
+    nodeSize: 30,
+    nodeSpacing: 10,
+    minMovement: 0.5,
+    maxIteration: 1000,
+    clustering: true,
+    nodeClusterBy: 'cluster',
+    workerEnabled: false,
+    center: [1000, 1000],
+  },
 };

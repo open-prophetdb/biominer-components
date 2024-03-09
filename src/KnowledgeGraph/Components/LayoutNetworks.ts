@@ -473,7 +473,7 @@ const layouts: LayoutConfig[] = [
         title: 'Edge Strength',
         defaultValue: 100,
         min: 100,
-        max: 10000,
+        max: 300,
         description: 'The Strength of the Force Applied to the Edge.',
       },
       {

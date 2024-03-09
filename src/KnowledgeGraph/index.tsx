@@ -43,7 +43,7 @@ import {
   loadLlmResponsesFromLocalStorage,
   clearLlmResponsesFromLocalStorage,
 } from './utils';
-import { presetLayout, defaultLayout } from '../utils';
+import { presetLayout, defaultLayout } from './utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';

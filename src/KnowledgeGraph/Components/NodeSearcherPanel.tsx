@@ -16,8 +16,10 @@ import {
   StepBackwardOutlined,
   UndoOutlined,
 } from '@ant-design/icons';
+import { getMatrix, restoreMatrix } from '../utils';
 
 type NodeSearcherProps = {
+  saveGraphDataFn?: (graphData: { nodes: GraphNode[]; edges: GraphEdge[] }, width: number, height: number, matrix: any) => void;
   changeSelectedNodes?: (selectedNodes: string[]) => void;
   changeSelectedEdges?: (selectedEdges: string[]) => void;
 };
@@ -71,13 +73,25 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             onClick={() => {
               // @ts-ignore
               const undoStack = graph.getCustomUndoStack();
+              const undoData = undoStack.pop();
+              console.log('NodeSearcherPanel- undoStack: ', undoStack, undoData);
+              let data = undoData?.data;
+              let matrix = undoData?.matrix;
+
+              if (data) {
+                restoreMatrix(graph, matrix);
+                // We must set the layout type to preset before updating the graph data, otherwise it will layout twice.
+                graph.updateLayout({
+                  type: 'preset',
+                });
+                graph.changeData(data, false);
+              }
+
               if (undoStack.length === 0) {
                 message.info('No more undo');
-              };
-
-              console.log('NodeSearcherPanel- undoStack: ', undoStack);
-              const undoData = undoStack.pop();
-              graph.changeData(undoData, false);
+                // We must update the graph data into the KnowledgeGraph component when the graph data are empty, otherwise it will mess up some operations in the future.
+                props.saveGraphDataFn && props.saveGraphDataFn({ nodes: [], edges: [] }, graph.getWidth(), graph.getHeight(), getMatrix(graph));
+              }
             }}
           />
         </Tooltip>
@@ -86,6 +100,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<DragOutlined />}
             onClick={() => {
+              // @ts-ignore
+              graph && graph.pushCustomStack();
               apis && apis.handleAutoZoom();
             }}
           />
@@ -95,6 +111,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<ZoomInOutlined />}
             onClick={() => {
+              // @ts-ignore
+              graph && graph.pushCustomStack();
               // TODO: Why is this not consistent with the icon?
               apis && apis.handleZoomOut();
             }}
@@ -105,6 +123,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<ZoomOutOutlined />}
             onClick={() => {
+              // @ts-ignore
+              graph && graph.pushCustomStack();
               apis && apis.handleZoomIn();
             }}
           />
@@ -114,6 +134,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<ColumnWidthOutlined />}
             onClick={() => {
+              // @ts-ignore
+              graph && graph.pushCustomStack();
               graph && graph.fitCenter(true);
             }}
           />
@@ -123,6 +145,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
             shape="circle"
             icon={<DeleteOutlined />}
             onClick={() => {
+              // @ts-ignore
+              graph && graph.pushCustomStack();
               graph && graph.clear();
             }}
           />
@@ -147,7 +171,6 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
         allowClear
         loading={searchLoading}
         defaultActiveFirstOption={false}
-        showArrow={true}
         placement={'topRight'}
         placeholder={'Search nodes'}
         getPopupContainer={(triggerNode) => {
@@ -163,8 +186,8 @@ const NodeSearcher: React.FC<NodeSearcherProps> = (props) => {
               searchLoading
                 ? 'Searching...'
                 : nodeOptions !== undefined
-                ? 'Not Found or Too Short Input'
-                : `Enter your interested node ...`
+                  ? 'Not Found or Too Short Input'
+                  : `Enter your interested node ...`
             }
           />
         }
