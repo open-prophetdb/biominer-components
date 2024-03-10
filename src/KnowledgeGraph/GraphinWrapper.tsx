@@ -1733,8 +1733,13 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
       // You can increase the maxStep if you want to save more history steps.
       maxStep={50}
       willUnmount={() => {
-        console.log("GraphinWrapper will unmount, so we need to save the graph data.");
-        saveToLocalStorage(graphData, width, height, matrix);
+        // We don't need to save the graph data when the graph is empty
+        // TODO: Need to test whether it works.
+        // @ts-ignore
+        if (props.data.nodes.length > 0 || ref.current?.graph?.getNodes().length > 0) {
+          console.log("GraphinWrapper will unmount, so we need to save the graph data.");
+          saveToLocalStorage(graphData, width, height, matrix);
+        }
       }}
     >
       {/* TODO: Cannot work. To expect all linked nodes follow the draged node. */}
