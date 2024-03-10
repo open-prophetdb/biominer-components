@@ -43,7 +43,7 @@ import {
   loadLlmResponsesFromLocalStorage,
   clearLlmResponsesFromLocalStorage,
 } from './utils';
-import { presetLayout, defaultLayout } from './utils';
+import { presetLayout, defaultLayout, cleanGraphData } from './utils';
 import NodeInfoPanel from '../NodeInfoPanel';
 import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
@@ -878,36 +878,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
           });
       }
     } else if (menuItem.key.match(/explain_subgraph_.*$/)) {
-      // explain-subgraph menu
-      const cleanData = (data: GraphData) => {
-        return {
-          nodes: data.nodes.map((node) => {
-            return {
-              id: node.id,
-              name: node.data.name,
-              label: node.data.label,
-              description: node.data.description,
-              xrefs: node.data.xrefs || '',
-              synonyms: node.data.synonyms || '',
-            };
-          }),
-          edges: data.edges.map((edge) => {
-            return {
-              source: edge.source,
-              target: edge.target,
-              reltype: edge.reltype,
-              reltype_desc: edge.description || '',
-              key_sentence: edge.data.key_sentence || '',
-              score: edge.data.score || 0,
-              resource: edge.data.resource || '',
-            };
-          }),
-        };
-      };
       const nodeLabel = node.data.label;
       if (nodeLabel === 'Disease') {
         const diseaseName = node.data.name;
-        const subgraph = JSON.stringify(cleanData(data));
+        const subgraph = JSON.stringify(cleanGraphData(data));
         console.log('Explain Subgraph: ', diseaseName, subgraph, menuItem.key);
 
         if (props.apis.AskLlmFn) {

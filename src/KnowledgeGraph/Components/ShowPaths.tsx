@@ -12,6 +12,7 @@ import { ClearOutlined, TableOutlined, SearchOutlined } from '@ant-design/icons'
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { sortBy, uniqBy } from 'lodash';
 import MarkdownViewer from '../../MarkdownViewer';
+import { cleanGraphData } from '../utils';
 
 import './ShowPaths.less';
 
@@ -557,7 +558,7 @@ const ShowPaths = (props: ShowPathProps) => {
                   }, {
                     subgraph_with_disease_ctx: {
                       disease_name: record.path,
-                      subgraph: JSON.stringify(subgraph),
+                      subgraph: JSON.stringify(cleanGraphData(subgraph)),
                     }
                   }).then((llmresponse: LlmResponse) => {
                     const data = [...pathTableData];

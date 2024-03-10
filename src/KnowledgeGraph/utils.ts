@@ -433,3 +433,30 @@ export const defaultLayout: Layout = {
     center: [1000, 1000],
   },
 };
+
+// explain-subgraph menu
+export const cleanGraphData = (data: GraphData) => {
+  return {
+    nodes: data.nodes.map((node) => {
+      return {
+        id: node.id,
+        name: node.data.name,
+        label: node.data.label,
+        description: node.data.description,
+        xrefs: node.data.xrefs || '',
+        synonyms: node.data.synonyms || '',
+      };
+    }),
+    edges: data.edges.map((edge) => {
+      return {
+        source: edge.source,
+        target: edge.target,
+        reltype: edge.reltype,
+        reltype_desc: edge.description || '',
+        key_sentence: edge.data.key_sentence || '',
+        score: edge.data.score || 0,
+        resource: edge.data.resource || '',
+      };
+    }),
+  };
+};
