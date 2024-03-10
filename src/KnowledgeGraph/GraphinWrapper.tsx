@@ -61,7 +61,7 @@ import type {
   CanvasMenuItem,
   EdgeInfo,
 } from './typings';
-import type { GraphNode, GraphEdge, SearchObjectInterface } from '../typings';
+import type { GraphNode, GraphEdge, SearchObjectInterface, APIs } from '../typings';
 import ShowPaths from './Components/ShowPaths';
 import NodeSearcherPanel from './Components/NodeSearcherPanel';
 import HighlightNodeEdge from './Components/HighlightNodeEdge';
@@ -945,6 +945,7 @@ export type GraphinProps = {
   onDataChanged?: (graph: GraphData, width: number, height: number, matrix: any) => void;
   prompts?: PromptItem[];
   layout?: Layout;
+  askLlmFn?: APIs["AskLlmFn"],
 };
 
 type GraphinSettings = {
@@ -1173,9 +1174,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         e.returnValue = ''; // 显示默认的离开确认对话框
 
         console.log('handleBeforeUnload: ', e);
+        saveGraphData();
       };
 
-      window.addEventListener('beforeunload', handleBeforeUnload);
+      // window.addEventListener('beforeunload', handleBeforeUnload);
       window.addEventListener('keydown', handleSaveShortcut);
 
       return () => {
@@ -1190,7 +1192,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
         graph.off('node:dragstart', pushUndoStackWithinEvent);
         graph.off('canvas:dragstart', pushUndoStackWithinEvent);
 
-        window.removeEventListener('beforeunload', handleBeforeUnload);
+        // window.removeEventListener('beforeunload', handleBeforeUnload);
         window.removeEventListener('keydown', handleSaveShortcut);
         window.onresize = null;
       };
@@ -2028,6 +2030,7 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
             adjacencyList={adjacencyList}
             // TODO: hard code here, need to be fixed. If you choose dfs, it will be very slow. But we can get all paths. How to improve the performance or get all paths by using other methods?
             algorithm={data.edges.length > 1000 ? 'bfs' : 'dfs'}
+            explainPath={props.askLlmFn}
           />
         </>
       ) : null}

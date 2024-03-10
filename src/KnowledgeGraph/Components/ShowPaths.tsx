@@ -1,6 +1,6 @@
 import { GraphinContext } from '@antv/graphin';
 import React, { useContext, useEffect, useState } from 'react';
-import type { GraphNode, GraphEdge } from '../../typings';
+import type { GraphNode, GraphEdge, GraphData, APIs, LlmResponse } from '../../typings';
 import type { AdjacencyList } from '../typings';
 import { message, Button, Table, Row, Space, notification, Input } from 'antd';
 import Movable from '../../Moveable';
@@ -11,6 +11,7 @@ import Highlighter from 'react-highlight-words';
 import { ClearOutlined, TableOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { sortBy, uniqBy } from 'lodash';
+import MarkdownViewer from '../../MarkdownViewer';
 
 import './ShowPaths.less';
 
@@ -21,6 +22,7 @@ type ShowPathProps = {
   algorithm: 'bfs' | 'dfs'; // algorithm to use for finding paths, either bfs or dfs. Recommended bfs if there are many paths, such as in a graph which is more than 150 edges.
   adjacencyList: AdjacencyList; // adjacency list
   onClosePathsFinder: () => void;
+  explainPath?: APIs["AskLlmFn"];
 };
 
 type PathItem = {
@@ -28,6 +30,7 @@ type PathItem = {
   index: number;
   nsteps: number;
   path: string;
+  description?: string;
 };
 
 function findAllPathsBFS(
@@ -186,6 +189,31 @@ const ShowPaths = (props: ShowPathProps) => {
   const [currentPath, setCurrentPath] = useState<string | null>(null);
   const [pathTableVisible, setPathTableVisible] = useState<boolean>(false);
   const [pathTableData, setPathTableData] = useState<PathItem[]>([]);
+  const [pathExplainingData, setPathExplainingData] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const savePathExplainingDataToLS = (path: string, description: string) => {
+    const data = { ...pathExplainingData };
+    data[path] = description;
+    setPathExplainingData(data);
+    localStorage.setItem('pathExplainingData', JSON.stringify(data));
+  }
+
+  const loadPathExplainingDataFromLS = () => {
+    const data = localStorage.getItem('pathExplainingData');
+    if (data) {
+      try {
+        setPathExplainingData(JSON.parse(data));
+      } catch (e) {
+        setPathExplainingData({});
+        console.error('Failed to parse path explaining data from local storage', e);
+      }
+    }
+  }
+
+  useEffect(() => {
+    loadPathExplainingDataFromLS();
+  }, []);
 
   useEffect(() => {
     if (props.selectedNodes.length <= 1) {
@@ -252,7 +280,13 @@ const ShowPaths = (props: ShowPathProps) => {
     setPathTableData(uniqBy(sortBy(data, ['nsteps']), 'path'));
   }, [paths]);
 
-  function handleShowPath(paths: Path[]) {
+  const getNodesEdges = (path: Path): GraphData => {
+    const nodes = props.nodes.filter((node) => path.nodes.includes(node.id));
+    const edges = props.edges.filter((edge) => path.edges.includes(edge.relid));
+    return { nodes, edges };
+  }
+
+  const handleShowPath = (paths: Path[]) => {
     clearStatus();
 
     const anyPaths = paths.some((path) => path.nodes.length > 0);
@@ -284,7 +318,7 @@ const ShowPaths = (props: ShowPathProps) => {
     });
   }
 
-  function clearStatus() {
+  const clearStatus = () => {
     const nodes = graph.getNodes();
     nodes.forEach((node) => {
       graph.setItemState(node, 'inactive', false);
@@ -296,7 +330,7 @@ const ShowPaths = (props: ShowPathProps) => {
     });
   }
 
-  function handleClear(paths: Path[]) {
+  const handleClear = (paths: Path[]) => {
     const allNodes = [...new Set(paths.flatMap((path) => path.nodes))];
     const allEdges = [...new Set(paths.flatMap((path) => path.edges))];
 
@@ -429,11 +463,17 @@ const ShowPaths = (props: ShowPathProps) => {
     filterIcon: (filtered: boolean) => (
       <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        .toString()
-        .toLowerCase()
-        .includes((value as string).toLowerCase()),
+    onFilter: (value, record) => {
+      if (record && record[dataIndex]) {
+        // @ts-ignore
+        return record[dataIndex]
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase());
+      } else {
+        return false;
+      }
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -498,13 +538,48 @@ const ShowPaths = (props: ShowPathProps) => {
             size="small"
             type="link"
             onClick={(e) => {
-              notification.open({
-                type: 'info',
-                message: 'Explain the Current Path',
-                description:
-                  'Not implemented yet (We will try to train a LLM with knowledge graph to explain why the path would be believable)',
-                duration: 10,
-              });
+              const pathKey = record.key;
+              const pathIndex = record.index;
+              const subgraph = getNodesEdges(paths[pathKey][pathIndex]);
+
+              if (props.explainPath) {
+                const description = pathExplainingData[record.path];
+                if (description) {
+                  const data = [...pathTableData];
+                  data[index].description = description;
+                  setPathTableData(data);
+                } else {
+                  setLoading(true);
+                  // TODO: Temporary usecase, do we need to use more specific api or not?
+                  console.log('Explain the path', record.path, subgraph);
+                  props.explainPath({
+                    prompt_template_id: 'explain_path_within_subgraph',
+                  }, {
+                    subgraph_with_disease_ctx: {
+                      disease_name: record.path,
+                      subgraph: JSON.stringify(subgraph),
+                    }
+                  }).then((llmresponse: LlmResponse) => {
+                    const data = [...pathTableData];
+                    data[index].description = llmresponse.response;
+                    setPathTableData(data);
+                    savePathExplainingDataToLS(record.path, description);
+                    setLoading(false);
+                  }).catch((e) => {
+                    console.error('Failed to explain the path', e);
+                    message.error('Failed to explain the path, please try again later.');
+                    setLoading(false);
+                  })
+                }
+              } else {
+                notification.open({
+                  type: 'info',
+                  message: 'Explain the Current Path',
+                  description:
+                    'Not opened yet (This function is using a LLM with knowledge graph to explain why the path would be believable)',
+                  duration: 10,
+                });
+              }
             }}
           >
             Explain
@@ -534,6 +609,7 @@ const ShowPaths = (props: ShowPathProps) => {
           width="600px"
         >
           <Table
+            loading={loading}
             className="path-table"
             rowKey={(item) => {
               return `${item.index}-${item.path}`;
@@ -551,6 +627,12 @@ const ShowPaths = (props: ShowPathProps) => {
               showTotal: (total) => {
                 return `Total ${total} items`;
               },
+            }}
+            expandable={{
+              expandedRowRender: (record) => <MarkdownViewer markdown={
+                record.description || 'Please click the `Explain` button to generate an explainable description for this path.'
+              } />,
+              rowExpandable: (record) => record.description !== undefined,
             }}
           />
         </Movable>

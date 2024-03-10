@@ -1269,6 +1269,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             <GraphinWrapper
               layout={layout}
               prompts={prompts}
+              askLlmFn={props.apis.AskLlmFn}
               onDataChanged={(graphData: GraphData, width: number, height: number, matrix: any) => {
                 if (graphData) {
                   // Reset the initial data, otherwise the data will have not chance to be updated.
