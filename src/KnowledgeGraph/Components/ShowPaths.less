@@ -3,6 +3,10 @@
   top: 35px;
   right: 10px;
 
+  .explanation-content {
+    min-height: 400px !important;
+  }
+  
   .title {
     display: flex;
     flex-direction: row;
@@ -58,8 +62,13 @@
   // }
 
   .path-table {
-    width: 600px;
+    width: 100% !important;
     height: 100%;
+
+    .ant-table-body {
+      max-height: unset !important;
+      min-height: 200px;
+    }
 
     .ant-table-title {
       div {
@@ -74,9 +83,9 @@
     }
 
     .ant-pagination {
-      margin: 0px;
-      padding: 0px 0px 5px;
-      background-color: #ffffff;
+      margin: 0;
+      padding: 0 0 5px;
+      background-color: #fff;
     }
   }
 
@@ -84,7 +93,7 @@
     --moveable-color: unset;
 
     .moveable-origin {
-      border-color: #ffffff;
+      border-color: #fff;
     }
 
     .moveable-control {

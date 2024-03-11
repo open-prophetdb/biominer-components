@@ -566,6 +566,7 @@ const ShowPaths = (props: ShowPathProps) => {
                     setPathTableData(data);
                     savePathExplainingDataToLS(record.path, description);
                     setLoading(false);
+                    message.success('Explain the path successfully, you can click the `+` button before the path to see the explanation.', 3);
                   }).catch((e) => {
                     console.error('Failed to explain the path', e);
                     message.error('Failed to explain the path, please try again later.');
@@ -634,6 +635,11 @@ const ShowPaths = (props: ShowPathProps) => {
                 record.description || 'Please click the `Explain` button to generate an explainable description for this path.'
               } />,
               rowExpandable: (record) => record.description !== undefined,
+              expandedRowKeys: pathTableData.filter((item) => {
+                return item.description !== undefined;
+              }).map((item) => {
+                return `${item.index}-${item.path}`
+              })
             }}
           />
         </Movable>
