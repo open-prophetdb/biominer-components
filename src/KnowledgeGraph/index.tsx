@@ -727,7 +727,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const source_name = source.data.name;
       const target_name = target.data.name;
       const relation_type = edge.reltype;
-      const context_str = `${source_name}#${target_name}#${relation_type}`;
+      const context_str = `${source_name}#${relation_type}#${target_name}`;
       const subgraph = JSON.stringify(cleanGraphData(data));
 
       if (props.apis.AskLlmFn) {

@@ -397,8 +397,9 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
                     props.onExplainRow && props.onExplainRow(selectedRows[0]);
                   } 
                 },
-                disabled: (props.onExplainRow && params.node.isSelected() && params.api.getSelectedRows().length === 1) ? false : true,
+                disabled: (props.onExplainRow && params.node?.isSelected() && params.api.getSelectedRows().length === 1) ? false : true,
               },
+              'separator',
               {
                 name: 'Delete Selected Relations (Only)',
                 action: function () {
@@ -406,7 +407,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
                   params.api.applyTransaction({ remove: selectedRows });
                   props.onDeletedRows && props.onDeletedRows(selectedRows, []);
                 },
-                disabled: params.node.isSelected() ? false : true,
+                disabled: params.node?.isSelected() ? false : true,
               },
               {
                 name: 'Delete Selected Relations and Nodes',
