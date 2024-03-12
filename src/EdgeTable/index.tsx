@@ -29,6 +29,7 @@ export interface EdgeTableProps {
   selectedKeys?: string[];
   onSelectedRows?: (selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => void;
   onDeletedRows?: (deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => void;
+  onExplainRow?: (selectedRow: EdgeAttribute) => void;
   edges: EdgeAttribute[];
   edgeStat?: RelationStat[];
 }
@@ -388,6 +389,16 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
           autoSizeStrategy={autoSizeStrategy}
           getContextMenuItems={(params: any) => {
             var result = [
+              {
+                name: 'Explain the Current Predicted Relation',
+                action: function () {
+                  const selectedRows = params.api.getSelectedRows()
+                  if (selectedRows.length === 1) {
+                    props.onExplainRow && props.onExplainRow(selectedRows[0]);
+                  } 
+                },
+                disabled: (props.onExplainRow && params.node.isSelected() && params.api.getSelectedRows().length === 1) ? false : true,
+              },
               {
                 name: 'Delete Selected Relations (Only)',
                 action: function () {

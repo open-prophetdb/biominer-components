@@ -556,8 +556,8 @@ const ShowPaths = (props: ShowPathProps) => {
                   props.explainPath({
                     prompt_template_id: 'explain_path_within_subgraph',
                   }, {
-                    subgraph_with_disease_ctx: {
-                      disease_name: record.path,
+                    subgraph_with_ctx: {
+                      context_str: record.path,
                       subgraph: JSON.stringify(cleanGraphData(subgraph)),
                     }
                   }).then((llmresponse: LlmResponse) => {

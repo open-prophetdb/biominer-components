@@ -26,6 +26,8 @@ export interface GraphTableProps {
   onSelectedEdges?: (selectedRows: EdgeAttribute[]) => Promise<void>;
   onDeletedEdges?: (deletedRows: EdgeAttribute[], deletedNodes: SimpleNode[]) => Promise<void>;
   edgeStat?: RelationStat[];
+  // To generate an attention subgraph which contains the selected edge, its related two nodes and the top 10 nodes which have the higher score with the two nodes.
+  onExplainRow?: (row: EdgeAttribute) => void;
 }
 
 const GraphTable: React.FC<GraphTableProps> = (props) => {
@@ -168,6 +170,7 @@ const GraphTable: React.FC<GraphTableProps> = (props) => {
           edgeStat={props.edgeStat}
           edges={annoEdgeDataSources as EdgeAttribute[]}
           selectedKeys={props.selectedEdgeKeys}
+          onExplainRow={props.onExplainRow}
           onSelectedRows={(selectedRows: EdgeAttribute[], oldSelectedRows: EdgeAttribute[]) => {
             const selectedEdgeIds = uniq(selectedRows.map((row) => row.relid));
             const selectedNodeIds = uniq(

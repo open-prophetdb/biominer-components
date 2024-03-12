@@ -723,6 +723,54 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       const uniqNodeKeys = uniq(allNodeKeys);
       setSelectedEdgeKeys(uniqEdgeKeys);
       setSelectedNodeKeys(uniqNodeKeys);
+    } else if (menuItem.key.match(/explain_path_with_attention_subgraph/)) {
+      const source_name = source.data.name;
+      const target_name = target.data.name;
+      const relation_type = edge.reltype;
+      const context_str = `${source_name}#${target_name}#${relation_type}`;
+      const subgraph = JSON.stringify(cleanGraphData(data));
+
+      if (props.apis.AskLlmFn) {
+        message.info(
+          "Explaining the edge with an attention subgraph, please wait a moment...(Don't leave this page)",
+          5,
+        );
+        setLoading(true);
+        props.apis
+          .AskLlmFn(
+            { prompt_template_id: menuItem.key },
+            {
+              subgraph_with_ctx: {
+                context_str: context_str,
+                subgraph: subgraph,
+              },
+            },
+          )
+          .then((response) => {
+            console.log('AskLlmFn Response: ', response);
+            // Get the unique key for the current graph
+            let uniqueKey = genUniqueKey4Graph(data);
+            let record: Record<string, LlmResponse & { title: string }> = {
+              [`edge_${uniqueKey}`]: {
+                ...response,
+                title: `Edge - ${context_str}`,
+              },
+            };
+            setLlmResponse({
+              ...llmResponse,
+              ...record,
+            });
+            setExplanationPanelVisible(true);
+            setLoading(false);
+          })
+          .catch((error) => {
+            console.log('AskLlmFn Error: ', error);
+            message.warning('The AskLlm function encounter an error, please try again later.', 5);
+            setLoading(false);
+          });
+      } else {
+        message.warning('The admin has not enabled the AskLlm function.', 5);
+      }
     } else if (menuItem.key.match(/explain_edge_.*/)) {
       const expandedRelation = {
         source: {
@@ -894,8 +942,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
             .AskLlmFn(
               { prompt_template_id: menuItem.key },
               {
-                subgraph_with_disease_ctx: {
-                  disease_name: diseaseName,
+                subgraph_with_ctx: {
+                  context_str: diseaseName,
                   subgraph: subgraph,
                 },
               },
