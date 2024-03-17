@@ -56,22 +56,20 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
         });
     }, [props.queryStr, page, pageSize]);
 
-    const showPublication = (doc_id: string) => () => {
-        console.log('Show Publication: ', doc_id);
-        if (publicationMap[doc_id]) {
+    const showPublication = async (publication: PublicationDetail) => {
+        console.log('Show Publication: ', publication);
+        if (publication) {
             console.log('Publication Map: ', publicationMap);
-            const link = publicationMap[doc_id]?.provider_url;
-            const doi_link = "https://doi.org/" + publicationMap[doc_id]?.doi;
+            const link = publication?.provider_url;
+            const doi_link = "https://doi.org/" + publication?.doi;
 
-            if (doi_link) {
+            if (publication?.doi) {
                 window.open(doi_link, '_blank');
             } else if (link) {
                 window.open(link, '_blank');
             } else {
                 message.warning('No link available for this publication');
             }
-        } else {
-            showAbstract(doc_id);
         }
     };
 
@@ -104,7 +102,17 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
                     <List.Item>
                         <List.Item.Meta
                             avatar={<FileProtectOutlined />}
-                            title={<a onClick={showPublication(item.doc_id)}>{item.title}</a>}
+                            title={<a onClick={(e) => {
+                                if (publicationMap[item.doc_id]) {
+                                    showPublication(publicationMap[item.doc_id])
+                                } else {
+                                    showAbstract(item.doc_id).then((publication) => {
+                                        showPublication(publication);
+                                    }).catch((error) => {
+                                        message.error('Failed to fetch publication details');
+                                    });
+                                }
+                            }}>{item.title}</a>}
                             description={
                                 <PublicationDesc summary={item.summary} authors={item.authors}
                                     journal={item.journal} year={item.year}
