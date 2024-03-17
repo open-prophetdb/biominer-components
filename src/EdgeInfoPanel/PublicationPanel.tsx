@@ -17,6 +17,7 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
     const [page, setPage] = useState<number>(0);
     const [total, setTotal] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
+    const [loading, setLoading] = useState<boolean>(false);
     const [publicationMap, setPublicationMap] = useState<Record<string, PublicationDetail>>({});
 
     const showAbstract = (doc_id: string): Promise<PublicationDetail> => {
@@ -41,11 +42,17 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
             return;
         }
 
+        setLoading(true);
         props.fetchPublications && props.fetchPublications(props.queryStr, 0, 10).then((publications) => {
             setPublications(publications.records);
             setPage(publications.page);
             setTotal(publications.total);
             setPageSize(publications.page_size);
+        }).catch((error) => {
+            console.error('Error: ', error);
+            message.error('Failed to fetch publications');
+        }).finally(() => {
+            setLoading(false);
         });
     }, [props.queryStr, page, pageSize]);
 
@@ -72,11 +79,12 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
         <>
             <div className='publication-panel-header'>
                 <h3>
-                    Relevant Publications
+                    Relevant Publications [Click the title to view the publication]
                 </h3>
                 <span>Keywords: {props.queryStr.split('#').join(', ')}</span>
             </div>
             <List
+                loading={loading}
                 itemLayout="horizontal"
                 rowKey={'doc_id'}
                 dataSource={publications}

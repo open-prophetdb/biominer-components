@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from 'antd';
+import parse from 'html-react-parser';
 
 export const SEPARATOR = '#';
 
@@ -43,7 +44,7 @@ const Desc: React.FC<{
     return (
         <div>
             <p>
-                {highlightWords(props.summary, props.queryStr.split(SEPARATOR))}
+                {parse(highlightWords(props.summary, props.queryStr.split(SEPARATOR)))}
                 <Button type="link" onClick={() => {
                     if (abstractVisible) {
                         setAbstractVisible(false);
@@ -56,7 +57,7 @@ const Desc: React.FC<{
             </p>
             {
                 abstractVisible ?
-                    <p>{highlightWords(abstract, props.queryStr.split(SEPARATOR))}</p> : null
+                    <p>{parse(highlightWords(abstract, props.queryStr.split(SEPARATOR)))}</p> : null
             }
             <p>
                 {props.year} | {props.journal} &nbsp; | &nbsp; {props.authors ? props.authors.join(', ') : 'Unknown'}
