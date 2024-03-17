@@ -1,4 +1,4 @@
-import type { GraphNode, GraphEdge } from '../typings';
+import type { GraphNode, GraphEdge, APIs } from '../typings';
 
 export type EdgeInfo = {
   startNode: GraphNode;
@@ -12,4 +12,14 @@ export type EdgeInfoPanelProps = {
    * @default undefined
    */
   edgeInfo?: EdgeInfo;
+  /**
+   * @description The function to fetch publications
+   * @default undefined
+   */
+  fetchPublications?: APIs['GetPublicationsFn'];
+  /**
+   * @description The function to fetch publication
+   * @default undefined
+   */
+  fetchPublication?: APIs['GetPublicationFn'];
 };

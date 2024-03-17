@@ -135,7 +135,7 @@ const EdgeMenu = (props: EdgeMenuProps) => {
     {
       key: 'show-edge-details',
       icon: <InfoCircleFilled />,
-      disabled: true,
+      // disabled: true,
       title:
         'Show the details of the edge in different data sources. such as clinical data, omics data, and literatures. It will help us to understand the relationship between the two nodes.',
       label: 'Show Edge Details',

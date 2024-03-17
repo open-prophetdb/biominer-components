@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Row, Empty } from 'antd';
+import { Row } from 'antd';
 import type { EdgeInfoPanelProps } from './index.t';
 import DrugGene from './DrugGenePanel';
 import DrugDisease from './DrugDiseasePanel';
 import GeneDisease from './DiseaseGenePanel';
+import PublicationPanel from './PublicationPanel';
+import { SEPARATOR } from './PublicationDesc';
+import CommonPanel from './CommonPanel';
 
 import './index.less';
 
@@ -17,15 +20,36 @@ const EdgeInfoPanel: React.FC<EdgeInfoPanelProps> = (props) => {
 
   const whichPanel = (relationType: string) => {
     console.log('whichPanel: ', relationType);
+    let queryStr = '';
+    if (startNode && endNode) {
+      queryStr = startNode.data.name + SEPARATOR + endNode.data.name;
+    }
+
     switch (relationType) {
       case 'DrugDisease':
-        return <DrugDisease edgeInfo={props.edgeInfo} />;
+        return <DrugDisease edgeInfo={props.edgeInfo}>
+          <PublicationPanel queryStr={queryStr}
+            fetchPublications={props.fetchPublications}
+            fetchPublication={props.fetchPublication} />
+        </DrugDisease>;
       case 'DrugGene':
-        return <DrugGene edgeInfo={props.edgeInfo} />;
+        return <DrugGene edgeInfo={props.edgeInfo}>
+          <PublicationPanel queryStr={queryStr}
+            fetchPublications={props.fetchPublications}
+            fetchPublication={props.fetchPublication} />
+        </DrugGene>;
       case 'GeneDisease':
-        return <GeneDisease edgeInfo={props.edgeInfo} />;
+        return <GeneDisease edgeInfo={props.edgeInfo}>
+          <PublicationPanel queryStr={queryStr}
+            fetchPublications={props.fetchPublications}
+            fetchPublication={props.fetchPublication} />
+        </GeneDisease>;
       default:
-        return <Empty />;
+        return <CommonPanel edgeInfo={props.edgeInfo}>
+          <PublicationPanel queryStr={queryStr}
+            fetchPublications={props.fetchPublications}
+            fetchPublication={props.fetchPublication} />
+        </CommonPanel>;
     }
   };
 

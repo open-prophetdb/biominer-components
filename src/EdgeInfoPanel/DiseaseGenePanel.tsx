@@ -4,11 +4,12 @@ import type { EdgeInfo } from './index.t';
 
 import './index.less';
 
-type EdgeInfoPanelProps = {
+type DiseaseGenePanelProps = {
   edgeInfo?: EdgeInfo;
+  children?: React.ReactNode;
 };
 
-const GeneDiseasePanel: React.FC<EdgeInfoPanelProps> = (props) => {
+const DiseaseGenePanel: React.FC<DiseaseGenePanelProps> = (props) => {
   const { edge, startNode, endNode } = props.edgeInfo || {
     edge: undefined,
     startNode: undefined,
@@ -21,6 +22,11 @@ const GeneDiseasePanel: React.FC<EdgeInfoPanelProps> = (props) => {
 
   return (
     <Tabs className="gene-disease-info-panel tabs-nav-right">
+      {props.children ? (
+        <Tabs.TabPane tab={'Summary'} key={'summary'}>
+          {props.children}
+        </Tabs.TabPane>
+      ) : null}
       <Tabs.TabPane tab={'GeneDiease Info'} key={'gene-disease-info'}>
         We can show the gene-disease association information here. Maybe it's summarized information
         from publications.
@@ -37,4 +43,4 @@ const GeneDiseasePanel: React.FC<EdgeInfoPanelProps> = (props) => {
   );
 };
 
-export default GeneDiseasePanel;
+export default DiseaseGenePanel;

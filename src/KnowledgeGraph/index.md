@@ -215,6 +215,38 @@ const fetchPrompts = (params) => {
   });
 };
 
+const fetchPublications = (queryStr: string, page: number, pageSize: number) => {
+  return new Promise((resolve, reject) => {
+    request
+      .get('/api/v1/publications', {
+        params: {
+          query_str: queryStr,
+          page: page,
+          page_size: pageSize,
+        },
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const fetchPublicationDetail = (id: string) => {
+  return new Promise((resolve, reject) => {
+    request
+      .get(`/api/v1/publications/${id}`)
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export default () => {
   return (
     <Row style={{ position: 'relative', width: '900px' }}>
@@ -236,6 +268,8 @@ export default () => {
           GetEntityColorMapFn: getEntityColorMap,
           GetSharedNodesFn: fetchSharedNodes,
           GetPromptsFn: fetchPrompts,
+          GetPublicationsFn: fetchPublications,
+          GetPublicationFn: fetchPublicationDetail,
         }}
       />
     </Row>

@@ -1372,7 +1372,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 onClose={onCloseInfoPanel}
               >
                 {clickedEdge ? (
-                  <EdgeInfoPanel edgeInfo={clickedEdge}></EdgeInfoPanel>
+                  <EdgeInfoPanel edgeInfo={clickedEdge}
+                    fetchPublication={props.apis.GetPublicationFn}
+                    fetchPublications={props.apis.GetPublicationsFn} />
                 ) : (
                   <Empty description="No edge selected" />
                 )}

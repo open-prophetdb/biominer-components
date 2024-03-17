@@ -4,21 +4,27 @@ import type { EdgeInfo } from './index.t';
 
 import './index.less';
 
-type EdgeInfoPanelProps = {
+type DrugDiseasePanel = {
   edgeInfo?: EdgeInfo;
+  children?: React.ReactNode;
 };
 
-const EdgeInfoPanel: React.FC<EdgeInfoPanelProps> = (props) => {
+const DrugDiseasePanel: React.FC<DrugDiseasePanel> = (props) => {
   const { edge, startNode, endNode } = props.edgeInfo || {
     edge: undefined,
     startNode: undefined,
     endNode: undefined,
   };
 
-  useEffect(() => {}, [edge, startNode, endNode]);
+  useEffect(() => { }, [edge, startNode, endNode]);
 
   return (
     <Tabs className="drug-disease-info-panel tabs-nav-right">
+      {props.children ? (
+        <Tabs.TabPane tab={'Summary'} key={'summary'}>
+          {props.children}
+        </Tabs.TabPane>
+      ) : null}
       <Tabs.TabPane tab={'DrugDisease Info'} key={'drug-disease-info'}>
         We can show the drug-disease association information here. Maybe it's summarized information
         from clinical trials, or publications.
@@ -35,4 +41,4 @@ const EdgeInfoPanel: React.FC<EdgeInfoPanelProps> = (props) => {
   );
 };
 
-export default EdgeInfoPanel;
+export default DrugDiseasePanel;

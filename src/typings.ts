@@ -348,6 +348,36 @@ export type PromptItem = {
   type: 'subgraph' | 'node' | 'edge';
 };
 
+export type Publication = {
+  authors?: string[];
+  citation_count?: number;
+  summary: string;
+  journal: string;
+  title: string;
+  year?: number;
+  doc_id: string;
+};
+
+export type PublicationDetail = {
+  authors?: string[];
+  citation_count?: number;
+  summary: string;
+  journal: string;
+  title: string;
+  year?: number;
+  doc_id: string;
+  article_abstract?: string;
+  doi?: string;
+  provider_url?: string;
+};
+
+export type Publications = {
+  records: Publication[];
+  page: number;
+  total: number;
+  page_size: number;
+};
+
 // ------------------ APIs ------------------
 export type APIs = {
   GetStatisticsFn: () => Promise<{
@@ -393,6 +423,8 @@ export type APIs = {
     page: number;
     page_size: number;
   }>;
+  GetPublicationsFn?: (query_str: string, page?: number, page_size?: number) => Promise<Publications>;
+  GetPublicationFn?: (doc_id: string) => Promise<PublicationDetail>;
 };
 
 // ------------------ Search Object ------------------
