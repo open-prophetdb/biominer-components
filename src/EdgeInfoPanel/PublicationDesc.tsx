@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Button } from 'antd';
 import parse from 'html-react-parser';
+import type { PublicationDetail } from '../typings';
 
 export const SEPARATOR = '#';
 
 const Desc: React.FC<{
-    summary: string; authors?: string[],
-    journal: string, year?: number,
-    citationCount?: number, docId: string,
-    showAbstract: (doc_id: string) => Promise<any>,
+    publication: PublicationDetail,
+    showAbstract: (doc_id: string) => Promise<PublicationDetail>,
+    showPublication: (publication: PublicationDetail) => void,
     queryStr: string
 }> = (props) => {
+    const { publication } = props;
     const [abstract, setAbstract] = useState<string>('');
     const [abstractVisible, setAbstractVisible] = useState<boolean>(false);
 
@@ -44,12 +45,12 @@ const Desc: React.FC<{
     return (
         <div>
             <p>
-                {parse(highlightWords(props.summary, props.queryStr.split(SEPARATOR)))}
+                {parse(highlightWords(publication.summary, props.queryStr.split(SEPARATOR)))}
                 <Button type="link" onClick={() => {
                     if (abstractVisible) {
                         setAbstractVisible(false);
                     } else {
-                        fetchAbstract(props.docId);
+                        fetchAbstract(publication.doc_id);
                     }
                 }} style={{ paddingLeft: '2px' }}>
                     {abstractVisible ? 'Hide Abstract' : 'Show Abstract'}
@@ -60,11 +61,13 @@ const Desc: React.FC<{
                     <p>{parse(highlightWords(abstract, props.queryStr.split(SEPARATOR)))}</p> : null
             }
             <p>
-                {props.year} | {props.journal} &nbsp; | &nbsp; {props.authors ? props.authors.join(', ') : 'Unknown'}
+                {publication.year} | {publication.journal} &nbsp; | &nbsp; {publication.authors ? publication.authors.join(', ') : 'Unknown'}
             </p>
             {
-                props.citationCount ?
-                    <p>Cited by {props.citationCount} publications</p> : null
+                <p>
+                    Cited by {publication.citation_count ? publication.citation_count : 0} publications &nbsp; | &nbsp;
+                    <a onClick={(e) => { props.showPublication(publication) }}>View Publication</a>
+                </p>
             }
         </div>
     );

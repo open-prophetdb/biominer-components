@@ -73,11 +73,23 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
         }
     };
 
+    const onClickPublication = (item: Publication) => {
+        if (publicationMap[item.doc_id]) {
+            showPublication(publicationMap[item.doc_id])
+        } else {
+            showAbstract(item.doc_id).then((publication) => {
+                showPublication(publication);
+            }).catch((error) => {
+                message.error('Failed to fetch publication details');
+            });
+        }
+    }
+
     return (
         <>
             <div className='publication-panel-header'>
                 <h3>
-                    Relevant Publications [Click the title to view the publication]
+                    Relevant Publications
                 </h3>
                 <span>Keywords: {props.queryStr.split('#').join(', ')}</span>
             </div>
@@ -102,22 +114,11 @@ const PublicationPanel: React.FC<PublicationPanelProps> = (props) => {
                     <List.Item>
                         <List.Item.Meta
                             avatar={<FileProtectOutlined />}
-                            title={<a onClick={(e) => {
-                                if (publicationMap[item.doc_id]) {
-                                    showPublication(publicationMap[item.doc_id])
-                                } else {
-                                    showAbstract(item.doc_id).then((publication) => {
-                                        showPublication(publication);
-                                    }).catch((error) => {
-                                        message.error('Failed to fetch publication details');
-                                    });
-                                }
-                            }}>{item.title}</a>}
+                            title={<a onClick={(e) => { onClickPublication(item); }}>{item.title}</a>}
                             description={
-                                <PublicationDesc summary={item.summary} authors={item.authors}
-                                    journal={item.journal} year={item.year}
-                                    citationCount={item.citation_count} docId={item.doc_id}
+                                <PublicationDesc publication={item}
                                     showAbstract={showAbstract} queryStr={props.queryStr}
+                                    showPublication={(publication) => onClickPublication(publication)}
                                 />
                             }
                         />
