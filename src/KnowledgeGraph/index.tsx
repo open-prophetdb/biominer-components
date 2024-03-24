@@ -44,8 +44,6 @@ import {
   clearLlmResponsesFromLocalStorage,
 } from './utils';
 import { presetLayout, defaultLayout, cleanGraphData } from './utils';
-import NodeInfoPanel from '../NodeInfoPanel';
-import EdgeInfoPanel from '../EdgeInfoPanel';
 import GraphStoreTable from '../GraphStoreTable';
 import GraphStoreForm from '../GraphStoreForm';
 import { GraphinContext, type Graph } from '@antv/graphin';
@@ -1353,12 +1351,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 visible={nodeInfoPanelVisible}
                 onClose={onCloseInfoPanel}
               >
-                {clickedNode && props.getGeneInfo && props.getItems4GenePanel ? (
-                  <NodeInfoPanel
-                    node={clickedNode}
-                    getGeneInfo={props.getGeneInfo}
-                    getItems4GenePanel={props.getItems4GenePanel}
-                  ></NodeInfoPanel>
+                {clickedNode && props.NodeInfoPanel ? (
+                  <props.NodeInfoPanel node={clickedNode} />
                 ) : (
                   <Empty description="No node selected" />
                 )}
@@ -1371,10 +1365,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 visible={edgeInfoPanelVisible}
                 onClose={onCloseInfoPanel}
               >
-                {clickedEdge ? (
-                  <EdgeInfoPanel edgeInfo={clickedEdge}
-                    fetchPublication={props.apis.GetPublicationFn}
-                    fetchPublications={props.apis.GetPublicationsFn} />
+                {clickedEdge && props.EdgeInfoPanel ? (
+                  <props.EdgeInfoPanel edgeInfo={clickedEdge} />
                 ) : (
                   <Empty description="No edge selected" />
                 )}

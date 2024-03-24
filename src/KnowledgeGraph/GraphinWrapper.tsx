@@ -309,7 +309,7 @@ const NodeMenu = (props: NodeMenuProps) => {
       label: 'Show Node Details',
       title:
         'Show the node in different data sources. such as clinical data, omics data, and literature.',
-      disabled: true,
+      // disabled: true,
     },
     {
       key: 'select-nodes',

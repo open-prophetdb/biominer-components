@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "biominer-components",
-  "version": "0.3.16",
+  "version": "0.3.18",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

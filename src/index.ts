@@ -12,8 +12,6 @@ export { default as StatisticsChart } from './StatisticsChart';
 export { default as SimilarityChart } from './SimilarityChart';
 export { default as CanvasStatisticsChart } from './CanvasStatisticsChart';
 export { default as Toolbar } from './Toolbar';
-export { default as NodeInfoPanel } from './NodeInfoPanel';
-export { default as EdgeInfoPanel } from './EdgeInfoPanel';
 export { default as GraphStoreForm } from './GraphStoreForm';
 export { default as GraphStoreTable } from './GraphStoreTable';
 export { default as DataArea } from './DataArea';
