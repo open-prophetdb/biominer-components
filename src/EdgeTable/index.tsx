@@ -238,10 +238,27 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
 
     // @ts-ignore
     params.api.forEachNode((node) => {
-      if (props.selectedKeys && props.selectedKeys.includes(node.data.relid)) {
-        node.setSelected(true, false, 'gridInitializing');
-      } else {
-        node.setSelected(false, false, 'gridInitializing');
+      console.log("onGridReady - node: ", node);
+      if (node.data) {
+        if (props.selectedKeys && props.selectedKeys.includes(node.data.relid)) {
+          node.setSelected(true, false, 'gridInitializing');
+        } else {
+          node.setSelected(false, false, 'gridInitializing');
+        }
+      }
+
+      if (node.aggData) {
+        const nodes = node.aggData && node.aggData.relid && node.aggData.relid.split(',');
+
+        if (nodes.length > 0) {
+          node.childrenAfterGroup.forEach((childNode: any) => {
+            if (props.selectedKeys && props.selectedKeys.includes(childNode.data.relid)) {
+              childNode.setSelected(true, false, 'gridInitializing')
+            } else {
+              childNode.setSelected(false, false, 'gridInitializing')
+            }
+          })
+        }
       }
     });
   };
@@ -395,7 +412,7 @@ const EdgeTable: React.FC<EdgeTableProps> = (props) => {
                   const selectedRows = params.api.getSelectedRows()
                   if (selectedRows.length === 1) {
                     props.onExplainRow && props.onExplainRow(selectedRows[0]);
-                  } 
+                  }
                 },
                 disabled: (props.onExplainRow && params.node?.isSelected() && params.api.getSelectedRows().length === 1) ? false : true,
               },

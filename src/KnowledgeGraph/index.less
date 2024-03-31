@@ -17,50 +17,83 @@
     border-radius: 5px;
   }
 
-  .left-toolbar {
-    .graph-table-button,
-    .full-screen-button,
-    .toolbar-button,
-    .save-button,
-    .layout-button,
-    .clear-button,
-    .explain-button {
-      position: absolute;
-      top: @buttonTop;
-      left: 10px;
-      z-index: 2;
-      width: 30px;
-      height: 30px;
-    }
-
-    .graph-table-button {
-      top: calc(@buttonTop - 80px);
-    }
-
-    .full-screen-button {
-      top: calc(@buttonTop - 40px);
-    }
-
-    .toolbar-button {
-      top: @buttonTop;
-    }
-
-    .layout-button {
-      top: calc(@buttonTop + 40px);
-    }
-
-    .save-button {
-      top: calc(@buttonTop + 80px);
-    }
-
-    .clear-button {
-      top: calc(@buttonTop + 120px);
-    }
-
-    .explain-button {
-      top: calc(@buttonTop + 160px);
+  .button-toolbar {
+    .ant-btn {
+      margin-bottom: 10px;
+      width: 100%;
     }
   }
+
+  .settings-panel {
+    .explanation-info {
+      height: unset;
+      min-height: unset;
+    }
+  }
+
+  .graphin-components-toolbar {
+    .graphin-components-toolbar-content {
+      flex-direction: column;
+      margin-top: 0;
+      margin-bottom: 0;
+      border-radius: 5px;
+      box-shadow: unset;
+      // Don't need to show the border for the toolbar when it is in the setting container
+      // border: 1px solid #d6d6d6;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px;
+        padding: 0px;
+      }
+    }
+  }
+
+  // .left-toolbar {
+  //   .graph-table-button,
+  //   .full-screen-button,
+  //   .toolbar-button,
+  //   .save-button,
+  //   .layout-button,
+  //   .clear-button,
+  //   .explain-button {
+  //     position: absolute;
+  //     top: @buttonTop;
+  //     left: 10px;
+  //     z-index: 2;
+  //     width: 30px;
+  //     height: 30px;
+  //   }
+
+  //   .graph-table-button {
+  //     top: calc(@buttonTop - 80px);
+  //   }
+
+  //   .full-screen-button {
+  //     top: calc(@buttonTop - 40px);
+  //   }
+
+  //   .toolbar-button {
+  //     top: @buttonTop;
+  //   }
+
+  //   .layout-button {
+  //     top: calc(@buttonTop + 40px);
+  //   }
+
+  //   .save-button {
+  //     top: calc(@buttonTop + 80px);
+  //   }
+
+  //   .clear-button {
+  //     top: calc(@buttonTop + 120px);
+  //   }
+
+  //   .explain-button {
+  //     top: calc(@buttonTop + 160px);
+  //   }
+  // }
 }
 
 .fullscreen {

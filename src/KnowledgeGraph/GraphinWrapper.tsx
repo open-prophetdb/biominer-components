@@ -934,13 +934,11 @@ export type GraphinProps = {
   queriedId?: string;
   statistics: any;
   chatbotVisible?: boolean;
-  layoutSettingPanelVisible?: boolean;
-  hideWhichPanel?: (panelKey: string) => void;
-  toolbarVisible?: boolean;
   onClickNode?: OnClickNodeFn;
   onClickEdge?: OnClickEdgeFn;
   onClearGraph?: () => void;
   className?: string;
+  settings: GraphinSettings;
   children?: React.ReactNode;
   onDataChanged?: (graph: GraphData, width: number, height: number, matrix: any) => void;
   prompts?: PromptItem[];
@@ -948,7 +946,7 @@ export type GraphinProps = {
   askLlmFn?: APIs["AskLlmFn"],
 };
 
-type GraphinSettings = {
+export type GraphinSettings = {
   autoPin: boolean;
   nodeLabelVisible: boolean;
   edgeLabelVisible: boolean;
@@ -961,7 +959,7 @@ type GraphinSettings = {
   infoPanelEnabled: boolean;
 };
 
-const defaultSettings: GraphinSettings = {
+export const defaultSettings: GraphinSettings = {
   autoPin: false,
   nodeLabelVisible: true,
   edgeLabelVisible: true,
@@ -983,11 +981,10 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     selectedNodes,
     onCanvasMenuClick,
     selectedEdges,
+    settings,
   } = props;
   const [fishEyeVisible, setFishEyeVisible] = useState(false);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState(false);
-
-  const [settings, setSettings] = useState<GraphinSettings>({} as GraphinSettings);
   const [layout, setLayout] = React.useState<Layout>(presetLayout);
 
   const [currentEdge, setCurrentEdge] = useState<any>(null);
@@ -1005,20 +1002,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   const [graphData, setGraphData] = useState<GraphData>(data);
 
   const ref = React.useRef(null);
-
-  const toolbarHelpDoc = (
-    <p style={{ width: '400px' }}>
-      If you would like to select multiple nodes, please set the interactive mode to "select-nodes".
-      Then press the "Shift" key and click the nodes you want to select.
-    </p>
-  );
-
-  const layoutHelpDoc = (
-    <p style={{ width: '400px' }}>
-      If you would like to change the layout, please click the "Layout Type" button and select a new
-      layout. After that, you can change the layout settings.
-    </p>
-  );
 
   const isObject = (object: any) => {
     return object != null && typeof object === 'object';
@@ -1563,16 +1546,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
     console.log(checkedValue, options);
   };
 
-  const loadSettings = (settingId: string = 'graphin-settings') => {
-    const settings = JSON.parse(localStorage.getItem(settingId) || '{}');
-    if (Object.keys(settings).length === 0) {
-      setSettings(defaultSettings);
-    } else {
-      setSettings(settings);
-      message.success('Settings loaded');
-    }
-  };
-
   const changeLayout = (newLayout: Layout) => {
     // For updating the layout settings
     setLayout({ ...layout, ...newLayout });
@@ -1589,7 +1562,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
   // All initializations
   // Save the node or edge when the context menu is clicked.
   useEffect(() => {
-    loadSettings();
     initEvents();
 
     // @ts-ignore
@@ -1606,7 +1578,9 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
 
   useEffect(() => {
     if (props.layout) {
-      setLayout({ ...layout, ...props.layout });
+      // setLayout({ ...layout, ...props.layout });
+      changeLayout(props.layout);
+      pushUndoStack('layoutChanged');
     }
   }, [props.layout]);
 
@@ -1812,189 +1786,6 @@ const GraphinWrapper: React.FC<GraphinProps> = (props) => {
           return <Legend.Node {...renderProps} onChange={onChangeLegend} />;
         }}
       </Legend>
-      {props.layoutSettingPanelVisible ? (
-        <Moveable
-          title="Layout Settings"
-          width="320px"
-          maxWidth="320px"
-          top="100px"
-          right="140px"
-          help={layoutHelpDoc}
-          onClose={() => {
-            props.hideWhichPanel ? props.hideWhichPanel('layoutSettingPanel') : null;
-          }}
-        >
-          <LayoutSelector
-            type={layout.type || 'preset'}
-            layouts={LayoutNetwork}
-            onChange={(layout: Layout) => {
-              pushUndoStack('layoutChanged');
-              changeLayout(layout);
-            }}
-          />
-        </Moveable>
-      ) : null}
-      {props.toolbarVisible ? (
-        <Moveable
-          title="Settings"
-          width="220px"
-          maxWidth="220px"
-          top="100px"
-          right="30px"
-          help={toolbarHelpDoc}
-          onClose={() => {
-            props.hideWhichPanel ? props.hideWhichPanel('toolbar') : null;
-          }}
-        >
-          <Toolbar
-            style={{
-              // Remove absolute position to make it work with the Moveable component.
-              position: 'relative',
-              marginBottom: '0px',
-              opacity: 0.8,
-            }}
-            direction="horizontal"
-          >
-            <Toolbar.Item>
-              <Select
-                style={{ width: '100%' }}
-                allowClear
-                value={settings.interactiveMode}
-                getPopupContainer={(triggerNode) => {
-                  return triggerNode.parentNode;
-                }}
-                onChange={(value) => {
-                  setSettings({ ...settings, interactiveMode: value as any });
-                }}
-                placeholder="Select a interactive mode"
-              >
-                {['show-details', 'select-nodes', 'show-paths'].map((item) => {
-                  return (
-                    <Select.Option key={item} value={item}>
-                      <ForkOutlined />
-                      &nbsp;
-                      {voca.titleCase(item)}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Select
-                style={{ width: '100%' }}
-                allowClear
-                defaultValue={'brush-select'}
-                getPopupContainer={(triggerNode) => {
-                  return triggerNode.parentNode;
-                }}
-                disabled={settings.interactiveMode !== 'select-nodes'}
-                onChange={(value) => {
-                  setSettings({ ...settings, selectionMode: value });
-                }}
-                placeholder="Select a selection mode"
-              >
-                {['brush-select', 'lasso-select'].map((item) => {
-                  return (
-                    <Select.Option key={item} value={item}>
-                      <ForkOutlined />
-                      &nbsp;
-                      {voca.titleCase(item)}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, nodeLabelVisible: checked });
-                }}
-                checked={settings.nodeLabelVisible}
-              />
-              Node Label
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, edgeLabelVisible: checked });
-                }}
-                checked={settings.edgeLabelVisible}
-              />
-              Edge Label
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, nodeTooltipEnabled: checked });
-                }}
-                checked={settings.nodeTooltipEnabled}
-              />
-              Node Tooltip
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, edgeTooltipEnabled: checked });
-                }}
-                checked={settings.edgeTooltipEnabled}
-              />
-              Edge Tooltip
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, miniMapEnabled: checked });
-                }}
-                checked={settings.miniMapEnabled}
-              />
-              MiniMap
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, snapLineEnabled: checked });
-                }}
-                checked={settings.snapLineEnabled}
-              />
-              SnapLine
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Switch
-                onChange={(checked) => {
-                  setSettings({ ...settings, infoPanelEnabled: checked });
-                }}
-                checked={settings.infoPanelEnabled}
-              />
-              Info Panel
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Button
-                type="primary"
-                size="small"
-                style={{ width: '100%' }}
-                onClick={() => {
-                  localStorage.setItem('graphin-settings', JSON.stringify(settings));
-                  message.success('Settings saved');
-                }}
-              >
-                Save Settings
-              </Button>
-            </Toolbar.Item>
-            <Toolbar.Item>
-              <Button
-                danger
-                size="small"
-                style={{ width: '100%' }}
-                onClick={() => {
-                  loadSettings();
-                }}
-              >
-                Load Settings
-              </Button>
-            </Toolbar.Item>
-          </Toolbar>
-        </Moveable>
-      ) : null}
 
       <NodeSearcherPanel
         // Don't use the saveGraphData function here, we would like to save the graph data from the undo stack directly.

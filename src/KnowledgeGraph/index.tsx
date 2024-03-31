@@ -1,7 +1,11 @@
 /* eslint-disable no-undef */
 import React, { useContext, useEffect, useState } from 'react';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
-import { Row, Col, message, Button, Spin, Empty, Tooltip, Modal } from 'antd';
+import {
+  Row, Col, message, Button, Spin, Select,
+  Empty, Tooltip, Modal, Collapse, Popover, Switch
+} from 'antd';
+import voca from 'voca';
 import {
   CloudDownloadOutlined,
   FullscreenExitOutlined,
@@ -15,10 +19,14 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   InfoCircleOutlined,
+  QuestionCircleFilled,
+  ForkOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
+import { Toolbar as GraphinToolbar } from '@antv/graphin-components';
 import { set, uniq, uniqBy } from 'lodash';
 import GraphinWrapper from './GraphinWrapper';
+import { GraphinSettings, defaultSettings } from './GraphinWrapper';
 import QueryBuilder from './QueryBuilder';
 import AdvancedSearch from './AdvancedSearch';
 import ExplanationPanel from './Components/ExplanationPanel';
@@ -61,8 +69,10 @@ import type {
   LlmResponse,
   PromptItem,
 } from '../typings';
+import LayoutNetwork from './Components/LayoutNetworks';
+import LayoutSelector from './Components/LayoutSelector';
 import { EdgeInfo, NodeMenuItem, CanvasMenuItem, EdgeMenuItem } from './typings';
-import Movable from '../Moveable';
+import Moveable from '../Moveable';
 // @ts-ignore
 import GraphBackground from './graph-background.png';
 import { KnowledgeGraphProps } from './index.t';
@@ -72,12 +82,12 @@ import { LinkedNodesSearchObjectClass } from '../LinkedNodesSearcher/index.t';
 import { SimilarityNodesSearchObjectClass } from '../SimilarityNodesSearcher/index.t';
 import { SharedNodesSearchObjectClass } from '../SharedNodesSearcher/index.t';
 import { PathSearchObjectClass } from '../typings';
+import { NodeAttribute } from '../NodeTable/index.t';
+import { EdgeAttribute } from '../EdgeTable/index.t';
 // @ts-ignore - It's simple, so we don't need to install a type definition for it.
 import SparkMD5 from 'spark-md5';
 
 import './index.less';
-import { NodeAttribute } from '../NodeTable/index.t';
-import { EdgeAttribute } from '../EdgeTable/index.t';
 
 // Config message globally
 message.config({
@@ -121,8 +131,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [nodeDataSources, setNodeDataSources] = useState<Array<Record<string, any>>>([]);
   const [edgeDataSources, setEdgeDataSources] = useState<Array<Record<string, any>>>([]);
 
-  const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
-  const [layoutSettingPanelVisible, setLayoutSettingPanelVisible] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [nodeInfoPanelVisible, setNodeInfoPanelVisible] = useState<boolean>(false);
 
@@ -157,6 +165,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
   const [layout, setLayout] = useState<Layout>(defaultLayout);
+  const [settings, setSettings] = useState<GraphinSettings>(defaultSettings);
 
   // Annotate the relation type with the description
   const annotateEdge = (edge: GraphEdge, stat: RelationStat[]) => {
@@ -295,8 +304,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
       setCurrentGraphUUID(graphHistoryItem.id);
       checkAndSetData(payload.data);
       setLayout(payload.layout || {});
-      setToolbarVisible(payload.toolbarVisible);
-      setLayoutSettingPanelVisible(false);
       setGraphStoreTableVisible(false);
     }
   };
@@ -1068,18 +1075,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     // TODO: Can we save the position of all nodes and edges and more configurations?
     setGraphFormPayload({
       data: data,
-      toolbarVisible: toolbarVisible,
       isDirty: isDirty,
       currentUUID: currentGraphUUID,
     });
-  };
-
-  const onChangeToolbarVisible = () => {
-    setToolbarVisible(!toolbarVisible);
-  };
-
-  const onChangeLayoutSettingsPanelVisible = () => {
-    setLayoutSettingPanelVisible(!layoutSettingPanelVisible);
   };
 
   const onClickNode = (nodeId: string, node: GraphNode): void => {
@@ -1105,6 +1103,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
         startNode: startNode,
         endNode: endNode,
       });
+    }
+  };
+
+  const loadSettings = (settingId: string = 'graphin-settings') => {
+    const settings = JSON.parse(localStorage.getItem(settingId) || '{}');
+    if (Object.keys(settings).length === 0) {
+      setSettings(defaultSettings);
+    } else {
+      setSettings(settings);
+      message.success('Settings loaded');
     }
   };
 
@@ -1144,128 +1152,267 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     <FullScreen handle={enterFullScreenHandler}>
       <Row className="knowledge-graph-container" id="knowledge-graph-container">
         <Spin spinning={loading}>
-          <Row className="left-toolbar">
-            <Tooltip
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-              title={graphTableVisible ? 'Hide Graph Table' : 'Show Graph Table'}
-              placement="right"
-            >
-              <Button
-                className="graph-table-button"
-                onClick={() => {
-                  setGraphTableVisible(!graphTableVisible);
-                }}
-                shape="circle"
-                icon={graphTableVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
-              />
-            </Tooltip>
-            <Tooltip
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-              title={enterFullScreenHandler.active ? 'Exit Full Screen' : 'Enter Full Screen'}
-              placement="right"
-            >
-              <Button
-                className="full-screen-button"
-                onClick={
-                  enterFullScreenHandler.active
-                    ? enterFullScreenHandler.exit
-                    : enterFullScreenHandler.enter
-                }
-                shape="circle"
-                icon={
-                  enterFullScreenHandler.active ? (
-                    <FullscreenExitOutlined />
-                  ) : (
-                    <FullscreenOutlined />
-                  )
-                }
-              />
-            </Tooltip>
-            <Tooltip
-              title={toolbarVisible ? 'Hide Toolbar' : 'Show Toolbar'}
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-              placement="right"
-            >
-              <Button
-                className="toolbar-button"
-                onClick={onChangeToolbarVisible}
-                shape="circle"
-                icon={toolbarVisible ? <SettingOutlined /> : <SettingFilled />}
-              />
-            </Tooltip>
-            <Tooltip
-              title={layoutSettingPanelVisible ? 'Hide Layout Settings' : 'Show Layout Settings'}
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-              placement="right"
-            >
-              <Button
-                className="layout-button"
-                onClick={onChangeLayoutSettingsPanelVisible}
-                shape="circle"
-                icon={layoutSettingPanelVisible ? <BuildOutlined /> : <BuildFilled />}
-              />
-            </Tooltip>
-            <Tooltip
-              title="Save Graph Data"
-              placement="right"
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-            >
-              <Button
-                className="save-button"
-                onClick={saveGraphData}
-                shape="circle"
-                icon={<CloudUploadOutlined />}
-              />
-            </Tooltip>
-            <Tooltip
-              title="Load Graph Data"
-              placement="right"
-              getTooltipContainer={(triggerNode) => {
-                return triggerNode;
-              }}
-            >
-              <Button
-                className="clear-button"
-                onClick={() => {
-                  setGraphStoreTableVisible(true);
-                }}
-                shape="circle"
-                icon={<CloudDownloadOutlined />}
-              />
-            </Tooltip>
-            <Tooltip>
-              <Button
-                className="explain-button"
-                onClick={() => {
-                  if (explanationPanelVisible === false) {
-                    if (llmResponse && Object.keys(llmResponse).length > 0) {
-                      setExplanationPanelVisible(true);
-                    } else {
-                      message.warning(
-                        'No explanation data available. If you want to generate an explanation, please right click on a disease node and select "Explain Subgraph" first, then click this button again.',
-                        5,
-                      );
-                      setExplanationPanelVisible(false);
+          <Moveable
+            className="settings-panel"
+            title="Settings"
+            width="320px"
+            height='auto'
+            minWidth='260px'
+            minHeight='auto'
+            maxWidth="320px"
+            maxHeight='auto'
+            top="150px"
+            left="30px"
+            resizable={false}
+            help={"You can set several settings here, such as the layout, node size, and edge style."}
+          >
+            <Collapse defaultActiveKey={['1']} accordion>
+              <Collapse.Panel header="Quick Operations" key="1">
+                <Row className="button-toolbar">
+                  <Button
+                    className="graph-table-button"
+                    onClick={() => {
+                      setGraphTableVisible(!graphTableVisible);
+                    }}
+                    icon={graphTableVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  >
+                    {graphTableVisible ? 'Hide Graph Table' : 'Show Graph Table'}
+                  </Button>
+                  <Button
+                    className="full-screen-button"
+                    onClick={
+                      enterFullScreenHandler.active
+                        ? enterFullScreenHandler.exit
+                        : enterFullScreenHandler.enter
                     }
-                  } else {
-                    setEdgeInfoPanelVisible(false);
-                  }
-                }}
-                shape="circle"
-                icon={<InfoCircleOutlined />}
-              />
-            </Tooltip>
-          </Row>
+                    icon={
+                      enterFullScreenHandler.active ? (
+                        <FullscreenExitOutlined />
+                      ) : (
+                        <FullscreenOutlined />
+                      )
+                    }
+                  >
+                    {enterFullScreenHandler.active ? 'Exit Full Screen' : 'Enter Full Screen'}
+                  </Button>
+                  <Button
+                    className="save-button"
+                    onClick={saveGraphData}
+                    icon={<CloudUploadOutlined />}
+                  >
+                    Save Current Subgraph
+                  </Button>
+                  <Button
+                    className="clear-button"
+                    onClick={() => {
+                      setGraphStoreTableVisible(true);
+                    }}
+                    icon={<CloudDownloadOutlined />}
+                  >
+                    Load Saved Subgraphs
+                  </Button>
+                  <Button
+                    className="explain-button"
+                    onClick={() => {
+                      if (explanationPanelVisible === false) {
+                        if (llmResponse && Object.keys(llmResponse).length > 0) {
+                          setExplanationPanelVisible(true);
+                        } else {
+                          message.warning(
+                            'No explanation data available. If you want to generate an explanation, please right click on a disease node and select "Explain Subgraph" first, then click this button again.',
+                            5,
+                          );
+                          setExplanationPanelVisible(false);
+                        }
+                      } else {
+                        setEdgeInfoPanelVisible(false);
+                      }
+                    }}
+                    disabled={!(llmResponse && Object.keys(llmResponse).length > 0)}
+                    icon={<InfoCircleOutlined />}
+                  >
+                    {explanationPanelVisible ? 'Hide Explaination Panel' : 'Show Explaination Panel'}
+                  </Button>
+                </Row>
+              </Collapse.Panel>
+              <Collapse.Panel header="Layout Settings" key="2" extra={
+                <Popover content={
+                  <p style={{ width: '400px' }}>
+                    If you would like to change the layout, please click the "Layout Type" button and select a new
+                    layout. After that, you can change the layout settings.
+                  </p>
+                } title="Help" placement="topRight">
+                  <QuestionCircleFilled />
+                </Popover>
+              }>
+                <LayoutSelector
+                  type={layout.type || 'preset'}
+                  layouts={LayoutNetwork}
+                  onChange={(layout: Layout) => {
+                    setLayout(layout);
+                  }}
+                />
+              </Collapse.Panel>
+              <Collapse.Panel header="Graph Settings" key="3" extra={
+                <Popover content={
+                  <p style={{ width: '400px' }}>
+                    If you would like to select multiple nodes, please set the interactive mode to "select-nodes".
+                    Then press the "Shift" key and click the nodes you want to select.
+                  </p>
+                } title="Help" placement="topRight">
+                  <QuestionCircleFilled />
+                </Popover>
+              }>
+                <GraphinToolbar
+                  style={{
+                    // Remove absolute position to make it work with the Moveable component.
+                    position: 'relative',
+                    marginBottom: '0px',
+                    opacity: 0.8,
+                  }}
+                  direction="horizontal"
+                >
+                  <GraphinToolbar.Item>
+                    <Select
+                      style={{ width: '100%' }}
+                      allowClear
+                      value={settings.interactiveMode}
+                      getPopupContainer={(triggerNode) => {
+                        return triggerNode.parentNode;
+                      }}
+                      onChange={(value) => {
+                        setSettings({ ...settings, interactiveMode: value as any });
+                      }}
+                      placeholder="Select a interactive mode"
+                    >
+                      {['show-details', 'select-nodes', 'show-paths'].map((item) => {
+                        return (
+                          <Select.Option key={item} value={item}>
+                            <ForkOutlined />
+                            &nbsp;
+                            {voca.titleCase(item)}
+                          </Select.Option>
+                        );
+                      })}
+                    </Select>
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Select
+                      style={{ width: '100%' }}
+                      allowClear
+                      defaultValue={'brush-select'}
+                      getPopupContainer={(triggerNode) => {
+                        return triggerNode.parentNode;
+                      }}
+                      disabled={settings.interactiveMode !== 'select-nodes'}
+                      onChange={(value) => {
+                        setSettings({ ...settings, selectionMode: value });
+                      }}
+                      placeholder="Select a selection mode"
+                    >
+                      {['brush-select', 'lasso-select'].map((item) => {
+                        return (
+                          <Select.Option key={item} value={item}>
+                            <ForkOutlined />
+                            &nbsp;
+                            {voca.titleCase(item)}
+                          </Select.Option>
+                        );
+                      })}
+                    </Select>
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, nodeLabelVisible: checked });
+                      }}
+                      checked={settings.nodeLabelVisible}
+                    />
+                    Node Label
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, edgeLabelVisible: checked });
+                      }}
+                      checked={settings.edgeLabelVisible}
+                    />
+                    Edge Label
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, nodeTooltipEnabled: checked });
+                      }}
+                      checked={settings.nodeTooltipEnabled}
+                    />
+                    Node Tooltip
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, edgeTooltipEnabled: checked });
+                      }}
+                      checked={settings.edgeTooltipEnabled}
+                    />
+                    Edge Tooltip
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, miniMapEnabled: checked });
+                      }}
+                      checked={settings.miniMapEnabled}
+                    />
+                    MiniMap
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, snapLineEnabled: checked });
+                      }}
+                      checked={settings.snapLineEnabled}
+                    />
+                    SnapLine
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Switch
+                      onChange={(checked) => {
+                        setSettings({ ...settings, infoPanelEnabled: checked });
+                      }}
+                      checked={settings.infoPanelEnabled}
+                    />
+                    Info Panel
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Button
+                      type="primary"
+                      size="small"
+                      style={{ width: '100%' }}
+                      onClick={() => {
+                        localStorage.setItem('graphin-settings', JSON.stringify(settings));
+                        message.success('Settings saved');
+                      }}
+                    >
+                      Save Settings
+                    </Button>
+                  </GraphinToolbar.Item>
+                  <GraphinToolbar.Item>
+                    <Button
+                      danger
+                      size="small"
+                      style={{ width: '100%' }}
+                      onClick={() => {
+                        loadSettings();
+                      }}
+                    >
+                      Load Settings
+                    </Button>
+                  </GraphinToolbar.Item>
+                </GraphinToolbar>
+              </Collapse.Panel>
+            </Collapse>
+          </Moveable>
           <Row className="top-toolbar">
             <QueryBuilder
               onChange={searchLinkedNodes}
@@ -1306,17 +1453,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
               }}
               data={data}
               style={style}
-              hideWhichPanel={(panelKey) => {
-                if (panelKey == 'toolbar') {
-                  setToolbarVisible(false);
-                } else if (panelKey == 'layoutSettingPanel') {
-                  setLayoutSettingPanelVisible(false);
-                }
-              }}
               queriedId={searchObject?.get_current_node_id() || ''}
               statistics={statistics}
-              toolbarVisible={toolbarVisible}
-              layoutSettingPanelVisible={layoutSettingPanelVisible}
+              settings={settings}
               onClearGraph={onClearGraph}
               onEdgeMenuClick={onEdgeMenuClick}
               chatbotVisible={props.postMessage ? true : false}
@@ -1372,7 +1511,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 )}
               </Toolbar>
               {graphTableVisible ? (
-                <Movable
+                <Moveable
                   onClose={() => {
                     setGraphTableVisible(false);
                   }}
@@ -1470,10 +1609,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     }}
                     edgeStat={edgeStat}
                   />
-                </Movable>
+                </Moveable>
               ) : null}
               {similarityChartVisible ? (
-                <Movable
+                <Moveable
                   onClose={() => {
                     setSimilarityChartVisible(false);
                   }}
@@ -1488,10 +1627,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                       setSelectedNodeKeys([formatNodeIdFromEntity2D(entity2D)]);
                     }}
                   ></SimilarityChart>
-                </Movable>
+                </Moveable>
               ) : null}
               {explanationPanelVisible && llmResponse ? (
-                <Movable
+                <Moveable
                   onClose={() => {
                     setExplanationPanelVisible(false);
                   }}
@@ -1503,7 +1642,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                   title="Explanation Panel"
                 >
                   <ExplanationPanel data={llmResponse}></ExplanationPanel>
-                </Movable>
+                </Moveable>
               ) : null}
               <GraphStoreTable
                 visible={graphStoreTableVisible}

@@ -203,10 +203,27 @@ const NodeTable: React.FC<NodeTableProps> = (props) => {
   const onGridReady = (params: any) => {
     // @ts-ignore
     params.api.forEachNode((node) => {
-      if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
-        node.setSelected(true, false, 'gridInitializing');
-      } else {
-        node.setSelected(false, false, 'gridInitializing');
+      console.log("onGridReady - node: ", node);
+      if (node.data) {
+        if (props.selectedKeys && props.selectedKeys.includes(node.data.id)) {
+          node.setSelected(true, false, 'gridInitializing');
+        } else {
+          node.setSelected(false, false, 'gridInitializing');
+        }
+      }
+
+      if (node.aggData) {
+        const nodes = node.aggData && node.aggData.id && node.aggData.id.split(',');
+
+        if (nodes.length > 0) {
+          node.childrenAfterGroup.forEach((childNode: any) => {
+            if (props.selectedKeys && props.selectedKeys.includes(childNode.data.id)) {
+              childNode.setSelected(true, false, 'gridInitializing')
+            } else {
+              childNode.setSelected(false, false, 'gridInitializing')
+            }
+          })
+        }
       }
     });
   };

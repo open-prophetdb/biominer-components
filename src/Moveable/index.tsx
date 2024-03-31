@@ -30,11 +30,12 @@ const Movable: React.FC<MovableProps> = (props) => {
 
   return (
     <div
-      className="explanation-panel"
+      className={"explanation-panel" + (props.className ? ` ${props.className}` : '')}
       ref={movableComponentRef}
       style={{
         top: props.top || '200px',
-        right: props.right || props.width || '400px',
+        right: props.right || props.width || 'unset',
+        left: props.left || props.width || 'unset',
       }}
     >
       <div
@@ -82,7 +83,7 @@ const Movable: React.FC<MovableProps> = (props) => {
       <Moveable
         target={explanationPanelRef}
         dragTarget={dragHandlerRef}
-        draggable={true}
+        draggable={props.draggable !== undefined ? props.draggable : true}
         throttleDrag={1}
         edgeDraggable={true}
         startDragRotate={0}
@@ -90,8 +91,8 @@ const Movable: React.FC<MovableProps> = (props) => {
         onDrag={(e) => {
           e.target.style.transform = e.transform;
         }}
-        resizable={true}
-        keepRatio={false}
+        resizable={props.resizable !== undefined ? props.resizable : true}
+        keepRatio={props.keepRatio !== undefined ? props.keepRatio : false}
         throttleResize={1}
         renderDirections={['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']}
         onResize={(e) => {
