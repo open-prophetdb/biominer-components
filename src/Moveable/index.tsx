@@ -15,7 +15,7 @@ const Movable: React.FC<MovableProps> = (props) => {
       const component = movableComponentRef.current;
       component.addEventListener('click', () => {
         console.log('Focus the explanation panel');
-        component.style.zIndex = '10';
+        component.style.zIndex = '3';
 
         const otherComponents = document.getElementsByClassName('explanation-panel');
         for (let i = 0; i < otherComponents.length; i++) {

@@ -289,6 +289,12 @@ const NodeMenu = (props: NodeMenuProps) => {
 
   const [node, setNode] = useState<GraphNode | undefined>(undefined);
 
+  const howManyNodesSelected = () => {
+    return graph.getNodes().filter((node) => {
+      return node.hasState('selected');
+    }).length;
+  }
+
   useEffect(() => {
     if (item && item._cfg) {
       const nodeModel = item.getModel() as GraphNode;
@@ -310,6 +316,70 @@ const NodeMenu = (props: NodeMenuProps) => {
       title:
         'Show the node in different data sources. such as clinical data, omics data, and literature.',
       // disabled: true,
+    },
+    {
+      key: 'find-related-nodes',
+      icon: <CheckCircleOutlined />,
+      label: 'Find Key Nodes',
+      children: [
+        {
+          // Users can use the prediction modules instead of.
+          key: 'find-similar-nodes',
+          icon: <AimOutlined />,
+          hidden: true,
+          label: 'Find Similar Nodes',
+        },
+        {
+          key: 'expand-selected-nodes',
+          hidden: true,
+          icon: <FullscreenOutlined />,
+          label: 'Expand Selected Nodes',
+        },
+        {
+          // Users can use the prediction modules instead of.
+          key: 'predict-relationships',
+          hidden: true,
+          icon: <CloudServerOutlined />,
+          label: 'Predict Relationships',
+        },
+        {
+          key: 'expand-one-step',
+          icon: <ExpandAltOutlined />,
+          label: 'Expand One Step',
+          disabled: howManyNodesSelected() !== 1 && !visible
+        },
+        {
+          key: 'find-shared-nodes',
+          icon: <BranchesOutlined />,
+          label: 'Find Shared Nodes',
+          disabled: howManyNodesSelected() <= 1,
+        },
+        {
+          key: 'expand-all-paths',
+          hidden: false,
+          icon: <ShareAltOutlined />,
+          disabled: howManyNodesSelected() !== 2,
+          label: 'Find Paths (Within 2 Steps)',
+          children: [
+            {
+              key: 'expand-all-paths-1',
+              icon: <ShareAltOutlined />,
+              label: 'Within 1 Step',
+            },
+            {
+              key: 'expand-all-paths-2',
+              icon: <ShareAltOutlined />,
+              label: 'Within 2 Steps',
+            },
+            // {
+            //   key: 'expand-all-paths-3',
+            //   hidden: true,
+            //   icon: <ShareAltOutlined />,
+            //   label: 'Within 3 Step',
+            // },
+          ],
+        },
+      ],
     },
     {
       key: 'select-nodes',
@@ -348,67 +418,6 @@ const NodeMenu = (props: NodeMenuProps) => {
           icon: <DeleteFilled />,
           label: 'Delete Selected Node(s)',
           danger: true,
-        },
-      ],
-    },
-    {
-      key: 'find-related-nodes',
-      icon: <CheckCircleOutlined />,
-      label: 'Find Key Nodes',
-      children: [
-        {
-          // Users can use the prediction modules instead of.
-          key: 'find-similar-nodes',
-          icon: <AimOutlined />,
-          hidden: true,
-          label: 'Find Similar Nodes',
-        },
-        {
-          key: 'expand-selected-nodes',
-          hidden: true,
-          icon: <FullscreenOutlined />,
-          label: 'Expand Selected Nodes',
-        },
-        {
-          // Users can use the prediction modules instead of.
-          key: 'predict-relationships',
-          hidden: true,
-          icon: <CloudServerOutlined />,
-          label: 'Predict Relationships',
-        },
-        {
-          key: 'expand-one-step',
-          icon: <ExpandAltOutlined />,
-          label: 'Expand One Step',
-        },
-        {
-          key: 'find-shared-nodes',
-          icon: <BranchesOutlined />,
-          label: 'Find Shared Nodes',
-        },
-        {
-          key: 'expand-all-paths',
-          hidden: false,
-          icon: <ShareAltOutlined />,
-          label: 'Find Paths (Within 2 Steps)',
-          children: [
-            {
-              key: 'expand-all-paths-1',
-              icon: <ShareAltOutlined />,
-              label: 'Within 1 Step',
-            },
-            {
-              key: 'expand-all-paths-2',
-              icon: <ShareAltOutlined />,
-              label: 'Within 2 Steps',
-            },
-            // {
-            //   key: 'expand-all-paths-3',
-            //   hidden: true,
-            //   icon: <ShareAltOutlined />,
-            //   label: 'Within 3 Step',
-            // },
-          ],
         },
       ],
     },
@@ -732,7 +741,7 @@ const CanvasMenu = (props: CanvasMenuProps) => {
     {
       key: 'clear-canvas',
       icon: <DeleteOutlined />,
-      label: 'Clear Graph',
+      label: 'Clear Current Subgraph',
       danger: true,
       handler: handleClear,
     },

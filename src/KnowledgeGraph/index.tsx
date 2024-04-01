@@ -21,6 +21,7 @@ import {
   InfoCircleOutlined,
   QuestionCircleFilled,
   ForkOutlined,
+  DotChartOutlined,
 } from '@ant-design/icons';
 import Toolbar from '../Toolbar';
 import { Toolbar as GraphinToolbar } from '@antv/graphin-components';
@@ -164,6 +165,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   >(undefined);
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [explanationPanelVisible, setExplanationPanelVisible] = useState<boolean>(false);
+  const [statisticsPanelVisible, setStatisticsPanelVisible] = useState<boolean>(false);
   const [layout, setLayout] = useState<Layout>(defaultLayout);
   const [settings, setSettings] = useState<GraphinSettings>(defaultSettings);
 
@@ -1176,7 +1178,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     }}
                     icon={graphTableVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                   >
-                    {graphTableVisible ? 'Hide Graph Table' : 'Show Graph Table'}
+                    {graphTableVisible ? 'Hide Graph Table' : 'Show Graph As a Table'}
+                  </Button>
+                  <Button
+                    className="statistics-button"
+                    onClick={() => {
+                      setStatisticsPanelVisible(!statisticsPanelVisible);
+                    }}
+                    icon={<DotChartOutlined />}
+                  >
+                    {statisticsPanelVisible ? 'Hide Statistics Panel' : 'Show Statistics Panel'}
                   </Button>
                   <Button
                     className="full-screen-button"
@@ -1470,6 +1481,10 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                 height="100%"
                 closable={true}
                 title="Statistics"
+                visible={statisticsPanelVisible}
+                onClose={() => {
+                  setStatisticsPanelVisible(false);
+                }}
               >
                 <StatisticsChart nodeStat={nodeStat} edgeStat={edgeStat}></StatisticsChart>
               </Toolbar>
