@@ -13,6 +13,9 @@ import {
   RelationStat,
 } from '../typings';
 import voca from 'voca';
+import { EdgeAttribute } from '../EdgeTable/index.t';
+import { NodeAttribute } from '../NodeTable/index.t';
+import { EdgeAttribute as MetricsTableEdgeAttribute } from '../MetricsTable/index.t';
 
 export const getDefaultBadge = (color: string, value?: string | number): NodeBadge => {
   return {
@@ -460,3 +463,32 @@ export const cleanGraphData = (data: GraphData) => {
     }),
   };
 };
+
+export const annoEdges = (edges: EdgeAttribute[], nodes: NodeAttribute[]): MetricsTableEdgeAttribute[] => {
+  const tempEdgeDataSources: MetricsTableEdgeAttribute[] = [];
+  edges.forEach((edge) => {
+    let source = edge.source;
+    let target = edge.target;
+
+    // SourceNode and targetNode must exist
+    let sourceNode = nodes.find((node) => node.id === source) as NodeAttribute;
+    let targetNode = nodes.find((node) => node.id === target) as NodeAttribute;
+
+    if (!sourceNode || !targetNode) {
+      return;
+    }
+
+    tempEdgeDataSources.push({
+      ...edge,
+      source_name: sourceNode.name,
+      target_name: targetNode.name,
+      source_resource: sourceNode.resource,
+      target_resource: targetNode.resource,
+      source_description: sourceNode.description,
+      target_description: targetNode.description,
+      // add more attributes here
+    });
+  });
+
+  return tempEdgeDataSources;
+}

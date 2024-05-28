@@ -1,0 +1,872 @@
+[
+  {
+    "entity_id": "ENTREZ:3567",
+    "entity_type": "Gene",
+    "entity_name": "IL5",
+    "betweenness_score": 0.0022499617265869113,
+    "degree_score": 0,
+    "closeness_score": 0.5467128027681661,
+    "eigenvector_score": 0.19369596813385853,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1950",
+    "entity_type": "Gene",
+    "entity_name": "EGF",
+    "betweenness_score": 0.016114719917601016,
+    "degree_score": 0,
+    "closeness_score": 0.5683453237410072,
+    "eigenvector_score": 0.0790798434849109,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4142",
+    "entity_type": "Gene",
+    "entity_name": "MAS1",
+    "betweenness_score": 0.00004734011228003748,
+    "degree_score": 0,
+    "closeness_score": 0.4082687338501292,
+    "eigenvector_score": 0.000517232460787432,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:2",
+    "entity_type": "Gene",
+    "entity_name": "A2M",
+    "betweenness_score": 0.004063053061708532,
+    "degree_score": 0,
+    "closeness_score": 0.5180327868852459,
+    "eigenvector_score": 0.052831715178588194,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4254",
+    "entity_type": "Gene",
+    "entity_name": "KITLG",
+    "betweenness_score": 0.002017142939571791,
+    "degree_score": 0,
+    "closeness_score": 0.5096774193548387,
+    "eigenvector_score": 0.0677963855808669,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1392",
+    "entity_type": "Gene",
+    "entity_name": "CRH",
+    "betweenness_score": 0.015525289695125302,
+    "degree_score": 0,
+    "closeness_score": 0.5337837837837838,
+    "eigenvector_score": 0.04057444171826929,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1906",
+    "entity_type": "Gene",
+    "entity_name": "EDN1",
+    "betweenness_score": 0.00594316676763715,
+    "degree_score": 0,
+    "closeness_score": 0.541095890410959,
+    "eigenvector_score": 0.05336308588891178,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1440",
+    "entity_type": "Gene",
+    "entity_name": "CSF3",
+    "betweenness_score": 0.0045218300926908065,
+    "degree_score": 0,
+    "closeness_score": 0.5505226480836237,
+    "eigenvector_score": 0.1781982523609929,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1385",
+    "entity_type": "Gene",
+    "entity_name": "CREB1",
+    "betweenness_score": 0.008612036473176933,
+    "degree_score": 0,
+    "closeness_score": 0.5467128027681661,
+    "eigenvector_score": 0.054230377418380715,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5551",
+    "entity_type": "Gene",
+    "entity_name": "PRF1",
+    "betweenness_score": 0.0003054210085776398,
+    "degree_score": 0,
+    "closeness_score": 0.511326860841424,
+    "eigenvector_score": 0.054074189188506545,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6369",
+    "entity_type": "Gene",
+    "entity_name": "CCL24",
+    "betweenness_score": 0.000006182912827281799,
+    "degree_score": 0,
+    "closeness_score": 0.4891640866873065,
+    "eigenvector_score": 0.04836952944463198,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:627",
+    "entity_type": "Gene",
+    "entity_name": "BDNF",
+    "betweenness_score": 0.051947400899255716,
+    "degree_score": 0,
+    "closeness_score": 0.5766423357664233,
+    "eigenvector_score": 0.054998158153358415,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3952",
+    "entity_type": "Gene",
+    "entity_name": "LEP",
+    "betweenness_score": 0.022898770767545127,
+    "degree_score": 0,
+    "closeness_score": 0.572463768115942,
+    "eigenvector_score": 0.09266531788267389,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3592",
+    "entity_type": "Gene",
+    "entity_name": "IL12A",
+    "betweenness_score": 0.00037971539626993487,
+    "degree_score": 0,
+    "closeness_score": 0.49842271293375395,
+    "eigenvector_score": 0.05092317985415012,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4283",
+    "entity_type": "Gene",
+    "entity_name": "CXCL9",
+    "betweenness_score": 0.0021351449822790717,
+    "degree_score": 0,
+    "closeness_score": 0.5266666666666666,
+    "eigenvector_score": 0.15177815674672063,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6647",
+    "entity_type": "Gene",
+    "entity_name": "SOD1",
+    "betweenness_score": 0.0011031361361542303,
+    "degree_score": 0,
+    "closeness_score": 0.4759036144578313,
+    "eigenvector_score": 0.016795120584288878,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:925",
+    "entity_type": "Gene",
+    "entity_name": "CD8A",
+    "betweenness_score": 0.008352252849422996,
+    "degree_score": 0,
+    "closeness_score": 0.5663082437275986,
+    "eigenvector_score": 0.11625582596269407,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3576",
+    "entity_type": "Gene",
+    "entity_name": "CXCL8",
+    "betweenness_score": 0.04837283520042303,
+    "degree_score": 0,
+    "closeness_score": 0.6396761133603239,
+    "eigenvector_score": 0.2573278669217225,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4852",
+    "entity_type": "Gene",
+    "entity_name": "NPY",
+    "betweenness_score": 0.006370308187682065,
+    "degree_score": 0,
+    "closeness_score": 0.5284280936454849,
+    "eigenvector_score": 0.06943053495425376,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6376",
+    "entity_type": "Gene",
+    "entity_name": "CX3CL1",
+    "betweenness_score": 0.0007613682844200193,
+    "degree_score": 0,
+    "closeness_score": 0.5031847133757962,
+    "eigenvector_score": 0.0803819577641301,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:7157",
+    "entity_type": "Gene",
+    "entity_name": "TP53",
+    "betweenness_score": 0.01850034009522733,
+    "degree_score": 0,
+    "closeness_score": 0.5703971119133574,
+    "eigenvector_score": 0.10436750230068056,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:56729",
+    "entity_type": "Gene",
+    "entity_name": "RETN",
+    "betweenness_score": 0.0020911667142894256,
+    "degree_score": 0,
+    "closeness_score": 0.49842271293375395,
+    "eigenvector_score": 0.032613884550371904,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3479",
+    "entity_type": "Gene",
+    "entity_name": "IGF1",
+    "betweenness_score": 0.013000063010319219,
+    "degree_score": 0,
+    "closeness_score": 0.558303886925795,
+    "eigenvector_score": 0.060853761705358285,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6538",
+    "entity_type": "Gene",
+    "entity_name": "SLC6A11",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.40616966580976865,
+    "eigenvector_score": 0.0007212350994778265,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3569",
+    "entity_type": "Gene",
+    "entity_name": "IL6",
+    "betweenness_score": 0.043425888143578235,
+    "degree_score": 0,
+    "closeness_score": 0.6528925619834711,
+    "eigenvector_score": 0.2367870265874946,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1401",
+    "entity_type": "Gene",
+    "entity_name": "CRP",
+    "betweenness_score": 0.02162229976654821,
+    "degree_score": 0,
+    "closeness_score": 0.5745454545454546,
+    "eigenvector_score": 0.1019066818276946,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6356",
+    "entity_type": "Gene",
+    "entity_name": "CCL11",
+    "betweenness_score": 0.002610308780106034,
+    "degree_score": 0,
+    "closeness_score": 0.5429553264604811,
+    "eigenvector_score": 0.15837058523098504,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:48",
+    "entity_type": "Gene",
+    "entity_name": "ACO1",
+    "betweenness_score": 0.000009749870251589718,
+    "degree_score": 0,
+    "closeness_score": 0.4082687338501292,
+    "eigenvector_score": 0.00028082831235582827,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5594",
+    "entity_type": "Gene",
+    "entity_name": "MAPK1",
+    "betweenness_score": 0.019651823972210963,
+    "degree_score": 0,
+    "closeness_score": 0.5766423357664233,
+    "eigenvector_score": 0.11589782882112752,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:7040",
+    "entity_type": "Gene",
+    "entity_name": "TGFB1",
+    "betweenness_score": 0.031386071828262335,
+    "degree_score": 0,
+    "closeness_score": 0.6053639846743295,
+    "eigenvector_score": 0.11364214398158008,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3593",
+    "entity_type": "Gene",
+    "entity_name": "IL12B",
+    "betweenness_score": 0.001039375752455386,
+    "degree_score": 0,
+    "closeness_score": 0.5064102564102564,
+    "eigenvector_score": 0.0685211734133264,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:9575",
+    "entity_type": "Gene",
+    "entity_name": "CLOCK",
+    "betweenness_score": 0.0002466914709487123,
+    "degree_score": 0,
+    "closeness_score": 0.4463276836158192,
+    "eigenvector_score": 0.003523344184694169,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5176",
+    "entity_type": "Gene",
+    "entity_name": "SERPINF1",
+    "betweenness_score": 0.0005699142155237939,
+    "degree_score": 0,
+    "closeness_score": 0.4891640866873065,
+    "eigenvector_score": 0.017260448875276564,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:506",
+    "entity_type": "Gene",
+    "entity_name": "ATP5F1B",
+    "betweenness_score": 0.00012960399824042635,
+    "degree_score": 0,
+    "closeness_score": 0.4463276836158192,
+    "eigenvector_score": 0.011033305979001012,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:55959",
+    "entity_type": "Gene",
+    "entity_name": "SULF2",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.40616966580976865,
+    "eigenvector_score": 0.0008613128350405646,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3627",
+    "entity_type": "Gene",
+    "entity_name": "CXCL10",
+    "betweenness_score": 0.006009831544245313,
+    "degree_score": 0,
+    "closeness_score": 0.5563380281690141,
+    "eigenvector_score": 0.19551019693253666,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5005",
+    "entity_type": "Gene",
+    "entity_name": "ORM2",
+    "betweenness_score": 0.01590580197861902,
+    "degree_score": 0,
+    "closeness_score": 0.4906832298136646,
+    "eigenvector_score": 0.019023094729295795,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:10810",
+    "entity_type": "Gene",
+    "entity_name": "WASF3",
+    "betweenness_score": 0.000026117311055304487,
+    "degree_score": 0,
+    "closeness_score": 0.43646408839779005,
+    "eigenvector_score": 0.00354111900493439,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3553",
+    "entity_type": "Gene",
+    "entity_name": "IL1B",
+    "betweenness_score": 0.060629727548228325,
+    "degree_score": 0,
+    "closeness_score": 0.6448979591836734,
+    "eigenvector_score": 0.19320697572804135,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5045",
+    "entity_type": "Gene",
+    "entity_name": "FURIN",
+    "betweenness_score": 0.0009840943291294672,
+    "degree_score": 0,
+    "closeness_score": 0.4514285714285714,
+    "eigenvector_score": 0.008241750584097603,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3565",
+    "entity_type": "Gene",
+    "entity_name": "IL4",
+    "betweenness_score": 0.0158216178387175,
+    "degree_score": 0,
+    "closeness_score": 0.6007604562737643,
+    "eigenvector_score": 0.2296551949731317,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5054",
+    "entity_type": "Gene",
+    "entity_name": "SERPINE1",
+    "betweenness_score": 0.018029354406425828,
+    "degree_score": 0,
+    "closeness_score": 0.5467128027681661,
+    "eigenvector_score": 0.06906136563432047,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3605",
+    "entity_type": "Gene",
+    "entity_name": "IL17A",
+    "betweenness_score": 0.007981685555556207,
+    "degree_score": 0,
+    "closeness_score": 0.5787545787545788,
+    "eigenvector_score": 0.16285794728445618,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:50937",
+    "entity_type": "Gene",
+    "entity_name": "CDON",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.40616966580976865,
+    "eigenvector_score": 0.000628168733408741,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3574",
+    "entity_type": "Gene",
+    "entity_name": "IL7",
+    "betweenness_score": 0.0015565379615896094,
+    "degree_score": 0,
+    "closeness_score": 0.5392491467576792,
+    "eigenvector_score": 0.15528985585592409,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3586",
+    "entity_type": "Gene",
+    "entity_name": "IL10",
+    "betweenness_score": 0.04069901944478533,
+    "degree_score": 0,
+    "closeness_score": 0.6294820717131474,
+    "eigenvector_score": 0.22215950007638885,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:9712",
+    "entity_type": "Gene",
+    "entity_name": "USP6NL",
+    "betweenness_score": 0.00038302530324675095,
+    "degree_score": 0,
+    "closeness_score": 0.46607669616519176,
+    "eigenvector_score": 0.0061241728633219744,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6402",
+    "entity_type": "Gene",
+    "entity_name": "SELL",
+    "betweenness_score": 0.005816413700837871,
+    "degree_score": 0,
+    "closeness_score": 0.5337837837837838,
+    "eigenvector_score": 0.08350416381021566,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5104",
+    "entity_type": "Gene",
+    "entity_name": "SERPINA5",
+    "betweenness_score": 0.00011709157820889847,
+    "degree_score": 0,
+    "closeness_score": 0.4103896103896104,
+    "eigenvector_score": 0.0005386781478154358,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5465",
+    "entity_type": "Gene",
+    "entity_name": "PPARA",
+    "betweenness_score": 0.003563468839023251,
+    "degree_score": 0,
+    "closeness_score": 0.48466257668711654,
+    "eigenvector_score": 0.04810751349317802,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:2262",
+    "entity_type": "Gene",
+    "entity_name": "GPC5",
+    "betweenness_score": 0.00012202575566578102,
+    "degree_score": 0,
+    "closeness_score": 0.412532637075718,
+    "eigenvector_score": 0.0020854522990492465,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5053",
+    "entity_type": "Gene",
+    "entity_name": "PAH",
+    "betweenness_score": 0.0001888609160624254,
+    "degree_score": 0,
+    "closeness_score": 0.41578947368421054,
+    "eigenvector_score": 0.003421163204929562,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:64766",
+    "entity_type": "Gene",
+    "entity_name": "S100PBP",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.40616966580976865,
+    "eigenvector_score": 0.0007177535300147128,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3458",
+    "entity_type": "Gene",
+    "entity_name": "IFNG",
+    "betweenness_score": 0.03246469234225083,
+    "degree_score": 0,
+    "closeness_score": 0.6147859922178989,
+    "eigenvector_score": 0.19621382223825987,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:596",
+    "entity_type": "Gene",
+    "entity_name": "BCL2",
+    "betweenness_score": 0.010487678462127755,
+    "degree_score": 0,
+    "closeness_score": 0.5429553264604811,
+    "eigenvector_score": 0.08335027985186537,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:567",
+    "entity_type": "Gene",
+    "entity_name": "B2M",
+    "betweenness_score": 0.0012493996860166797,
+    "degree_score": 0,
+    "closeness_score": 0.4891640866873065,
+    "eigenvector_score": 0.023919222901693557,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4846",
+    "entity_type": "Gene",
+    "entity_name": "NOS3",
+    "betweenness_score": 0.0044775531853153095,
+    "degree_score": 0,
+    "closeness_score": 0.5163398692810458,
+    "eigenvector_score": 0.02591521083005105,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:154",
+    "entity_type": "Gene",
+    "entity_name": "ADRB2",
+    "betweenness_score": 0.00859092790755271,
+    "degree_score": 0,
+    "closeness_score": 0.512987012987013,
+    "eigenvector_score": 0.04258524122865988,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:8165",
+    "entity_type": "Gene",
+    "entity_name": "AKAP1",
+    "betweenness_score": 0.000019518631692247425,
+    "degree_score": 0,
+    "closeness_score": 0.42133333333333334,
+    "eigenvector_score": 0.002394299122727077,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:10079",
+    "entity_type": "Gene",
+    "entity_name": "ATP9A",
+    "betweenness_score": 0.000017263189428129413,
+    "degree_score": 0,
+    "closeness_score": 0.4082687338501292,
+    "eigenvector_score": 0.00017953594624169322,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5443",
+    "entity_type": "Gene",
+    "entity_name": "POMC",
+    "betweenness_score": 0.030857569302464666,
+    "degree_score": 0,
+    "closeness_score": 0.572463768115942,
+    "eigenvector_score": 0.106560885211188,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:185",
+    "entity_type": "Gene",
+    "entity_name": "AGTR1",
+    "betweenness_score": 0.0011258625711561565,
+    "degree_score": 0,
+    "closeness_score": 0.5,
+    "eigenvector_score": 0.03302128280528968,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3439",
+    "entity_type": "Gene",
+    "entity_name": "IFNA1",
+    "betweenness_score": 0.007584489423271481,
+    "degree_score": 0,
+    "closeness_score": 0.5486111111111112,
+    "eigenvector_score": 0.11125854261331893,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6041",
+    "entity_type": "Gene",
+    "entity_name": "RNASEL",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.43526170798898073,
+    "eigenvector_score": 0.0033192695213417178,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:7124",
+    "entity_type": "Gene",
+    "entity_name": "TNF",
+    "betweenness_score": 0.0881894648027072,
+    "degree_score": 0,
+    "closeness_score": 0.6528925619834711,
+    "eigenvector_score": 0.20728719569952542,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:1437",
+    "entity_type": "Gene",
+    "entity_name": "CSF2",
+    "betweenness_score": 0.01966424758360024,
+    "degree_score": 0,
+    "closeness_score": 0.572463768115942,
+    "eigenvector_score": 0.1704722013396561,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3976",
+    "entity_type": "Gene",
+    "entity_name": "LIF",
+    "betweenness_score": 0.002919997471962643,
+    "degree_score": 0,
+    "closeness_score": 0.5392491467576792,
+    "eigenvector_score": 0.07812953378614819,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:929",
+    "entity_type": "Gene",
+    "entity_name": "CD14",
+    "betweenness_score": 0.005215212860476956,
+    "degree_score": 0,
+    "closeness_score": 0.531986531986532,
+    "eigenvector_score": 0.06796848851864921,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5468",
+    "entity_type": "Gene",
+    "entity_name": "PPARG",
+    "betweenness_score": 0.010436334670149811,
+    "degree_score": 0,
+    "closeness_score": 0.5180327868852459,
+    "eigenvector_score": 0.059006650865638874,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:4803",
+    "entity_type": "Gene",
+    "entity_name": "NGF",
+    "betweenness_score": 0.007026912209044989,
+    "degree_score": 0,
+    "closeness_score": 0.5429553264604811,
+    "eigenvector_score": 0.05699574713216062,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6279",
+    "entity_type": "Gene",
+    "entity_name": "S100A8",
+    "betweenness_score": 0.0010732767792215995,
+    "degree_score": 0,
+    "closeness_score": 0.4759036144578313,
+    "eigenvector_score": 0.026978200301616972,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:2335",
+    "entity_type": "Gene",
+    "entity_name": "FN1",
+    "betweenness_score": 0.013040520532397334,
+    "degree_score": 0,
+    "closeness_score": 0.5602836879432624,
+    "eigenvector_score": 0.10454873809718541,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3558",
+    "entity_type": "Gene",
+    "entity_name": "IL2",
+    "betweenness_score": 0.0504200288952268,
+    "degree_score": 0,
+    "closeness_score": 0.6422764227642277,
+    "eigenvector_score": 0.1802579877056168,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:7412",
+    "entity_type": "Gene",
+    "entity_name": "VCAM1",
+    "betweenness_score": 0.006642063759551579,
+    "degree_score": 0,
+    "closeness_score": 0.558303886925795,
+    "eigenvector_score": 0.09760259109143367,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3596",
+    "entity_type": "Gene",
+    "entity_name": "IL13",
+    "betweenness_score": 0.0031851358800981206,
+    "degree_score": 0,
+    "closeness_score": 0.5467128027681661,
+    "eigenvector_score": 0.1584829766143369,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5467",
+    "entity_type": "Gene",
+    "entity_name": "PPARD",
+    "betweenness_score": 0.00031782844223087603,
+    "degree_score": 0,
+    "closeness_score": 0.4425770308123249,
+    "eigenvector_score": 0.008838585748918066,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3552",
+    "entity_type": "Gene",
+    "entity_name": "IL1A",
+    "betweenness_score": 0.005282768069694459,
+    "degree_score": 0,
+    "closeness_score": 0.5663082437275986,
+    "eigenvector_score": 0.13975625795462351,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:5196",
+    "entity_type": "Gene",
+    "entity_name": "PF4",
+    "betweenness_score": 0.0031485882207305848,
+    "degree_score": 0,
+    "closeness_score": 0.511326860841424,
+    "eigenvector_score": 0.101939745742661,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3146",
+    "entity_type": "Gene",
+    "entity_name": "HMGB1",
+    "betweenness_score": 0.003742050262804358,
+    "degree_score": 0,
+    "closeness_score": 0.531986531986532,
+    "eigenvector_score": 0.06007700779105962,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3929",
+    "entity_type": "Gene",
+    "entity_name": "LBP",
+    "betweenness_score": 0.00010070310823243587,
+    "degree_score": 0,
+    "closeness_score": 0.47023809523809523,
+    "eigenvector_score": 0.01595492157072549,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3625",
+    "entity_type": "Gene",
+    "entity_name": "INHBB",
+    "betweenness_score": 0,
+    "degree_score": 0,
+    "closeness_score": 0.4388888888888889,
+    "eigenvector_score": 0.0029043592189741453,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:112744",
+    "entity_type": "Gene",
+    "entity_name": "IL17F",
+    "betweenness_score": 0.0005066425767063113,
+    "degree_score": 0,
+    "closeness_score": 0.511326860841424,
+    "eigenvector_score": 0.08790248619745043,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:6280",
+    "entity_type": "Gene",
+    "entity_name": "S100A9",
+    "betweenness_score": 0.0004966197048630246,
+    "degree_score": 0,
+    "closeness_score": 0.4475920679886686,
+    "eigenvector_score": 0.010815561010946445,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:959",
+    "entity_type": "Gene",
+    "entity_name": "CD40LG",
+    "betweenness_score": 0.006506771919360435,
+    "degree_score": 0,
+    "closeness_score": 0.5448275862068965,
+    "eigenvector_score": 0.11240945826761399,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:3454",
+    "entity_type": "Gene",
+    "entity_name": "IFNAR1",
+    "betweenness_score": 0.005220324787905431,
+    "degree_score": 0,
+    "closeness_score": 0.5214521452145214,
+    "eigenvector_score": 0.06516127042572603,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:27087",
+    "entity_type": "Gene",
+    "entity_name": "B3GAT1",
+    "betweenness_score": 0.0004327571275769589,
+    "degree_score": 0,
+    "closeness_score": 0.4606413994169096,
+    "eigenvector_score": 0.017392986103381785,
+    "pagerank_score": 0
+  },
+  {
+    "entity_id": "ENTREZ:2919",
+    "entity_type": "Gene",
+    "entity_name": "CXCL1",
+    "betweenness_score": 0.0056966421745081285,
+    "degree_score": 0,
+    "closeness_score": 0.541095890410959,
+    "eigenvector_score": 0.1513119684767744,
+    "pagerank_score": 0
+  }
+]

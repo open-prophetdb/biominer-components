@@ -35,6 +35,7 @@ import CanvasStatisticsChart from '../CanvasStatisticsChart';
 import StatisticsChart from '../StatisticsChart';
 import SimilarityChart from '../SimilarityChart';
 import GraphTable from './Components/GraphTable';
+import MetricsTable from '../MetricsTable';
 import {
   makeDataSources,
   isUUID,
@@ -51,6 +52,7 @@ import {
   saveLlmResponsesToLocalStorage,
   loadLlmResponsesFromLocalStorage,
   clearLlmResponsesFromLocalStorage,
+  annoEdges,
 } from './utils';
 import { presetLayout, defaultLayout, cleanGraphData } from './utils';
 import GraphStoreTable from '../GraphStoreTable';
@@ -159,6 +161,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
   const [graphFormVisible, setGraphFormVisible] = useState<boolean>(false);
   const [graphFormPayload, setGraphFormPayload] = useState<Record<string, any>>({});
   const [graphTableVisible, setGraphTableVisible] = useState<boolean>(false);
+  const [metricsPanelVisible, setMetricsPanelVisible] = useState<boolean>(false);
   // Such as {subgraph: {uuid: {title: 'xxx', ...}, ...}, node: {uuid: {title: 'xxx', ...}, ...}, edge: {uuid: {title: 'xxx', ...}, ...}}
   const [llmResponse, setLlmResponse] = useState<
     Record<string, LlmResponse & { title: string }> | undefined
@@ -1181,6 +1184,15 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     {graphTableVisible ? 'Hide Graph Table' : 'Show Graph As a Table'}
                   </Button>
                   <Button
+                    className="graph-table-button"
+                    onClick={() => {
+                      setMetricsPanelVisible(!metricsPanelVisible);
+                    }}
+                    icon={metricsPanelVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                  >
+                    {metricsPanelVisible ? 'Hide Metrics Panel' : 'Analyze Subgraph'}
+                  </Button>
+                  <Button
                     className="statistics-button"
                     onClick={() => {
                       setStatisticsPanelVisible(!statisticsPanelVisible);
@@ -1624,6 +1636,23 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     }}
                     edgeStat={edgeStat}
                   />
+                </Moveable>
+              ) : null}
+              {metricsPanelVisible ? (
+                <Moveable
+                  onClose={() => {
+                    setMetricsPanelVisible(false);
+                  }}
+                  width="600px"
+                  minWidth="600px"
+                  minHeight="500px"
+                  height="600px"
+                  maxWidth="80vw"
+                  title="Metrics Panel (Graph Algorithms)"
+                >
+                  <MetricsTable onSelectedRows={(rows) => { }}
+                    edges={annoEdges(edgeDataSources as EdgeAttribute[], nodeDataSources as NodeAttribute[])}>
+                  </MetricsTable>
                 </Moveable>
               ) : null}
               {similarityChartVisible ? (
