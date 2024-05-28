@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkbiominer_components=self.webpackChunkbiominer_components||[]).push([[271],{57271:function(r,t,e){e.r(t),e.d(t,{request:function(){return s}});var n=e(5121),o=localStorage.getItem("token")||"my-token",s=n.Z.create({baseURL:"https://drugs.3steps.cn",timeout:1e5,headers:{Authorization:"Bearer "+o}})}}]);
