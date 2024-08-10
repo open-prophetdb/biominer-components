@@ -11,6 +11,7 @@ import {
   FullscreenExitOutlined,
   FullscreenOutlined,
   SettingOutlined,
+  ThunderboltOutlined,
   CloudUploadOutlined,
   SettingFilled,
   ExclamationCircleOutlined,
@@ -177,6 +178,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
     let edgeStat = stat.find((item) => item.relation_type === edge.reltype);
     if (edgeStat) {
       edge.description = edgeStat.description || '';
+      edge.prompt_template = edgeStat.prompt_template || '';
     }
 
     return edge;
@@ -1188,7 +1190,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = (props) => {
                     onClick={() => {
                       setMetricsPanelVisible(!metricsPanelVisible);
                     }}
-                    icon={metricsPanelVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                    icon={<ThunderboltOutlined />}
                   >
                     {metricsPanelVisible ? 'Hide Metrics Panel' : 'Analyze Subgraph'}
                   </Button>

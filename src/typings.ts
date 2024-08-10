@@ -146,6 +146,7 @@ export type RelationStat = {
   start_entity_type: string;
   end_entity_type: string;
   description?: string;
+  prompt_template?: string;
 };
 
 export type RelationCount = {
@@ -228,8 +229,10 @@ export type GraphEdge = {
   data: EdgeData;
   // Only for explaining the relation type.
   description?: string;
-  // Only for labeling several edges between two nodes.
+  // Only for labeling whether there are multiple edges between two nodes.
   multiple?: boolean;
+  // Only for annotating the edge by LLM model with the prompt.
+  prompt_template?: string;
 };
 
 type EdgeData = {

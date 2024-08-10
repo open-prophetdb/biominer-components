@@ -121,7 +121,8 @@ const calculate_centrality = async (relations: EdgeAttribute[]): Promise<MetricA
   // const filteredRelations = relations.filter(rel =>
   //   rel.source_type === "Gene" || rel.target_type === "Gene"
   // );
-  const result = graph.calculate_centrality(relations);
+  // TODO: In the future, we may want to set the other options for the calculate_centrality function
+  const result = graph.calculate_centrality(relations, undefined);
 
   return result.map((item: any) => {
     return {

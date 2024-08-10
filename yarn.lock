@@ -5069,10 +5069,10 @@ binaryextensions@^2.1.2:
   resolved "https://registry.yarnpkg.com/binaryextensions/-/binaryextensions-2.3.0.tgz#1d269cbf7e6243ea886aa41453c3651ccbe13c22"
   integrity sha512-nAihlQsYGyc5Bwq6+EsubvANYGExeJKHDO3RjnvwU042fawQTQfM3Kxn7IHUXQOz4bzfwsGYYHGSvXyW4zOGLg==
 
-biomedgps-graph@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/biomedgps-graph/-/biomedgps-graph-0.1.0.tgz#bb864f0f4154fb2ea2b3627e839afd9647bdcc67"
-  integrity sha512-wS1F738hXdSCFP8eqBrw0NPHtIKl24GPv9uPPmJ2OEWBYymj5XR5zgGwwJt40aEa59S7GpRURCP7XsbAmct8Sg==
+biomedgps-graph@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/biomedgps-graph/-/biomedgps-graph-0.2.0.tgz#7b8100e86eb89235cb218c7ff5c7553ba2ca9c2a"
+  integrity sha512-NqcNRcLmWenzZFrWkfNhWqpF/XIqVnpa9n46znrYo9lj9AaAZ4p3rGr6h1l2gulbRi5kh5Spv4I6iNbb+zDuhQ==
 
 bit-twiddle@^1.0.0, bit-twiddle@^1.0.2:
   version "1.0.2"

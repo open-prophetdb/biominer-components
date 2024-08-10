@@ -348,6 +348,7 @@ export const saveGraphDataToLocalStorage = (
     currentUUID: currentUUID,
     layout: layout,
   };
+  // TODO: File size limit of localStorage is 5MB, we need to handle the large data
   localStorage.setItem('presetGraphData', JSON.stringify(graphData));
 };
 
