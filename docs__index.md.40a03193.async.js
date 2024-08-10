@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkbiominer_components=self.webpackChunkbiominer_components||[]).push([[935],{36680:function(t,e,_){_.r(e);var s=_(71100),d=_(35532),r=_(37402),u=_(41068),E=_(75208),l=_(67915),M=_(66313),o=_(61748),P=_(67294),n=_(85893);function m(){var i=(0,o.eL)(),D=i.texts;return(0,n.jsx)(o.dY,{children:(0,n.jsx)(n.Fragment,{})})}e.default=m}}]);
